@@ -47,10 +47,9 @@ defmodule Bot.Handler.Music.Player do
     end
   end
 
-  def init({guild_id, shard_id, channel_id}) do
+  def init({guild_id, channel_id}) do
     state = %{
       guild_id: guild_id,
-      shard_id: shard_id,
       # text channel
       channel_id: channel_id,
       queue: :queue.new(),
@@ -198,7 +197,7 @@ defmodule Bot.Handler.Music.Player do
     {:reply, "Shuffled playlist", Map.put(state, :queue, queue)}
   end
 
-  defp play_next(%{queue: queue, guild_id: guild_id, shard_id: shard_id} = state) do
+  defp play_next(%{queue: queue, guild_id: guild_id} = state) do
     with false <- :queue.is_empty(queue),
          queue <- :queue.drop(queue),
          {:value, next} <- :queue.peek(queue) do
@@ -207,12 +206,12 @@ defmodule Bot.Handler.Music.Player do
       {:ok, Map.put(state, :queue, queue)}
     else
       true ->
-        gateway(Bot.Gateway, :voice_state_update, [shard_id, guild_id])
+        gateway(Bot.Gateway, :voice_state_update, [guild_id])
 
         {:error, :empty, state}
 
       :empty ->
-        gateway(Bot.Gateway, :voice_state_update, [shard_id, guild_id])
+        gateway(Bot.Gateway, :voice_state_update, [guild_id])
 
         {:error, :end, state}
     end
