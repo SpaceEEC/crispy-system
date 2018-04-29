@@ -7,7 +7,7 @@ defmodule Bot.Handler.Consumer do
     %{
       id: __MODULE__,
       start: {__MODULE__, :start_link, []},
-      restart: :transient
+      restart: :temporary
     }
   end
 
