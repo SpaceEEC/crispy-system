@@ -25,7 +25,7 @@ defmodule Bot.Handler.Music.Supervisor do
   end
 
   def try_dispatch(other) do
-    Logger.info("[Player]: Recieved other dispatch #{inspect(other)}")
+    #Logger.info("[Player]: Recieved other dispatch #{inspect(other)}")
   end
 
   def start_child({guild_id, _channel_id} = state) do
