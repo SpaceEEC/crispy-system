@@ -3,7 +3,7 @@ defmodule Bot.Handler.Util do
   @rest :rest@localhost
   @cache :cache@localhost
 
-  def gateway(mod, fun, args \\ []), do: :rpc.call(@gateway, mod, fun, args) |> handle_rpc()
+  def gateway(mod, fun, args \\ []), do: :rpc.call(@gateway, mod, fun, args) |> handle_rpc(args)
 
   def rest(fun) when is_atom(fun), do: rest(fun, [])
   def rest(fun, args) when is_atom(fun) and is_list(args), do: rest(Crux.Rest, fun, args)
@@ -11,18 +11,18 @@ defmodule Bot.Handler.Util do
 
   def rest(mod, fun, args) when is_atom(mod) and is_atom(fun) and is_list(args) do
     :rpc.call(@rest, mod, fun, args)
-    |> handle_rpc()
+    |> handle_rpc(args)
   end
 
   def cache(mod, fun, args \\ []) do
     mod = Module.concat(Crux.Cache, mod)
 
     :rpc.call(@cache, mod, fun, args)
-    |> handle_rpc()
+    |> handle_rpc(args)
   end
 
-  def _producers(), do: :rpc.call(@cache, Bot.Cache.Application, :producers, []) |> handle_rpc()
+  def _producers(), do: :rpc.call(@cache, Bot.Cache.Application, :producers, []) |> handle_rpc([])
 
-  defp handle_rpc({:badrpc, reason}), do: raise(inspect(reason))
-  defp handle_rpc(other), do: other
+  defp handle_rpc({:badrpc, reason}, args), do: raise(inspect(args) <> inspect(reason))
+  defp handle_rpc(other, _args), do: other
 end
