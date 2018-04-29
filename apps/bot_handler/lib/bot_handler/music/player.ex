@@ -14,7 +14,7 @@ defmodule Bot.Handler.Music.Player do
     GenServer.start_link(__MODULE__, state, name: name)
   end
 
-  def ensure_started({guild_id, _shard_id, _channel_id} = state) do
+  def ensure_started({guild_id, _channel_id} = state) do
     with {:ok, pid} <- lookup(guild_id) do
       pid
     else
