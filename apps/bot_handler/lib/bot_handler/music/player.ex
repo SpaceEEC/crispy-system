@@ -9,7 +9,7 @@ defmodule Bot.Handler.Music.Player do
 
   @registry Bot.Handler.Music.Registry
 
-  def start_link({guild_id, _shard_id, _channel_id} = state) do
+  def start_link({guild_id, _channel_id} = state) do
     name = {:via, Registry, {@registry, guild_id}}
     GenServer.start_link(__MODULE__, state, name: name)
   end
