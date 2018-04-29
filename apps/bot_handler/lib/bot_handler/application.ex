@@ -6,6 +6,7 @@ defmodule Bot.Handler.Application do
 
   def start(_type, _args) do
     children = [
+      Bot.Handler.Music.Supervisor,
       {Bot.Handler.Consumer.Supervisor, [Bot.Handler.Consumer]}
     ]
 
