@@ -27,6 +27,6 @@ defmodule Bot.Handler.Command.Uptime do
       |> to_string
       |> String.pad_leading(2, "0")
 
-    rest(:create_message, [message, content: "Uptime: #{hours}:#{minutes}:#{seconds}"])
+    rest(:create_message, [message, [content: "Uptime: #{hours}:#{minutes}:#{seconds}"]])
   end
 end
