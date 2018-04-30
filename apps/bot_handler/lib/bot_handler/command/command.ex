@@ -18,7 +18,8 @@ defmodule Bot.Handler.Command do
     "resume" => Bot.Handler.Command.Resume,
     "shuffle" => Bot.Handler.Command.Shuffle,
     "skip" => Bot.Handler.Command.Skip,
-    "stop" => Bot.Handler.Command.Stop
+    "stop" => Bot.Handler.Command.Stop,
+    "uptime" => Bot.Handler.Command.Uptime
   }
 
   def handle(%{content: @prefix <> content} = message) do
