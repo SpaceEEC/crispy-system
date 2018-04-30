@@ -24,7 +24,7 @@ defmodule Bot.Handler.Music.Supervisor do
     end
   end
 
-  def try_dispatch(other) do
+  def try_dispatch(_other) do
     #Logger.info("[Player]: Recieved other dispatch #{inspect(other)}")
   end
 
