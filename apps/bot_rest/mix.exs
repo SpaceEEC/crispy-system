@@ -23,7 +23,7 @@ defmodule Bot.Rest.MixProject do
   end
   defp deps do
     [
-      {:crux_rest, "~> 0.1.0"}
+      {:crux_rest, "~> 0.1.1"}
     ]
   end
 end
