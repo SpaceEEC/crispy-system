@@ -4,40 +4,90 @@ defmodule Bot.Handler.Command.Uptime do
   import Bot.Handler.Util
 
   def handle(message, _args) do
-    {total, _} = :erlang.statistics(:wall_clock)
+    data =
+      [Node.self() | Node.list()]
+      |> fetch_nodes_data()
 
-    total = div(total, 1000)
+    longest =
+      data
+      |> Map.keys()
+      |> Enum.max_by(fn node -> String.length(node) end)
+      |> String.length()
+
+    content = """
+    **Uptime:**
+    ```asciidoc
+    #{
+      Enum.map_join(data, "\n", fn {node, uptime} ->
+        "#{String.pad_trailing(node, longest)} :: #{uptime}"
+      end)
+    }
+    ```
+    """
+
+    :maps
+
+    rest(:create_message, [message, [content: content]])
+  end
+
+  defp fetch_nodes_data(nodes) do
+    nodes
+    |> Map.new(fn node ->
+      uptime =
+        node
+        |> fetch_uptime()
+        |> format_uptime()
+
+      node = format_node_name(node)
+
+      {node, uptime}
+    end)
+  end
+
+  defp fetch_uptime(node) do
+    :rpc.call(node, :erlang, :statistics, [:wall_clock])
+    |> elem(0)
+  end
+
+  defp format_uptime(uptime) do
+    uptime = div(uptime, 1000)
 
     seconds =
-      rem(total, 60)
+      rem(uptime, 60)
       |> to_string
       |> String.pad_leading(2, "0")
 
-    total = div(total, 60)
+    uptime = div(uptime, 60)
 
     minutes =
-      rem(total, 60)
+      rem(uptime, 60)
       |> to_string
       |> String.pad_leading(2, "0")
 
-    total = div(total, 60)
+    uptime = div(uptime, 60)
 
     hours =
-      rem(total, 24)
+      rem(uptime, 24)
       |> to_string
       |> String.pad_leading(2, "0")
 
-    days = div(total, 24)
+    days = div(uptime, 24)
 
     uptime =
       if days == 0 do
-        "Uptime:"
+        ""
       else
-        "Uptime: #{days} days"
+        "#{days} days "
       end
 
-    uptime = "#{uptime} #{hours}:#{minutes}:#{seconds}"
+    "#{uptime}#{hours}:#{minutes}:#{seconds}"
+  end
 
-    rest(:create_message, [message, [content: uptime]])
+  defp format_node_name(node) do
+    node
+    |> to_string()
+    |> String.split("@")
+    |> List.first()
+    |> String.capitalize()
   end
 end
