@@ -183,8 +183,7 @@ defmodule Bot.Handler.Music.Player do
     Lavalink.Payload.stop(guild_id)
     |> Lavalink.Connection.send()
 
-    queue = :queue.new()
-    queue = :queue.in(queue, first)
+    queue = :queue.in(first, :queue.new())
 
     {:reply, "Congratulations, you just killed the party 🎉", Map.put(state, :queue, queue)}
   end
