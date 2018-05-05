@@ -30,7 +30,7 @@ defmodule Bot.Handler.MixProject do
       {:gen_stage, "~> 0.13.1"},
       {:httpoison, "~> 1.1.1"},
       {:websockex, "~> 0.4.1"},
-      {:crux_structs, "~> 0.1.1"}
+      {:crux_structs, "~> 0.1.2"}
     ]
   end
 end
