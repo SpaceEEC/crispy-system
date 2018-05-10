@@ -28,7 +28,7 @@ defmodule Bot.Handler.Command.Play do
 
     case fetch_tracks(identifier) do
       {:ok, []} ->
-        rest(:edit_message, [fetch_message, [content: "Could not find anything"]])
+        rest(:edit_message, [fetch_message, [content: "Could not find anything."]])
 
       {:ok, [track | _rest]} when not playlist ->
         queue([track], message, fetch_message)
