@@ -60,8 +60,8 @@ defmodule Bot.Handler.Lavalink.Connection do
 
   def try_join(_, _, state), do: {:ok, state}
 
-  def terminate(reason, %{shard_id: shard_id}) do
-    Logger.warn("[Crux][Gateway][Shard #{shard_id}]: Terminating duo #{inspect(reason)}")
+  def terminate(reason, _state) do
+    Logger.warn("[Lavalink]: Terminating duo #{inspect(reason)}")
   end
 
   def handle_cast({:store, %VoiceState{guild_id: guild_id} = voice_state}, state),
@@ -94,6 +94,16 @@ defmodule Bot.Handler.Lavalink.Connection do
   def handle_disconnect(%{reason: {:remote, code, reason}}, state) do
     Logger.warn("[Lavalink]: Disconnected: #{code} - #{reason}")
 
+    {:reconnect, state}
+  end
+
+  def handle_disconnect(%{reason: other}, state) do
+    Logger.warn("[Lavalink]: Terminating duo #{inspect(other)}")
+    {:reconnect, state}
+  end
+
+  def handle_disconnect(other, state) do
+    Logger.warn("[Lavalink]: Terminating duo #{inspect(other)}")
     {:reconnect, state}
   end
 
