@@ -30,6 +30,7 @@ defmodule Bot.Handler.MixProject do
       {:gen_stage, "~> 0.13.1"},
       {:httpoison, "~> 1.1.1"},
       {:websockex, "~> 0.4.1"},
+      {:sentry, "~> 6.2.1"},
       {:crux_structs, git: "http://github.com/spaceeec/crux_structs", override: true},
       #{:crux_structs, "~> 0.1.2"}
     ]

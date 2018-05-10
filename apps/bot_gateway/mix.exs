@@ -23,6 +23,7 @@ defmodule Bot.Gateway.MixProject do
 
   defp deps do
     [
+      {:sentry, "~> 6.2.1"},
       {:crux_gateway, "~> 0.1.0"}
     ]
   end

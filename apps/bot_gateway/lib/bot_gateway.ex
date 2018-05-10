@@ -4,6 +4,8 @@ defmodule Bot.Gateway do
   @rest :rest@localhost
 
   def start do
+    :ok = :error_logger.add_report_handler(Sentry.Logger)
+
     {:ok, %{"shards" => shard_count, "url" => url}} =
       :rpc.call(@rest, Crux.Rest, :gateway_bot, [])
 

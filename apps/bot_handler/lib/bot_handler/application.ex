@@ -5,6 +5,8 @@ defmodule Bot.Handler.Application do
   import Bot.Handler.Util, only: [cache: 3]
 
   def start(_type, _args) do
+    :ok = :error_logger.add_report_handler(Sentry.Logger)
+
     children = [
       Bot.Handler.Music.Supervisor,
       {Bot.Handler.Consumer.Supervisor, [Bot.Handler.Consumer]}

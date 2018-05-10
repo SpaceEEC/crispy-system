@@ -23,8 +23,9 @@ defmodule Bot.Cache.MixProject do
 
   defp deps do
     [
-      {:crux_cache, "~> 0.1.0"},
+      {:crux_cache, git: "http://github.com/spaceeec/crux_cache", override: true},
       {:crux_structs, git: "http://github.com/spaceeec/crux_structs", override: true},
+      {:sentry, "~> 6.2.1"},
       {:gen_stage, "~> 0.13.1"}
     ]
   end

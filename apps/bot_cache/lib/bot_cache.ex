@@ -7,6 +7,8 @@ defmodule Bot.Cache.Application do
   @registry Bot.Cache.Registry
 
   def start(_type, _args) do
+    :ok = :error_logger.add_report_handler(Sentry.Logger)
+
     with {:badrpc, reason} <- :rpc.call(@gateway, Bot.Gateway, :start, []) do
       raise inspect(reason)
     end
