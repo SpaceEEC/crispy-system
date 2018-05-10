@@ -5,6 +5,12 @@ defmodule Bot.Handler.Command.Pause do
 
   import Bot.Handler.Util
 
+  def inhibit(%{guild_id: nil} = message, _) do
+    rest(:create_message, [message, [content: "That command may not be used in dms."]])
+  end
+
+  def inhibit(_message, _args), do: true
+
   def handle(%{author: %{id: user_id}} = message, _args) do
     channel = cache(Channel, :fetch!, [message.channel_id])
     guild = cache(Guild, :fetch!, [channel.guild_id])

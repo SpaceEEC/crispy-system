@@ -7,6 +7,16 @@ defmodule Bot.Handler.Command.Play do
 
   import Bot.Handler.Util
 
+  def inhibit(%{guild_id: nil} = message, _) do
+    rest(:create_message, [message, [content: "That command may not be used in dms."]])
+  end
+
+  def inhibit(message, []) do
+    rest(:create_message, [message, [content: "You have to give me a url, or something to search for."]])
+  end
+
+  def inhibit(_message, _args), do: true
+
   def handle(message, args) do
     {:ok, fetch_message} = rest(:create_message, [message, [content: "Fetching..."]])
 

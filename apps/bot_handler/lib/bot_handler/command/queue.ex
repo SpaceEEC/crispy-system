@@ -6,6 +6,12 @@ defmodule Bot.Handler.Command.Queue do
 
   import Bot.Handler.Util
 
+  def inhibit(%{guild_id: nil} = message, _) do
+    rest(:create_message, [message, [content: "That command may not be used in dms."]])
+  end
+
+  def inhibit(_message, _args), do: true
+
   def handle(message, []), do: handle(message, ["1"])
 
   def handle(message, [page | _rest]) do
