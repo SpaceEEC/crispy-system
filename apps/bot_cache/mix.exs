@@ -2,9 +2,13 @@ defmodule Bot.Cache.MixProject do
   use Mix.Project
 
   def project do
+    {result, _exit_code} = System.cmd("git", ["rev-parse", "HEAD"])
+
+    git_sha = String.slice(result, 0, 7)
+
     [
       app: :bot_cache,
-      version: "0.1.0",
+      version: "0.1.0-#{git_sha}",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
