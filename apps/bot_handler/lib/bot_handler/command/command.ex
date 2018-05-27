@@ -13,6 +13,7 @@ defmodule Bot.Handler.Command do
     "loop" => Bot.Handler.Command.Loop,
     "np" => Bot.Handler.Command.NowPlaying,
     "pause" => Bot.Handler.Command.Pause,
+    "ping" => Bot.Handler.Command.Ping,
     "play" => Bot.Handler.Command.Play,
     "queue" => Bot.Handler.Command.Queue,
     "resume" => Bot.Handler.Command.Resume,
