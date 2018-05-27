@@ -3,7 +3,7 @@ defmodule Bot.Cache.Application do
 
   use Application
 
-  @gateway :gateway@localhost
+  @gateway :"gateway@127.0.0.1"
   @registry Bot.Cache.Registry
 
   def start(_type, _args) do

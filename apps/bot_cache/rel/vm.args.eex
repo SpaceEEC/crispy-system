@@ -1,1 +1,1 @@
--name cache@localhost
+-name cache@127.0.0.1

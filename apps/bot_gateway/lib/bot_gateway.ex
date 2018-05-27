@@ -1,7 +1,7 @@
 defmodule Bot.Gateway do
   alias Crux.Gateway
 
-  @rest :rest@localhost
+  @rest :"rest@127.0.0.1"
 
   def start do
     :ok = :error_logger.add_report_handler(Sentry.Logger)

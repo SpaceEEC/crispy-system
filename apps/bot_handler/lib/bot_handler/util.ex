@@ -1,7 +1,7 @@
 defmodule Bot.Handler.Util do
-  @gateway :gateway@localhost
-  @rest :rest@localhost
-  @cache :cache@localhost
+  @gateway :"gateway@127.0.0.1"
+  @rest :"rest@127.0.0.1"
+  @cache :"cache@127.0.0.1"
 
   def gateway(mod, fun, args \\ []), do: :rpc.call(@gateway, mod, fun, args) |> handle_rpc(args)
 
