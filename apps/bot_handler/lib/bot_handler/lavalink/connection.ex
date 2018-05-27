@@ -97,13 +97,9 @@ defmodule Bot.Handler.Lavalink.Connection do
     {:reconnect, state}
   end
 
-  def handle_disconnect(%{reason: other}, state) do
-    Logger.warn("[Lavalink]: Terminating duo #{inspect(other)}")
-    {:reconnect, state}
-  end
-
   def handle_disconnect(other, state) do
-    Logger.warn("[Lavalink]: Terminating duo #{inspect(other)}")
+    Logger.warn("[Lavalink]: Terminating due to #{inspect(other)}; Reconnecting in 5 seconds.")
+    :timer.sleep(5000)
     {:reconnect, state}
   end
 
