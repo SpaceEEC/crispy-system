@@ -4,7 +4,7 @@ defmodule Bot.Handler.Command do
 
   @optional_callbacks inhibit: 2
 
-  @prefix "ß"
+  @prefix "^"
   @commands %{
     # TODO: Aliases
     "eval" => Bot.Handler.Command.Eval,

@@ -23,8 +23,9 @@ defmodule Bot.Gateway.MixProject do
 
   defp deps do
     [
+      {:crux_gateway, git: "http://github.com/spaceeec/crux_gateway", override: true},
       {:sentry, "~> 6.2.1"},
-      {:crux_gateway, "~> 0.1.0"}
+      {:distillery, "~> 1.5.2", runtime: false}
     ]
   end
 end
