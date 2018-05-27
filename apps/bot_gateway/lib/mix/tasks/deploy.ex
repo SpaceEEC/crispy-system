@@ -51,29 +51,20 @@ defmodule Mix.Tasks.Deploy do
     end
 
     def deploy_release(config) do
-      ts = create_timestamp()
-
-      release_dir = Path.join(config.release_base, ts)
-      Mix.shell.info "Deploying release to #{release_dir}"
-      File.mkdir_p!(release_dir)
+      Mix.shell.info "Deploying release to #{config.deploy_dir}"
+      File.mkdir_p!(config.deploy_dir)
 
       Mix.shell.info "Extracting tarball #{config.tarball}"
-      :ok = :erl_tar.extract(config.tarball, [{:cwd, release_dir}, :compressed])
-
-      current_link = config.current_link
-      if File.exists?(current_link) do
-        File.rm!(current_link)
-      end
-      File.ln_s(release_dir, current_link)
+      :ok = :erl_tar.extract(config.tarball, [{:cwd, config.deploy_dir}, :compressed])
 
       nil
     end
 
-    def create_timestamp do
-      {{year, month, day}, {hour, minute, second}} = :calendar.now_to_universal_time(:os.timestamp())
-      timestamp = :io_lib.format("~4..0B~2..0B~2..0B~2..0B~2..0B~2..0B", [year, month, day, hour, minute, second])
-      timestamp |> List.flatten |> to_string
-    end
+    # def create_timestamp do
+      # {{year, month, day}, {hour, minute, second}} = :calendar.now_to_universal_time(:os.timestamp())
+      # timestamp = :io_lib.format("~4..0B~2..0B~2..0B~2..0B~2..0B~2..0B", [year, month, day, hour, minute, second])
+      # timestamp |> List.flatten |> to_string
+    # end
 
     # There is a problem the startup scripts if the path includes ":" chars
     # def create_timestamp do
@@ -90,8 +81,6 @@ defmodule Mix.Tasks.Deploy do
       version = Mix.Project.config[:version]
       deploy_base = Mix.Project.config[:deploy_base] || "/opt"
       deploy_dir = Mix.Project.config[:deploy_dir] || Path.join(deploy_base, app_name)
-      release_base = Path.join(deploy_dir, "releases")
-      current_link = Path.join(deploy_dir, "current")
       tarball = Path.join(["..", "..", "_build", to_string(Mix.env), "rel",
                            app_name, "releases", version, "#{app_name}.tar.gz"])
 
@@ -99,8 +88,6 @@ defmodule Mix.Tasks.Deploy do
         app_name: app_name,
         deploy_base: deploy_base,
         deploy_dir: deploy_dir,
-        release_base: release_base,
-        current_link: current_link,
         tarball: tarball
       }
 
