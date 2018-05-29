@@ -9,7 +9,7 @@ defmodule Bot.Cache.Consumer do
   alias Crux.Cache
 
   alias Crux.Structs
-  alias Crux.Structs.{Channel, Emoji, Guild, Member, Message, Role, User, VoiceState}
+  alias Crux.Structs.{Channel, Emoji, Guild, Member, Message, Role, User, Util, VoiceState}
 
   @registry Bot.Cache.Registry
 
