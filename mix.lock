@@ -1,6 +1,7 @@
 %{
   "certifi": {:hex, :certifi, "2.3.1", "d0f424232390bf47d82da8478022301c561cf6445b5b5fb6a84d49a9e76d2639", [:rebar3], [{:parse_trans, "3.2.0", [hex: :parse_trans, repo: "hexpm", optional: false]}], "hexpm"},
   "combine": {:hex, :combine, "0.10.0", "eff8224eeb56498a2af13011d142c5e7997a80c8f5b97c499f84c841032e429f", [:mix], [], "hexpm"},
+  "crux_base": {:git, "https://github.com/spaceeec/crux_base", "f223c99ec5db5697ce97f83c3b2a1f18585dd8a3", []},
   "crux_cache": {:git, "http://github.com/spaceeec/crux_cache", "681ccfcecb7e533a33fd8be7e372ed5186957800", []},
   "crux_gateway": {:git, "http://github.com/spaceeec/crux_gateway", "150a30eedc93ac71c19b4837435551802596814a", []},
   "crux_rest": {:git, "http://github.com/spaceeec/crux_rest", "0407e38000c75f4c5862475b1abdc55dc3eca4ab", []},
