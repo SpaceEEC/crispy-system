@@ -1,8 +1,7 @@
 defmodule Bot.Handler.Command.Queue do
   @behaviour Bot.Handler.Command
 
-  alias Bot.Handler.Music.Player
-  alias Bot.Handler.Music.Util
+  alias Bot.Handler.Music.{Player, Util}
 
   import Bot.Handler.Util
 

@@ -12,7 +12,10 @@ defmodule Bot.Handler.Command.Play do
   end
 
   def inhibit(message, []) do
-    rest(:create_message, [message, [content: "You have to give me a url, or something to search for."]])
+    rest(:create_message, [
+      message,
+      [content: "You have to give me a url, or something to search for."]
+    ])
   end
 
   def inhibit(_message, _args), do: true

@@ -3,7 +3,7 @@
   "combine": {:hex, :combine, "0.10.0", "eff8224eeb56498a2af13011d142c5e7997a80c8f5b97c499f84c841032e429f", [:mix], [], "hexpm"},
   "crux_base": {:git, "https://github.com/spaceeec/crux_base", "f223c99ec5db5697ce97f83c3b2a1f18585dd8a3", []},
   "crux_cache": {:git, "http://github.com/spaceeec/crux_cache", "681ccfcecb7e533a33fd8be7e372ed5186957800", []},
-  "crux_gateway": {:git, "http://github.com/spaceeec/crux_gateway", "150a30eedc93ac71c19b4837435551802596814a", []},
+  "crux_gateway": {:git, "http://github.com/spaceeec/crux_gateway", "af2fb5f377cd997579d18dfad0ba7615479aa6f1", []},
   "crux_rest": {:git, "http://github.com/spaceeec/crux_rest", "0407e38000c75f4c5862475b1abdc55dc3eca4ab", []},
   "crux_structs": {:git, "http://github.com/spaceeec/crux_structs", "40dd7125e036a577090e96cccfa4dfdc61e2d3ee", []},
   "distillery": {:hex, :distillery, "1.5.2", "eec18b2d37b55b0bcb670cf2bcf64228ed38ce8b046bb30a9b636a6f5a4c0080", [:mix], [], "hexpm"},

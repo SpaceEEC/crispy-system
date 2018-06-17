@@ -21,6 +21,7 @@ defmodule Bot.Gateway.MixProject do
 
   def application do
     [
+      mod: {Bot.Gateway, []},
       extra_applications: [:crux_gateway]
     ]
   end

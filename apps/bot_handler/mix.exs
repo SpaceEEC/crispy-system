@@ -23,7 +23,7 @@ defmodule Bot.Handler.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {Bot.Handler.Application, []}
+      mod: {Bot.Handler, []}
     ]
   end
 

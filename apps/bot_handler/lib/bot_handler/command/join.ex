@@ -1,7 +1,7 @@
 defmodule Bot.Handler.Command.Join do
   @behaviour Bot.Handler.Command
 
-  alias Crux.Structs.VoiceState
+  alias Crux.Structs.{Message, VoiceState}
 
   import Bot.Handler.Util
 
@@ -11,7 +11,7 @@ defmodule Bot.Handler.Command.Join do
 
   def inhibit(_message, _args), do: true
 
-  def handle(%{author: %{id: user_id}} = message, _args) do
+  def handle(%Message{author: %{id: user_id}} = message, _args) do
     channel = cache(Channel, :fetch!, [message.channel_id])
     guild = cache(Guild, :fetch!, [channel.guild_id])
 

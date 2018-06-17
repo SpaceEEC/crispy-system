@@ -3,16 +3,28 @@ defmodule Bot.Gateway do
 
   @rest :"rest@127.0.0.1"
 
-  def start do
+  def start(_type, _args) do
     :ok = :error_logger.add_report_handler(Sentry.Logger)
 
-    {:ok, %{"shards" => shard_count, "url" => url}} =
-      :rpc.call(@rest, Crux.Rest, :gateway_bot, [])
+    case Node.ping(@rest) do
+      :pong ->
+        {:ok, %{"shards" => shard_count, "url" => url}} =
+          :rpc.call(@rest, Crux.Rest, :gateway_bot, [])
 
-    Gateway.start(%{
-      shard_count: shard_count,
-      url: url
-    })
+        Gateway.start(%{
+          shard_count: shard_count,
+          url: url
+        })
+
+        {:ok, spawn(fn -> receive after: (:infinity -> :ok) end)}
+
+      :pang ->
+        {:error, :rest_not_started}
+    end
+  end
+
+  def stop(_) do
+    :application.stop(:crux_gateway)
   end
 
   def voice_state_update(guild_id, channel_id \\ 2, states \\ []) do

@@ -6,9 +6,19 @@ defmodule Bot.Handler.Consumer.Supervisor do
   end
 
   def init(children) do
-    producers = Bot.Handler.Util._producers() |> Map.values()
-    opts = [strategy: :one_for_one, subscribe_to: producers]
+    alias Bot.Handler.Util
 
-    ConsumerSupervisor.init(children, opts)
+    if Util._cache_alive?() do
+      producers = Util._producers() |> Map.values()
+      opts = [strategy: :one_for_one, subscribe_to: producers]
+
+      ConsumerSupervisor.init(children, opts)
+    else
+      require Logger
+
+      Logger.warn("[Bot][Handler][Consumer][Supervisor]: Cache is down, waiting 10 seconds.")
+      Process.sleep(10_000)
+      init(children)
+    end
   end
 end

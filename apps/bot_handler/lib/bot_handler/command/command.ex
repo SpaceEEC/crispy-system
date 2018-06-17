@@ -1,6 +1,6 @@
 defmodule Bot.Handler.Command do
-  @callback inhibit(Crux.Structs.Message, map()) :: boolean()
-  @callback handle(Crux.Structs.Message, map()) :: term()
+  @callback inhibit(Crux.Structs.Message, [String.t()]) :: boolean()
+  @callback handle(Crux.Structs.Message, [String.t()]) :: term()
 
   @optional_callbacks inhibit: 2
 

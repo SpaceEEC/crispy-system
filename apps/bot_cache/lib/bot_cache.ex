@@ -9,29 +9,30 @@ defmodule Bot.Cache.Application do
   def start(_type, _args) do
     :ok = :error_logger.add_report_handler(Sentry.Logger)
 
-    with {:badrpc, reason} <- :rpc.call(@gateway, Bot.Gateway, :start, []) do
-      raise inspect(reason)
+    case Node.ping(@gateway) do
+      :pong ->
+        children =
+          for {shard_id, _pid} <- :rpc.call(@gateway, Crux.Gateway.Connection.Producer, :producers, []) do
+            [
+              Supervisor.child_spec(
+                {Bot.Cache.Consumer, shard_id},
+                id: "consumer_#{shard_id}"
+              ),
+              Supervisor.child_spec(
+                {Bot.Cache.Producer, shard_id},
+                id: "producer_#{shard_id}"
+              )
+            ]
+          end
+          |> Enum.flat_map(fn element -> element end)
+
+        children = [{Registry, keys: :unique, name: @registry} | children]
+
+        Supervisor.start_link(children, strategy: :one_for_one, name: Bot.Cache.Supervisor)
+
+      :pang ->
+        {:error, :gateway_not_started}
     end
-
-    children =
-      for {shard_id, producer} <-
-            :rpc.call(@gateway, Crux.Gateway.Connection.Producer, :producers, []) do
-        [
-          Supervisor.child_spec(
-            {Bot.Cache.Consumer, {shard_id, producer}},
-            id: "consumer_#{shard_id}"
-          ),
-          Supervisor.child_spec(
-            {Bot.Cache.Producer, shard_id},
-            id: "producer_#{shard_id}"
-          )
-        ]
-      end
-      |> Enum.flat_map(fn element -> element end)
-
-    children = [{Registry, keys: :unique, name: @registry} | children]
-
-    Supervisor.start_link(children, strategy: :one_for_one, name: Bot.Cache.Supervisor)
   end
 
   def producers do

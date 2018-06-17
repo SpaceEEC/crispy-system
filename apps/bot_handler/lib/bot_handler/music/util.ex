@@ -1,5 +1,4 @@
 defmodule Bot.Handler.Music.Util do
-
   import Bot.Handler.Util
 
   def build_embed(track, author, type, loop \\ false)
@@ -14,9 +13,10 @@ defmodule Bot.Handler.Music.Util do
       type
       |> type_data()
 
-    loop = if loop,
-    do: "**Loop is enabled**",
-    else: ""
+    loop =
+      if loop,
+        do: "**Loop is enabled**",
+        else: ""
 
     me = cache(User, :me!)
 

@@ -25,6 +25,7 @@ defmodule Bot.Rest.MixProject do
       extra_applications: [:crux_rest]
     ]
   end
+
   defp deps do
     [
       {:crux_rest, git: "http://github.com/spaceeec/crux_rest", override: true},

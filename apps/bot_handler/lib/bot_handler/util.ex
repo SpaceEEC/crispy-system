@@ -3,6 +3,7 @@ defmodule Bot.Handler.Util do
   @rest :"rest@127.0.0.1"
   @cache :"cache@127.0.0.1"
 
+
   def gateway(mod, fun, args \\ []), do: :rpc.call(@gateway, mod, fun, args) |> handle_rpc(args)
 
   def rest(fun) when is_atom(fun), do: rest(fun, [])
@@ -21,6 +22,7 @@ defmodule Bot.Handler.Util do
     |> handle_rpc(args)
   end
 
+  def _cache_alive?(), do: Node.ping(@cache) == :pong
   def _producers(), do: :rpc.call(@cache, Bot.Cache.Application, :producers, []) |> handle_rpc([])
 
   defp handle_rpc({:badrpc, reason}, args), do: raise(inspect(args) <> inspect(reason))
