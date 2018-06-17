@@ -63,6 +63,7 @@ defmodule Bot.Handler.Command.Play do
             nil
           else
             [
+              content: "",
               embed:
                 tracks
                 |> List.first()
