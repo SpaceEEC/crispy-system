@@ -27,7 +27,7 @@ defmodule Bot.Gateway do
     :application.stop(:crux_gateway)
   end
 
-  def voice_state_update(guild_id, channel_id \\ 2, states \\ []) do
+  def voice_state_update(guild_id, channel_id \\ nil, states \\ []) do
     use Bitwise
 
     shard_count = Application.fetch_env!(:crux_gateway, :shard_count)
