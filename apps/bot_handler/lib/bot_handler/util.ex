@@ -3,7 +3,6 @@ defmodule Bot.Handler.Util do
   @rest :"rest@127.0.0.1"
   @cache :"cache@127.0.0.1"
 
-
   def gateway(mod, fun, args \\ []), do: :rpc.call(@gateway, mod, fun, args) |> handle_rpc(args)
 
   def rest(fun) when is_atom(fun), do: rest(fun, [])
