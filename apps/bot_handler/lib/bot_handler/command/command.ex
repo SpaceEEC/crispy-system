@@ -10,7 +10,7 @@ defmodule Bot.Handler.Command do
 
   @optional_callbacks aliases: 0, inhibit: 2, fetch: 2, respond: 2
 
-  @prefix "^"
+  @prefix "ß"
 
   alias Bot.Handler.Command.Commands
 
