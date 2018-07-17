@@ -41,18 +41,18 @@ defmodule Bot.Handler.Command.Misc.Avatar do
   def process(_message, %Crux.Structs.User{} = user) do
     avatar_url = rest(Crux.Rest.CDN, :user_avatar, [user, [size: 2048]])
     %{body: avatar} = Bot.Handler.Rest.get!(avatar_url)
-    file_name = ("avatar" <> avatar_url) |> Path.extname() |> String.split("?") |> List.first()
+    extension = avatar_url |> Path.extname() |> String.split("?") |> List.first()
 
     embed = %{
       author: %{
         name: "#{user.username}##{user.discriminator} (#{user.id})"
       },
       image: %{
-        url: "attachment://#{file_name}"
+        url: "attachment://avatar#{extension}"
       }
     }
 
-    files = [{avatar, file_name}]
+    files = [{avatar, "avatar" <> extension}]
 
     {:respond, [files: files, embed: embed]}
   end
