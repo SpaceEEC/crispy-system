@@ -44,9 +44,9 @@ defmodule Bot.Handler.Command.Music.Play do
 
     res =
       case will_connect(voice_states, own_id, user_id) do
-        channel_id when is_number(channel_id) ->
-          if channel_id != 0 do
-            gateway(Bot.Gateway, :voice_state_update, [guild_id, channel_id])
+        voice_channel_id when is_number(voice_channel_id) ->
+          if voice_channel_id != 0 do
+            gateway(Bot.Gateway, :voice_state_update, [guild_id, voice_channel_id])
           end
 
           Player.ensure_started({guild_id, channel_id})
