@@ -11,7 +11,7 @@ defmodule Bot.Handler.Command.Music.Skip do
 
   def inhibit(_message, _args), do: true
 
-  def fetch(%{guild_id: guild_id}) do
+  def fetch(%{guild_id: guild_id}, _args) do
     guild = cache(Guild, :fetch!, [guild_id])
     %{id: own_id} = cache(User, :me!)
     {:ok, {own_id, guild}}
