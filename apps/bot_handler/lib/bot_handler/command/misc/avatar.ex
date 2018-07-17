@@ -38,7 +38,7 @@ defmodule Bot.Handler.Command.Misc.Avatar do
     end
   end
 
-  def process(_message, [%Crux.Structs.User{} = user]) do
+  def process(_message, %Crux.Structs.User{} = user) do
     avatar_url = rest(Crux.Rest.CDN, :user_avatar, [user, [size: 2048]])
     %{body: avatar} = Bot.Handler.Rest.get!(avatar_url)
     file_name = ("avatar" <> avatar_url) |> Path.extname() |> String.split("?") |> List.first()
