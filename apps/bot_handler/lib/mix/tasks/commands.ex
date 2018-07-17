@@ -16,35 +16,45 @@ defmodule Mix.Tasks.Commands do
 
   def run(_args) do
     [commands, aliases] =
-      [".", "lib", "bot_handler", "command", "*.ex"]
+      [".", "lib", "bot_handler", "command", "*", "*.ex"]
       |> Path.join()
       |> Path.wildcard()
-      |> Enum.map(fn file ->
-        file
-        |> Path.basename(".ex")
-        |> String.split("_")
-        |> Enum.map_join("", &String.capitalize/1)
-      end)
-      |> Enum.filter(fn name ->
-        name != "Commands" && Module.concat(Bot.Handler.Command, name) |> Code.ensure_loaded?()
+      |> Enum.map(fn "lib/bot_handler/command/" <> path ->
+        path
+        |> Path.split()
+        |> Enum.reverse()
+        |> correct_path()
       end)
       |> Enum.reduce([%{}, %{}], fn name, [cmds, aliases] ->
         module = Module.concat(Bot.Handler.Command, name)
-        name = String.downcase(name)
 
-        cmds = Map.put(cmds, name, module)
+        cond do
+          Code.ensure_loaded?(module) ->
+            name =
+              name
+              |> String.split(".")
+              |> List.last()
+              |> String.downcase()
 
-        c_aliases =
-          if function_exported?(module, :aliases, 0) do
-            module.aliases()
-            |> Map.new(&{&1, module})
-          else
-            %{}
-          end
+            cmds = Map.put(cmds, name, module)
 
-        aliases = Map.merge(aliases, c_aliases, &raise_duplicate/3)
+            new_aliases =
+              if function_exported?(module, :aliases, 0) do
+                module.aliases()
+                |> Map.new(&{&1, module})
+              else
+                %{}
+              end
 
-        [cmds, aliases]
+            aliases = Map.merge(aliases, new_aliases, &raise_on_duplicate/3)
+
+            [cmds, aliases]
+
+          true ->
+            Mix.shell().info("Skipping #{inspect(module)} since it was not found.")
+
+            [cmds, aliases]
+        end
       end)
       |> Enum.map(&inspect(&1, pretty: true))
       |> Enum.map(&String.replace(&1, "\n", "\n  "))
@@ -60,7 +70,16 @@ defmodule Mix.Tasks.Commands do
     |> File.write!(content)
   end
 
-  defp raise_duplicate(alias_, mod1, mod2) do
+  defp correct_path([file | path]) do
+    file = file |> Path.basename(".ex") |> Macro.camelize()
+    [head | _tails] = path = Enum.map(path, &String.capitalize/1)
+
+    if(head == file, do: path, else: [file | path])
+    |> Enum.reverse()
+    |> Enum.join(".")
+  end
+
+  defp raise_on_duplicate(alias_, mod1, mod2) do
     raise "Duplicated alias \"#{alias_}\" for modules: \"#{inspect(mod1)}\" and \"#{inspect(mod2)}\"!"
   end
 end

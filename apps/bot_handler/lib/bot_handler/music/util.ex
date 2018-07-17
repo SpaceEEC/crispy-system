@@ -45,6 +45,16 @@ defmodule Bot.Handler.Music.Util do
     )
   end
 
+  defp type_data("save") do
+    %{
+      color: 0x7EB7E4,
+      description: "💾",
+      footer: %{
+        text: "saved, just for you."
+      }
+    }
+  end
+
   defp type_data("play") do
     %{
       color: 0x00FF08,

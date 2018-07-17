@@ -1,24 +1,22 @@
-defmodule Bot.Handler.Command.Queue do
+defmodule Bot.Handler.Command.Music.Queue do
   @behaviour Bot.Handler.Command
 
   alias Bot.Handler.Music.{Player, Util}
 
   import Bot.Handler.Util
 
-  def inhibit(%{guild_id: nil} = message, _) do
-    rest(:create_message, [message, [content: "That command may not be used in dms."]])
+  def inhibit(%{guild_id: nil}, _args) do
+    {:respond, "That command may not be used in dms."}
   end
 
   def inhibit(_message, _args), do: true
 
-  def handle(message, []), do: handle(message, ["1"])
+  def process(message, []), do: process(message, ["1"])
 
-  def handle(message, [page | _rest]) do
-    channel = cache(Channel, :fetch!, [message.channel_id])
-
-    case Player.command(channel.guild_id, :queue) do
+  def process(%{guild_id: guild_id}, [page | _rest]) do
+    case Player.command(guild_id, :queue) do
       not_playing when is_bitstring(not_playing) ->
-        rest(:create_message, [message, [content: not_playing]])
+        {:respond, not_playing}
 
       %{queue: queue, position: current_time, loop: loop} ->
         total_songs = :queue.len(queue)
@@ -86,7 +84,7 @@ defmodule Bot.Handler.Command.Queue do
           timestamp: DateTime.utc_now() |> DateTime.to_iso8601()
         }
 
-        rest(:create_message, [message, [embed: embed]])
+        {:respond, [embed: embed]}
     end
   end
 

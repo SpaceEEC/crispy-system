@@ -1,28 +1,21 @@
-defmodule Bot.Handler.Command.Play do
+defmodule Bot.Handler.Command.Music.Play do
   @behaviour Bot.Handler.Command
 
-  alias Crux.Structs
-
-  alias Bot.Handler.Music
+  alias Bot.Handler.Music.{Player, Util}
 
   import Bot.Handler.Util
 
-  def inhibit(%{guild_id: nil} = message, _) do
-    rest(:create_message, [message, [content: "That command may not be used in dms."]])
+  def inhibit(%{guild_id: nil}, _args) do
+    {:respond, "That command may not be used in dms."}
   end
 
-  def inhibit(message, []) do
-    rest(:create_message, [
-      message,
-      [content: "You have to give me a url, or something to search for."]
-    ])
+  def inhibit(_message, []) do
+    {:respond, "You have to give me a url, or something to search for."}
   end
 
   def inhibit(_message, _args), do: true
 
-  def handle(message, args) do
-    {:ok, fetch_message} = rest(:create_message, [message, [content: "Fetching..."]])
-
+  def process(message, args) do
     {identifier, playlist} =
       args
       |> Enum.join(" ")
@@ -31,44 +24,43 @@ defmodule Bot.Handler.Command.Play do
 
     case fetch_tracks(identifier) do
       {:ok, []} ->
-        rest(:edit_message, [fetch_message, [content: "Could not find anything."]])
+        {:respond, "Could not find anything."}
 
       {:ok, [track | _rest]} when not playlist ->
-        queue([track], message, fetch_message)
+        queue([track], message)
 
       {:ok, tracks} when playlist ->
-        queue(tracks, message, fetch_message)
+        queue(tracks, message)
 
       {:error, error} ->
-        rest(:edit_message, [fetch_message, [content: Exception.format(:error, error)]])
+        {:respond, Exception.format(:error, error)}
     end
   end
 
-  defp queue(tracks, %{author: %{id: user_id} = author}, fetch_message) do
-    channel = cache(Channel, :fetch!, [fetch_message.channel_id])
-    guild = cache(Guild, :fetch!, [channel.guild_id])
+  defp queue(tracks, %{author: %{id: user_id} = author, channel_id: channel_id}) do
+    channel = cache(Channel, :fetch!, [channel_id])
+    %{id: guild_id, voice_states: voice_states} = cache(Guild, :fetch!, [channel.guild_id])
     %{id: own_id} = cache(User, :me!)
 
     res =
-      case will_connect(guild.voice_states, own_id, user_id) do
+      case will_connect(voice_states, own_id, user_id) do
         channel_id when is_number(channel_id) ->
-          if channel_id != 0,
-            do: gateway(Bot.Gateway, :voice_state_update, [guild.id, channel_id])
+          if channel_id != 0 do
+            gateway(Bot.Gateway, :voice_state_update, [guild_id, channel_id])
+          end
 
-          Music.Player.ensure_started({channel.guild_id, channel.id})
+          Player.ensure_started({guild_id, channel_id})
           tracks = Enum.map(tracks, &{author, &1})
 
-          if Music.Player.queue(tracks, channel.guild_id) do
-            rest(:delete_message, [fetch_message])
+          if Player.queue(tracks, guild_id) do
             nil
           else
             [
-              content: "",
               embed:
                 tracks
                 |> List.first()
                 |> elem(1)
-                |> Music.Util.build_embed(author, "add")
+                |> Util.build_embed(author, "add")
             ]
           end
 
@@ -77,7 +69,7 @@ defmodule Bot.Handler.Command.Play do
       end
 
     unless res == nil do
-      rest(:edit_message, [fetch_message, res])
+      {:respond, res}
     end
   end
 
@@ -106,8 +98,11 @@ defmodule Bot.Handler.Command.Play do
 
     with {:ok, %{body: body}} <- res,
          {:ok, tracks} <- Poison.decode(body) do
-      {:ok, Structs.Util.atomify(tracks)}
+      {:ok, Crux.Structs.Util.atomify(tracks)}
     else
+      {:error, _error} = tuple ->
+        tuple
+
       error ->
         {:error, error}
     end

@@ -22,12 +22,10 @@ defmodule Bot.Cache.Consumer do
     with :pong <- Node.ping(@gateway),
          %{^shard_id => pid} <-
            :rpc.call(@gateway, Crux.Gateway.Connection.Producer, :producers, []) do
-
       Logger.info("[Bot][Cache][Consumer]: Connected to gateway producer for shard #{shard_id}")
       {:consumer, nil, subscribe_to: [pid]}
     else
       _ ->
-
         Logger.warn("[Bot][Cache][Consumer]: Gateway down waiting 10 seconds.")
         Process.sleep(10_000)
         init(shard_id)

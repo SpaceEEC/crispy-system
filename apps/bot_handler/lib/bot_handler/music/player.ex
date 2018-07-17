@@ -196,6 +196,8 @@ defmodule Bot.Handler.Music.Player do
     {:reply, "Shuffled playlist", Map.put(state, :queue, queue)}
   end
 
+  @spec play_next(state :: map()) ::
+          {:ok, map()} | {:errpr, :empty, map()} | {:error, :emtpy, map()}
   defp play_next(%{queue: queue, guild_id: guild_id} = state) do
     with false <- :queue.is_empty(queue),
          queue <- :queue.drop(queue),

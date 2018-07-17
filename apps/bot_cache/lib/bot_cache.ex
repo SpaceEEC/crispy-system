@@ -12,7 +12,8 @@ defmodule Bot.Cache.Application do
     case Node.ping(@gateway) do
       :pong ->
         children =
-          for {shard_id, _pid} <- :rpc.call(@gateway, Crux.Gateway.Connection.Producer, :producers, []) do
+          for {shard_id, _pid} <-
+                :rpc.call(@gateway, Crux.Gateway.Connection.Producer, :producers, []) do
             [
               Supervisor.child_spec(
                 {Bot.Cache.Consumer, shard_id},

@@ -16,7 +16,7 @@ defmodule Bot.Gateway do
           url: url
         })
 
-        {:ok, spawn(fn -> receive after: (:infinity -> :ok) end)}
+        {:ok, spawn(fn -> :timer.sleep(:infinity) end)}
 
       :pang ->
         {:error, :rest_not_started}
@@ -27,6 +27,11 @@ defmodule Bot.Gateway do
     :application.stop(:crux_gateway)
   end
 
+  @spec voice_state_update(
+          guild_id :: Crux.Rest.snowflake(),
+          channel_id :: Crux.Rest.snowflake() | nil,
+          states :: [{:self_mute, boolean()} | {:self_deaf, boolean()}]
+        ) :: :ok | {:error, term()}
   def voice_state_update(guild_id, channel_id \\ nil, states \\ []) do
     use Bitwise
 

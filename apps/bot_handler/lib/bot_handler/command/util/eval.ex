@@ -1,16 +1,16 @@
-defmodule Bot.Handler.Command.Eval do
+defmodule Bot.Handler.Command.Util.Eval do
   @behaviour Bot.Handler.Command
-
-  import Bot.Handler.Util
 
   def inhibit(message, _args) do
     message.author.id == 218_348_062_828_003_328
   end
 
-  def handle(message, args) do
+  def process(message, args) do
     {res, _binding} =
       try do
-        Code.eval_string(Enum.join(args, " "), message: message, Crux: Crux, Bot: Bot)
+        args
+        |> Enum.join(" ")
+        |> Code.eval_string(message: message)
       rescue
         e -> {Exception.format(:error, e), nil}
       end
@@ -19,6 +19,6 @@ defmodule Bot.Handler.Command.Eval do
       if(is_bitstring(res), do: res, else: inspect(res))
       |> String.slice(0, 1950)
 
-    rest(:create_message, [message, [content: "```elixir\n#{res}\n```"]])
+    {:respond, "```elixir\n#{res}\n```"}
   end
 end

@@ -1,9 +1,7 @@
-defmodule Bot.Handler.Command.Uptime do
+defmodule Bot.Handler.Command.Util.Uptime do
   @behaviour Bot.Handler.Command
 
-  import Bot.Handler.Util
-
-  def handle(message, _args) do
+  def process(_message, _args) do
     data =
       [Node.self() | Node.list()]
       |> fetch_nodes_data()
@@ -14,20 +12,19 @@ defmodule Bot.Handler.Command.Uptime do
       |> Enum.max_by(fn node -> String.length(node) end)
       |> String.length()
 
-    content = """
-    **Uptime:**
-    ```asciidoc
-    #{
+    content =
       Enum.map_join(data, "\n", fn {node, uptime} ->
         "#{String.pad_trailing(node, longest)} :: #{uptime}"
       end)
-    }
+
+    content = """
+    **Uptime:**
+    ```asciidoc
+    #{content}
     ```
     """
 
-    :maps
-
-    rest(:create_message, [message, [content: content]])
+    {:respond, content}
   end
 
   defp fetch_nodes_data(nodes) do
