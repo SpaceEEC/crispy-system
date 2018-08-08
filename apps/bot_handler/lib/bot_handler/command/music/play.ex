@@ -26,11 +26,11 @@ defmodule Bot.Handler.Command.Music.Play do
       {:ok, []} ->
         {:respond, "Could not find anything."}
 
-      {:ok, [track | _rest]} when not playlist ->
-        queue([track], message)
-
       {:ok, tracks} when playlist ->
         queue(tracks, message)
+
+      {:ok, [track | _rest]} ->
+        queue([track], message)
 
       {:error, error} ->
         {:respond, Exception.format(:error, error)}
@@ -42,34 +42,30 @@ defmodule Bot.Handler.Command.Music.Play do
     %{id: guild_id, voice_states: voice_states} = cache(Guild, :fetch!, [channel.guild_id])
     %{id: own_id} = cache(User, :me!)
 
-    res =
-      case will_connect(voice_states, own_id, user_id) do
-        voice_channel_id when is_number(voice_channel_id) ->
-          if voice_channel_id != 0 do
-            gateway(Bot.Gateway, :voice_state_update, [guild_id, voice_channel_id])
-          end
+    case will_connect(voice_states, own_id, user_id) do
+      voice_channel_id when is_number(voice_channel_id) ->
+        unless voice_channel_id == 0 do
+          gateway(Bot.Gateway, :voice_state_update, [guild_id, voice_channel_id])
+        end
 
-          Player.ensure_started({guild_id, channel_id})
-          tracks = Enum.map(tracks, &{author, &1})
+        Player.ensure_started({guild_id, channel_id})
+        tracks = Enum.map(tracks, &{author, &1})
 
-          if Player.queue(tracks, guild_id) do
-            nil
-          else
-            [
-              embed:
-                tracks
-                |> List.first()
-                |> elem(1)
-                |> Util.build_embed(author, "add")
-            ]
-          end
+        if Player.queue(tracks, guild_id) do
+          nil
+        else
+          {:respond,
+           [
+             embed:
+               tracks
+               |> List.first()
+               |> elem(1)
+               |> Util.build_embed(author, "add")
+           ]}
+        end
 
-        res when is_bitstring(res) ->
-          [content: res]
-      end
-
-    unless res == nil do
-      {:respond, res}
+      res when is_bitstring(res) ->
+        {:respond, res}
     end
   end
 
@@ -97,8 +93,8 @@ defmodule Bot.Handler.Command.Music.Play do
       )
 
     with {:ok, %{body: body}} <- res,
-         {:ok, tracks} <- Poison.decode(body) do
-      {:ok, Crux.Structs.Util.atomify(tracks)}
+         {:ok, %{tracks: tracks}} <- Poison.decode(body, keys: :atoms) do
+      {:ok, tracks}
     else
       {:error, _error} = tuple ->
         tuple

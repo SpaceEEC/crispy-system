@@ -19,9 +19,13 @@ defmodule Bot.Handler.Consumer do
     end
   end
 
-  def handle_event(:VOICE_STATE_UPDATE, %{channel_id: channel_id} = data, _shard_id)
+  def handle_event(
+        :VOICE_STATE_UPDATE,
+        {_old, %{channel_id: channel_id, user_id: user_id} = data},
+        _shard_id
+      )
       when not is_nil(channel_id) do
-    if cache(User, :me!).id == data.user_id do
+    if cache(User, :me!).id == user_id do
       Bot.Handler.Lavalink.Connection.forward(data)
     end
   end

@@ -1,7 +1,7 @@
 defmodule Bot.Handler.Command.Util.Invite do
   @behaviour Bot.Handler.Command
 
-  @invite_url ~S"https://discordapp.com/oauth2/authorize?client_id=#{id}&scope=bot&permissions=#{permissions}"
+  @invite_url "https://discordapp.com/oauth2/authorize?client_id={{id}}&scope=bot&permissions={{permissions}}"
 
   alias Crux.Structs.Permissions
   import Bot.Handler.Util
@@ -24,8 +24,8 @@ defmodule Bot.Handler.Command.Util.Invite do
 
     url =
       @invite_url
-      |> String.replace("\#{id}", to_string(user.id))
-      |> String.replace("\#{permissions}", to_string(permissions))
+      |> String.replace("{{id}}", to_string(user.id))
+      |> String.replace("{{permissions}}", to_string(permissions))
 
     embed = %{
       author: %{
@@ -33,8 +33,8 @@ defmodule Bot.Handler.Command.Util.Invite do
         url: url
       },
       description: """
-      To invite me to your server click this link [here](#{url}).
-      **Note**: You need the **Manage Guild** permission to add me there.
+      To invite me to your server click [this](#{url}) link.
+      **Note**: You need the **Manage Server** permission to add me there.
       \u200b
       """
     }

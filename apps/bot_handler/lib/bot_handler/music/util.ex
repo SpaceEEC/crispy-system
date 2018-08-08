@@ -1,6 +1,12 @@
 defmodule Bot.Handler.Music.Util do
   import Bot.Handler.Util
 
+  @spec build_embed(
+          track :: map(),
+          author :: map(),
+          type :: String.t(),
+          loop :: boolean()
+        ) :: Crux.Rest.embed()
   def build_embed(track, author, type, loop \\ false)
   def build_embed(%{info: info}, author, type, loop), do: build_embed(info, author, type, loop)
 
@@ -85,6 +91,7 @@ defmodule Bot.Handler.Music.Util do
     }
   end
 
+  @spec image_from_track(any()) :: String.t() | nil
   def image_from_track(%{uri: "https://www.youtube.com/watch?v=" <> _id} = track),
     do: "https://img.youtube.com/vi/#{track.identifier}/mqdefault.jpg"
 
@@ -95,8 +102,10 @@ defmodule Bot.Handler.Music.Util do
   # Soundcloud, why do you not offer a url scheme? :c
   def image_from_track(_other), do: nil
 
+  @spec format_milliseconds(integer()) :: String.t()
   def format_milliseconds(time), do: time |> div(1000) |> format_seconds()
 
+  @spec format_seconds(integer()) :: String.t()
   def format_seconds(time) when time > 86_400 do
     rest =
       time
@@ -131,6 +140,11 @@ defmodule Bot.Handler.Music.Util do
     "#{minutes}:#{seconds}"
   end
 
+  @spec ensure_connected(
+          voice_states :: %{required(Crux.Rest.snowflake()) => Crux.Structs.VoiceState.t()},
+          own_id :: Crux.Rest.snowflake(),
+          user_id :: Crux.Rest.snowflake()
+        ) :: true | String.t()
   def ensure_connected(voice_states, own_id, user_id) do
     case voice_states do
       %{^own_id => %{channel_id: nil}} ->
@@ -160,6 +174,16 @@ defmodule Bot.Handler.Music.Util do
     end
   end
 
+  @spec decode_track(binary()) :: %{
+          author: bitstring(),
+          has_url: byte(),
+          identifier: bitstring(),
+          is_stream: byte(),
+          length: non_neg_integer(),
+          provider: bitstring(),
+          title: bitstring(),
+          url: nil | bitstring()
+        }
   def decode_track(track) do
     <<
       _packet_length::32,

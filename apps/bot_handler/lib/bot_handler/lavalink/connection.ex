@@ -4,10 +4,12 @@ defmodule Bot.Handler.Lavalink.Connection do
   require Logger
 
   alias Crux.Structs.VoiceState
+  alias Bot.Handler.Lavalink.Payload
 
   import Bot.Handler.Util
 
-  def start_link(_) do
+  @spec start_link(term()) :: {:ok, pid()} | {:error, term()}
+  def start_link(_ \\ []) do
     Logger.info("[Lavalink]: Starting WebSocket connection")
 
     shard_count = gateway(Application, :fetch_env!, [:crux_gateway, :shard_count])
@@ -30,6 +32,7 @@ defmodule Bot.Handler.Lavalink.Connection do
     )
   end
 
+  @spec send(data :: map()) :: term()
   def send(%{} = data) do
     data
     |> Poison.encode!()
@@ -37,12 +40,14 @@ defmodule Bot.Handler.Lavalink.Connection do
   end
 
   # https://github.com/Frederikam/Lavalink/blob/master/IMPLEMENTATION.md#outgoing-messages
+  @spec send(data :: String.t()) :: term()
   def send(data) do
     Logger.debug("[Lavalink][send]: #{inspect(data)}")
 
     WebSockex.send_frame(__MODULE__, {:text, data})
   end
 
+  @spec forward(data :: term()) :: :ok
   def forward(data), do: WebSockex.cast(__MODULE__, {:store, data})
 
   def try_join(
@@ -51,8 +56,7 @@ defmodule Bot.Handler.Lavalink.Connection do
         state
       ) do
     packet =
-      %{"op" => "voiceUpdate", "guildId" => "#{guild_id}", sessionId: session_id}
-      |> Map.put(:event, voice_server)
+      Payload.voice_update(voice_server, session_id, to_string(guild_id))
       |> Poison.encode!()
 
     {:reply, {:text, packet}, state}
@@ -61,11 +65,12 @@ defmodule Bot.Handler.Lavalink.Connection do
   def try_join(_, _, state), do: {:ok, state}
 
   def terminate(reason, _state) do
-    Logger.warn("[Lavalink]: Terminating duo #{inspect(reason)}")
+    Logger.warn("[Lavalink]: Terminating due to #{inspect(reason)}")
   end
 
-  def handle_cast({:store, %VoiceState{guild_id: guild_id} = voice_state}, state),
-    do: try_join(voice_state, Map.get(state, guild_id), state)
+  def handle_cast({:store, %VoiceState{guild_id: guild_id} = voice_state}, state) do
+    try_join(voice_state, Map.get(state, guild_id), state)
+  end
 
   def handle_cast({:store, %{guild_id: guild_id} = voice_server}, state) do
     voice_server = Map.update!(voice_server, :guild_id, &Integer.to_string/1)
@@ -73,10 +78,12 @@ defmodule Bot.Handler.Lavalink.Connection do
 
     %{id: own_id} = cache(User, :me!)
 
-    cache(Guild, :fetch!, [guild_id])
-    |> Map.get(:voice_states)
-    |> Map.get(own_id)
-    |> try_join(voice_server, state)
+    with %{voice_states: %{^own_id => voice_state}} <- cache(Guild, :fetch, [guild_id]) do
+      try_join(voice_state, voice_server, state)
+    else
+      _ ->
+        {:ok, state}
+    end
   end
 
   def handle_connect(_, [state]) do

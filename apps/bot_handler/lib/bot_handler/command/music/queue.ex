@@ -36,13 +36,13 @@ defmodule Bot.Handler.Command.Music.Queue do
 
         page =
           case Integer.parse(page) do
-            {page, _rest} when page < 1 ->
+            {page, ""} when page < 1 ->
               1
 
-            {page, _rest} when page > pages ->
+            {page, ""} when page > pages ->
               pages
 
-            {page, _rest} ->
+            {page, ""} ->
               page
 
             :error ->

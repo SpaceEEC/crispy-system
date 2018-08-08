@@ -32,22 +32,25 @@ defmodule Bot.Handler.Command.Music.NowPlaying do
           track.info.length
           |> Util.format_milliseconds()
 
+        tmp = (position / track.info.length * 10) |> trunc()
+        played_bars = String.pad_leading("", tmp, "▬")
+
         track_position =
           position
           |> Util.format_milliseconds()
+
+        unplayed_bars = String.pad_leading("", 10 - tmp, "▬")
 
         embed =
           Util.build_embed(track, user, "np", loop)
           |> Map.update!(:description, fn description ->
             description =
-              String.split(description, "\n")
-              |> Enum.take(2)
-              |> Enum.join("\n")
+              String.split(description, "Length:")
+              |> List.first()
 
-            """
-            #{description}
-            **Time**: (`#{track_position}`/`#{track_length}`)
-            """
+            "#{description}\n **Progress**: " <>
+              "**[#{played_bars}](https://crux.randomly.space/)#{unplayed_bars}** " <>
+              " (`#{track_position}`/`#{track_length}`)"
           end)
 
         {:respond, [embed: embed]}

@@ -14,6 +14,7 @@ defmodule Bot.Handler.Music.Player do
     GenServer.start_link(__MODULE__, state, name: name)
   end
 
+  @spec ensure_started(state :: {Crux.Rest.snowflake(), Crux.Rest.snowflake()}) :: pid()
   def ensure_started({guild_id, _channel_id} = state) do
     with {:ok, pid} <- lookup(guild_id) do
       pid
@@ -24,6 +25,7 @@ defmodule Bot.Handler.Music.Player do
     end
   end
 
+  @spec lookup(guild_id :: Crux.Rest.snowflake()) :: {:ok, pid()} | :error
   def lookup(guild_id) do
     with [{pid, _other}] <- Registry.lookup(@registry, guild_id),
          true <- Process.alive?(pid) do
@@ -34,10 +36,12 @@ defmodule Bot.Handler.Music.Player do
     end
   end
 
+  @spec queue(track :: String.t() | [String.t()], id :: Crux.Rest.snowflake()) :: boolean() | nil
   def queue(track, id) do
     with {:ok, pid} <- lookup(id), do: GenServer.call(pid, {:queue, track})
   end
 
+  @spec command(Crux.Rest.snowflake(), term()) :: term() | String.t()
   def command(id, command) do
     with {:ok, pid} <- lookup(id) do
       GenServer.call(pid, command)
@@ -196,8 +200,7 @@ defmodule Bot.Handler.Music.Player do
     {:reply, "Shuffled playlist", Map.put(state, :queue, queue)}
   end
 
-  @spec play_next(state :: map()) ::
-          {:ok, map()} | {:errpr, :empty, map()} | {:error, :emtpy, map()}
+  @spec play_next(state :: map()) :: {:ok, map()} | {:error, :empty | :end, map()}
   defp play_next(%{queue: queue, guild_id: guild_id} = state) do
     with false <- :queue.is_empty(queue),
          queue <- :queue.drop(queue),
