@@ -174,6 +174,38 @@ defmodule Bot.Handler.Music.Util do
     end
   end
 
+  @spec will_connect(
+          voice_states :: %{required(Crux.Rest.snowflake()) => Crux.Structs.VoiceState.t()},
+          own_id :: Crux.Rest.snowflake(),
+          user_id :: Crux.Rest.snowflake()
+        ) :: Crux.Rest.snowflake() | String.t()
+  def will_connect(voice_states, own_id, user_id) do
+    case voice_states do
+      %{^user_id => %{channel_id: nil}} ->
+        "You are not connected to a voice channel here."
+
+      %{
+        ^user_id => %{channel_id: user_channel_id},
+        ^own_id => %{channel_id: own_channel_id}
+      }
+      when user_channel_id == own_channel_id ->
+        0
+
+      %{
+        ^user_id => %{},
+        ^own_id => %{channel_id: own_channel_id}
+      }
+      when not is_nil(own_channel_id) ->
+        "You are in a different voice channel."
+
+      %{^own_id => %{channel_id: own_channel_id}} when not is_nil(own_channel_id) ->
+        "You are not connected to a voice channel here."
+
+      %{^user_id => %{channel_id: channel_id}} ->
+        channel_id
+    end
+  end
+
   @spec decode_track(binary()) :: %{
           author: bitstring(),
           has_url: byte(),
