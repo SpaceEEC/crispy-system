@@ -203,6 +203,9 @@ defmodule Bot.Handler.Music.Util do
 
       %{^user_id => %{channel_id: channel_id}} ->
         channel_id
+
+      %{} ->
+        "You are not connected to a voice channel here."
     end
   end
 
