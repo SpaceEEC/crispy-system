@@ -21,22 +21,20 @@ defmodule Bot.Handler.Lavalink.Rest do
 
   @spec fetch_tracks(identifier :: String.t()) :: {:ok, list()} | {:error, term()}
   def fetch_tracks(identifier) do
-    res =
-      HTTPoison.get(
-        @url,
-        [{"Authorization", @authorization}],
-        params: [identifier: identifier]
-      )
+    HTTPoison.get(
+      @url,
+      [{"Authorization", @authorization}],
+      params: [identifier: identifier]
+    )
+    |> case do
+      {:ok, %{body: body}} ->
+        Poison.decode(body, keys: :atoms)
 
-    with {:ok, %{body: body}} <- res,
-         {:ok, %{tracks: tracks}} <- Poison.decode(body, keys: :atoms) do
-      {:ok, tracks}
-    else
       {:error, _error} = tuple ->
         tuple
 
-      error ->
-        {:error, error}
+      other ->
+        {:error, other}
     end
   end
 end
