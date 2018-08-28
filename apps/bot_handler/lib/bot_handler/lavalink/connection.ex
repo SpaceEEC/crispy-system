@@ -15,6 +15,9 @@ defmodule Bot.Handler.Lavalink.Connection do
     shard_count = gateway(Application, :fetch_env!, [:crux_gateway, :shard_count])
     %{id: id} = cache(User, :me!)
 
+    voice_servers = Map.new()
+    voice_states = Map.new()
+
     WebSockex.Conn.new(
       "ws://localhost:8080",
       extra_headers: [
@@ -25,7 +28,7 @@ defmodule Bot.Handler.Lavalink.Connection do
     )
     |> WebSockex.start_link(
       __MODULE__,
-      [%{}],
+      [{voice_servers, voice_states}],
       name: __MODULE__,
       handle_initial_conn_failure: true,
       async: true
@@ -48,42 +51,57 @@ defmodule Bot.Handler.Lavalink.Connection do
   end
 
   @spec forward(data :: term()) :: :ok
-  def forward(data), do: WebSockex.cast(__MODULE__, {:store, data})
-
-  def try_join(
-        %{guild_id: guild_id, session_id: session_id},
-        %{} = voice_server,
-        state
-      ) do
-    packet =
-      Payload.voice_update(voice_server, session_id, to_string(guild_id))
-      |> Poison.encode!()
-
-    {:reply, {:text, packet}, state}
+  def forward(data) do
+    #IO.inspect(data, label: "forward")
+    WebSockex.cast(__MODULE__, {:store, data})
   end
 
-  def try_join(_, _, state), do: {:ok, state}
+  def try_join(
+        guild_id,
+        {voice_servers, voice_states} = state
+      ) do
+    voice_server = Map.get(voice_servers, guild_id)
+    #|> IO.inspect(label: "voice_server #{inspect guild_id}")
+    #IO.inspect(Map.keys(voice_servers), label: "keys")
+
+    voice_state = Map.get(voice_states, guild_id)
+    #|> IO.inspect(label: "voice_state #{inspect guild_id}")
+    #IO.inspect(Map.keys(voice_states), label: "keys")
+
+    if voice_server && voice_state do
+      packet =
+        Payload.voice_update(voice_server, voice_state.session_id, to_string(guild_id))
+        |> Poison.encode!()
+
+      {:reply, {:text, packet}, state}
+    else
+      {:ok, state}
+    end
+  end
 
   def terminate(reason, _state) do
     Logger.warn("[Lavalink]: Terminating due to #{inspect(reason)}")
   end
 
-  def handle_cast({:store, %VoiceState{guild_id: guild_id} = voice_state}, state) do
-    try_join(voice_state, Map.get(state, guild_id), state)
+  def handle_cast(
+        {:store, %VoiceState{guild_id: guild_id} = voice_state},
+        {voice_servers, voice_states}
+      ) do
+    try_join(
+      guild_id,
+      {
+        voice_servers,
+        Map.put(voice_states, guild_id, voice_state)
+      }
+    )
   end
 
-  def handle_cast({:store, %{guild_id: guild_id} = voice_server}, state) do
+  def handle_cast({:store, %{guild_id: guild_id} = voice_server}, {voice_servers, voice_states}) do
+    # Lavalink can not handle integer guild ids. One might think it's written in JavaScript...
     voice_server = Map.update!(voice_server, :guild_id, &Integer.to_string/1)
-    state = Map.put(state, guild_id, voice_server)
+    voice_servers = Map.put(voice_servers, guild_id, voice_server)
 
-    %{id: own_id} = cache(User, :me!)
-
-    with %{voice_states: %{^own_id => voice_state}} <- cache(Guild, :fetch, [guild_id]) do
-      try_join(voice_state, voice_server, state)
-    else
-      _ ->
-        {:ok, state}
-    end
+    try_join(guild_id, {voice_servers, voice_states})
   end
 
   def handle_connect(_, [state]) do
