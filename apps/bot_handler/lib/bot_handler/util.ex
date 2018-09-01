@@ -3,6 +3,7 @@ defmodule Bot.Handler.Util do
   @rest :"rest@127.0.0.1"
   @cache :"cache@127.0.0.1"
 
+  @spec gateway(mod :: atom(), fun :: atom(), args :: list()) :: term() | no_return()
   def gateway(mod, fun, args \\ []), do: :rpc.call(@gateway, mod, fun, args) |> handle_rpc(args)
 
   @spec rest(fun :: atom()) :: term() | no_return()
@@ -31,6 +32,7 @@ defmodule Bot.Handler.Util do
   #   |> handle_rpc(args)
   # end
 
+  @spec cache(mod :: atom(), fun :: atom(), args :: list()) :: term() | no_return()
   def cache(mod, fun, args \\ []) do
     mod = Module.concat(Crux.Cache, mod)
 
@@ -38,11 +40,14 @@ defmodule Bot.Handler.Util do
     |> handle_rpc(args)
   end
 
+  @spec _cache_alive?() :: boolean()
   def _cache_alive?(), do: Node.ping(@cache) == :pong
+
+  @spec _producers() :: %{required(non_neg_integer()) => pid()} | no_return()
   def _producers(), do: :rpc.call(@cache, Bot.Cache.Application, :producers, []) |> handle_rpc([])
 
   defp handle_rpc({:badrpc, {:EXIT, {kind, stacktrace}}}, args) do
-    # Generates actually really good stacktraces to see what went wrong.
+    # Generates an actually really good stacktraces to see what went wrong.
     exception = Exception.normalize(:error, kind, stacktrace)
 
     reraise Bot.Handler.RpcError, [exception, args], stacktrace
