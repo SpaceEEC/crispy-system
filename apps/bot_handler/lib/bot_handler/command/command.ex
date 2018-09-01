@@ -25,7 +25,19 @@ defmodule Bot.Handler.Command do
         nil
 
       mod ->
-        run(mod, message, args)
+        try do
+          # For some reason it's not always loaded?
+          Code.ensure_loaded(mod)
+          run(mod, message, args)
+        rescue
+          e ->
+            default_respond(
+              message,
+              "```elixir\n#{Exception.format_banner(:error, e)}```"
+            )
+
+            reraise(e, System.stacktrace())
+        end
     end
   end
 
