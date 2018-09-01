@@ -51,8 +51,21 @@ defmodule Bot.Handler.Lavalink.Connection do
   end
 
   @spec forward(data :: term()) :: :ok
+
+  def forward(%VoiceState{channel_id: nil}), do: :ok
+
+  def forward(%VoiceState{user_id: id} = voice_state) do
+    case cache(User, :me) do
+      %{id: ^id} ->
+        WebSockex.cast(__MODULE__, {:store, voice_state})
+
+      _ ->
+        :ok
+    end
+  end
+
   def forward(data) do
-    #IO.inspect(data, label: "forward")
+    # IO.inspect(data, label: "forward")
     WebSockex.cast(__MODULE__, {:store, data})
   end
 
@@ -61,12 +74,12 @@ defmodule Bot.Handler.Lavalink.Connection do
         {voice_servers, voice_states} = state
       ) do
     voice_server = Map.get(voice_servers, guild_id)
-    #|> IO.inspect(label: "voice_server #{inspect guild_id}")
-    #IO.inspect(Map.keys(voice_servers), label: "keys")
+    # |> IO.inspect(label: "voice_server #{inspect guild_id}")
+    # IO.inspect(Map.keys(voice_servers), label: "keys")
 
     voice_state = Map.get(voice_states, guild_id)
-    #|> IO.inspect(label: "voice_state #{inspect guild_id}")
-    #IO.inspect(Map.keys(voice_states), label: "keys")
+    # |> IO.inspect(label: "voice_state #{inspect guild_id}")
+    # IO.inspect(Map.keys(voice_states), label: "keys")
 
     if voice_server && voice_state do
       packet =
