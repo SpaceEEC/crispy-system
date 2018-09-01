@@ -32,7 +32,7 @@ defmodule Bot.Handler.Command.Music.NowPlaying do
           track.info.length
           |> Util.format_milliseconds()
 
-        tmp = (position / track.info.length * 10) |> trunc()
+        tmp = (position / track.info.length * 10) |> Float.ceil() |> trunc()
         played_bars = String.pad_leading("", tmp, "▬")
 
         track_position =
