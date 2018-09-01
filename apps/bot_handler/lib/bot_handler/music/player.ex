@@ -53,12 +53,14 @@ defmodule Bot.Handler.Music.Player do
 
   def init({guild_id, channel_id}) do
     state = %{
+      message: nil,
       guild_id: guild_id,
       # text channel
       channel_id: channel_id,
       queue: :queue.new(),
       loop: false,
-      position: 0
+      position: 0,
+      paused: false
     }
 
     {:ok, state}
@@ -68,15 +70,12 @@ defmodule Bot.Handler.Music.Player do
         {:dispatch, %{"op" => "event", "reason" => reason, "type" => "TrackEndEvent"}},
         state
       ) do
-    state = Map.put(state, :position, 0)
+    state =
+      state
+      |> Map.put(:position, 0)
+      |> Map.put(:paused, false)
 
-    with {:value, {_user, current}} <- :queue.peek(state.queue),
-         %{message: message} when not is_nil(message) <- state do
-      rest(:edit_message, [
-        message,
-        [content: "`#{current.info.title}` stopped with reason: `#{reason}`.", embed: nil]
-      ])
-    end
+    if state.message, do: rest(:delete_message, [state.message])
 
     state =
       if state.loop and reason not in ["REPLACED", "STOPPED"] do
@@ -150,15 +149,27 @@ defmodule Bot.Handler.Music.Player do
 
   def handle_call(pause_or_resume, _from, %{guild_id: guild_id} = state)
       when pause_or_resume in [:pause, :resume] do
-    Lavalink.Payload.pause(pause_or_resume == :pause, guild_id)
+    pause = pause_or_resume == :pause
+
+    Lavalink.Payload.pause(pause, guild_id)
     |> Lavalink.Connection.send()
 
     res =
-      if pause_or_resume == :pause,
-        do: "Paused the track if not already",
-        else: "Resumed the track if not already"
+      cond do
+        pause && state.paused ->
+          "The player is already paused."
 
-    {:reply, res, state}
+        pause && !state.paused ->
+          "Paused the player."
+
+        pause_or_resume == :resume && state.paused ->
+          "Resume the player."
+
+        pause && state.paused ->
+          "The player is already playing."
+      end
+
+    {:reply, res, Map.put(state, :paused, pause)}
   end
 
   def handle_call(:skip, _from, %{queue: queue, guild_id: guild_id} = state) do
