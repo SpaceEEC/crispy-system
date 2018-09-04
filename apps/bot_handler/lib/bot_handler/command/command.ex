@@ -16,32 +16,50 @@ defmodule Bot.Handler.Command do
 
   import Bot.Handler.Util
 
-  def handle(%{content: @prefix <> content} = message) do
-    [command | args] = String.split(content, ~r/ +/, parts: :infinity)
-    command = String.downcase(command)
+  def handle(%{guild_id: guild_id} = message) when not is_nil(guild_id) do
+    with {:ok, content} <- handle_prefix(message) do
+      [command | args] = String.split(content, ~r/ +/, parts: :infinity)
+      command = String.downcase(command)
 
-    case Commands.commands() |> Map.get(command) || Commands.aliases() |> Map.get(command) do
-      nil ->
-        nil
+      case Commands.commands() |> Map.get(command) || Commands.aliases() |> Map.get(command) do
+        nil ->
+          nil
 
-      mod ->
-        try do
-          # For some reason it's not always loaded?
-          Code.ensure_loaded(mod)
-          run(mod, message, args)
-        rescue
-          e ->
-            default_respond(
-              message,
-              "```elixir\n#{Exception.format_banner(:error, e)}```"
-            )
+        mod ->
+          try do
+            # For some reason it's not always loaded?
+            Code.ensure_loaded(mod)
+            run(mod, message, args)
+          rescue
+            e ->
+              default_respond(
+                message,
+                "```elixir\n#{Exception.format_banner(:error, e)}```"
+              )
 
-            reraise(e, System.stacktrace())
-        end
+              reraise(e, System.stacktrace())
+          end
+      end
     end
   end
 
   def handle(_message), do: nil
+
+  defp handle_prefix(%{guild_id: guild_id, content: content}) do
+    with {:ok, prefix} <- Bot.Handler.Etcd.get("#{guild_id}:prefix", @prefix),
+         {^prefix, content} <- String.split_at(content, String.length(prefix)) do
+      {:ok, content}
+    else
+      _ ->
+        with {:ok, %{id: user_id}} <- cache(User, :me, []),
+             ["", content] <- String.split(content, Regex.compile!("^<@!?#{user_id}> *")) do
+          {:ok, content}
+        else
+          _ ->
+            :error
+        end
+    end
+  end
 
   def run(mod, message, args) do
     with true <- inhibit(mod, message, args),

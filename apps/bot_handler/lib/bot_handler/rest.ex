@@ -10,6 +10,10 @@ defmodule Bot.Handler.Rest do
     |> Keyword.put_new(:"content-type", "application/json")
   end
 
+  def process_request_body(""), do: ""
+  def process_request_body({:multipart, _} = body), do: body
+  def process_request_body(body), do: Poison.encode!(body)
+
   def process_response_body(body) when is_bitstring(body) do
     with {:ok, res} <- Poison.decode(body) do
       res

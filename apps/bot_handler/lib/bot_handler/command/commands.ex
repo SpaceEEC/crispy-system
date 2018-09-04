@@ -1,5 +1,5 @@
 defmodule Bot.Handler.Command.Commands do
-  # Generated 2018-07-16T14:10:26.725000Z
+  # Generated 2018-09-04T17:07:15.570000Z
   @commands %{
     "avatar" => Bot.Handler.Command.Misc.Avatar,
     "donmai" => Bot.Handler.Command.Image.Donmai,
@@ -14,6 +14,7 @@ defmodule Bot.Handler.Command.Commands do
     "pause" => Bot.Handler.Command.Music.Pause,
     "ping" => Bot.Handler.Command.Util.Ping,
     "play" => Bot.Handler.Command.Music.Play,
+    "prefix" => Bot.Handler.Command.Config.Prefix,
     "queue" => Bot.Handler.Command.Music.Queue,
     "resume" => Bot.Handler.Command.Music.Resume,
     "save" => Bot.Handler.Command.Music.Save,
