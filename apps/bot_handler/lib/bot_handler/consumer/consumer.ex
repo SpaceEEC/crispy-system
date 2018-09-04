@@ -12,16 +12,15 @@ defmodule Bot.Handler.Consumer do
     }
   end
 
-  import Bot.Handler.Util
-
   def handle_event(:READY, _data, _shard_id) do
     unless Process.whereis(Bot.Handler.Lavalink.Connection) do
       Supervisor.start_child(Bot.Handler.Supervisor, Bot.Handler.Lavalink.Connection)
     end
   end
 
-  def handle_event(:VOICE_STATE_UPDATE, {_old, new}, _shard_id) do
+  def handle_event(:VOICE_STATE_UPDATE, {old, new}, _shard_id) do
     Bot.Handler.Lavalink.Connection.forward(new)
+    Bot.Handler.VoiceLog.handle(old, new)
   end
 
   def handle_event(:VOICE_SERVER_UPDATE, data, _shard_id) do
