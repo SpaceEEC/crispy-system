@@ -56,7 +56,7 @@ defmodule Bot.Handler.Lavalink.Connection do
 
   def forward(%VoiceState{user_id: id} = voice_state) do
     case cache(User, :me) do
-      %{id: ^id} ->
+      {:ok, %{id: ^id}} ->
         WebSockex.cast(__MODULE__, {:store, voice_state})
 
       _ ->
