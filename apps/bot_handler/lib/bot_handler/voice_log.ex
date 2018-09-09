@@ -10,6 +10,8 @@ defmodule Bot.Handler.VoiceLog do
     nil
   end
 
+  def handle(nil, state), do: handle(%Crux.Structs.VoiceState{channel_id: nil}, state)
+
   def handle(%Crux.Structs.VoiceState{channel_id: old_channel_id}, %Crux.Structs.VoiceState{
         channel_id: new_channel_id,
         user_id: user_id,
