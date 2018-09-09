@@ -3,10 +3,15 @@ defmodule Bot.Handler.VoiceLog do
   alias Bot.Handler.Config.Guild
 
   # same channel before and after, ignore
-  def handle(%{channel_id: channel_id}, %{channel_id: channel_id}), do: nil
+  def handle(
+        %Crux.Structs.VoiceState{channel_id: channel_id},
+        %Crux.Structs.VoiceState{channel_id: channel_id}
+      ) do
+    nil
+  end
 
-  def handle(%{channel_id: old_channel_id}, %{
-        new_channel_id: new_channel_id,
+  def handle(%Crux.Structs.VoiceState{channel_id: old_channel_id}, %Crux.Structs.VoiceState{
+        channel_id: new_channel_id,
         user_id: user_id,
         guild_id: guild_id
       }) do
