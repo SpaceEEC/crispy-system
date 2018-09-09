@@ -63,9 +63,9 @@ defmodule Bot.Handler.Config.Base do
         Code.ensure_loaded(Etcd)
 
         if function_exported?(Etcd, fun, 2) do
-          apply(Etcd, fun, [base <> key, value])
+          apply(Etcd, fun, ["#{base}#{key}", value])
         else
-          apply(Etcd, fun, [base <> key])
+          apply(Etcd, fun, ["#{base}#{key}"])
         end
       end
 
