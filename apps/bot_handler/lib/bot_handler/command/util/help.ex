@@ -31,13 +31,13 @@ defmodule Bot.Handler.Command.Util.Help do
       )
       |> Enum.map(fn {group, names} ->
         %{
-          title: "❯ #{group}",
+          name: "❯ #{group}",
           value: "`#{names |> Enum.join("`, `")}`"
         }
       end)
 
       embed = %{
-        title: "❯ Command List",
+        name: "❯ Command List",
         description: "A list of all commands.\nUse `help <Command>` for more info for a specific command.",
         fields: fields
       }
@@ -54,9 +54,9 @@ defmodule Bot.Handler.Command.Util.Help do
 
 
     fields = [
-      %{title: "❯ Usage(s)", value: "`#{prefix}#{name} #{usages |> Enum.join("`\n`#{prefix}#{name} ")}`", inline: true},
+      %{name: "❯ Usage(s)", value: "`#{prefix}#{name} #{usages |> Enum.join("`\n`#{prefix}#{name} ")}`", inline: true},
       %{
-        title: "❯ Example(s)",
+        name: "❯ Example(s)",
         value: "`#{prefix}#{name} #{examples |> Enum.join("`\n`#{prefix}#{name} ")}`",
         inline: true
       }
@@ -65,7 +65,7 @@ defmodule Bot.Handler.Command.Util.Help do
     fields =
       if function_exported?(command, :aliases, 0) do
         [
-          %{title: "❯ Alias(es)", value: command.aliases() |> Enum.join("\n")}
+          %{name: "❯ Alias(es)", value: command.aliases() |> Enum.join("\n")}
           | fields
         ]
       else
@@ -73,7 +73,7 @@ defmodule Bot.Handler.Command.Util.Help do
       end
 
     embed = %{
-      title: name,
+      name: name,
       description: command.description(),
       fields: fields
     }
