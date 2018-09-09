@@ -26,7 +26,15 @@ defmodule Bot.Handler.Command.Util.Help do
       Commands.commands()
       |> Map.values()
       |> Enum.group_by(
-        fn mod -> mod |> Module.split() |> Enum.take(-2) |> List.first() end,
+        fn mod ->
+          mod
+          |> Module.split()
+          |> Enum.take(-2)
+          |> case do
+            ["Command", group] -> group
+            [group, _name] -> group
+          end
+        end,
         fn mod -> mod |> Module.split() |> List.last() end
       )
       |> Enum.map(fn {group, names} ->
@@ -36,13 +44,14 @@ defmodule Bot.Handler.Command.Util.Help do
         }
       end)
 
-      embed = %{
-        name: "❯ Command List",
-        description: "A list of all commands.\nUse `help <Command>` for more info for a specific command.",
-        fields: fields
-      }
+    embed = %{
+      title: "❯ Command List",
+      description:
+        "A list of all commands.\nUse `help <Command>` for more info for a specific command.",
+      fields: fields
+    }
 
-      {:respond, [embed: embed]}
+    {:respond, [embed: embed]}
   end
 
   def process(%{guild_id: guild_id}, command) do
@@ -52,9 +61,12 @@ defmodule Bot.Handler.Command.Util.Help do
     examples = if(function_exported?(command, :examples, 0), do: command.examples(), else: [""])
     usages = if(function_exported?(command, :usages, 0), do: command.usages(), else: [""])
 
-
     fields = [
-      %{name: "❯ Usage(s)", value: "`#{prefix}#{name} #{usages |> Enum.join("`\n`#{prefix}#{name} ")}`", inline: true},
+      %{
+        name: "❯ Usage(s)",
+        value: "`#{prefix}#{name} #{usages |> Enum.join("`\n`#{prefix}#{name} ")}`",
+        inline: true
+      },
       %{
         name: "❯ Example(s)",
         value: "`#{prefix}#{name} #{examples |> Enum.join("`\n`#{prefix}#{name} ")}`",
@@ -73,7 +85,7 @@ defmodule Bot.Handler.Command.Util.Help do
       end
 
     embed = %{
-      name: name,
+      title: "❯ #{name}",
       description: command.description(),
       fields: fields
     }
