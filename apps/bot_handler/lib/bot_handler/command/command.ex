@@ -132,6 +132,6 @@ defmodule Bot.Handler.Command do
   end
 
   defp default_respond(message, response) do
-    rest(:create_message, [message.channel_id, response])
+    rest(:create_message!, [message.channel_id, response])
   end
 end
