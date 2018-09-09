@@ -5,6 +5,8 @@ defmodule Bot.Handler.Command.Music.NowPlaying do
 
   import Bot.Handler.Util
 
+  def description(), do: "Displays the currently played song."
+
   def aliases(), do: ["np"]
 
   def inhibit(%{guild_id: nil}, _) do

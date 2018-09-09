@@ -1,5 +1,11 @@
 defmodule Bot.Handler.Command do
+  # Info
   @callback aliases() :: [String.t()]
+  @callback usages() :: [String.t()]
+  @callback examples() :: [String.t()]
+  @callback description() :: String.t()
+
+  # Work
   @callback inhibit(Crux.Structs.Message.t(), [String.t()]) ::
               {:respond, Crux.Rest.create_message_data()} | boolean()
   @callback fetch(Crux.Structs.Message.t(), [String.t()]) ::
@@ -8,20 +14,41 @@ defmodule Bot.Handler.Command do
               {:respond, Crux.Rest.create_message_data()} | term()
   @callback respond(Crux.Structs.Message.t(), term()) :: term()
 
-  @optional_callbacks aliases: 0, inhibit: 2, fetch: 2, respond: 2
+  @optional_callbacks usages: 0, examples: 0, aliases: 0, inhibit: 2, fetch: 2, respond: 2
 
   @prefix "ß"
 
+  @spec get_prefix() :: String.t()
+  def get_prefix(), do: @prefix
+
   alias Bot.Handler.Command.Commands
+  alias Bot.Handler.Config.Guild
 
   import Bot.Handler.Util
+
+  @spec resolve(name_or_alias :: String.t()) :: nil | module()
+  def resolve(name_or_alias) do
+    case Commands.commands() do
+      %{^name_or_alias => command} ->
+        command
+
+      _ ->
+        case Commands.aliases() do
+          %{^name_or_alias => command} ->
+            command
+
+          _ ->
+            nil
+        end
+    end
+  end
 
   def handle(%{guild_id: guild_id} = message) when not is_nil(guild_id) do
     with {:ok, content} <- handle_prefix(message) do
       [command | args] = String.split(content, ~r/ +/, parts: :infinity)
       command = String.downcase(command)
 
-      case Commands.commands() |> Map.get(command) || Commands.aliases() |> Map.get(command) do
+      case resolve(command) do
         nil ->
           nil
 
@@ -46,18 +73,19 @@ defmodule Bot.Handler.Command do
   def handle(_message), do: nil
 
   defp handle_prefix(%{guild_id: guild_id, content: content}) do
-    with {:ok, prefix} <- Bot.Handler.Etcd.get("#{guild_id}:prefix", @prefix),
+    with {:ok, prefix} <- Guild.get(guild_id, "prefix", @prefix),
          {^prefix, content} <- String.split_at(content, String.length(prefix)) do
       {:ok, content}
     else
       _ ->
-        with {:ok, %{id: user_id}} <- cache(User, :me, []),
-             ["", content] <- String.split(content, Regex.compile!("^<@!?#{user_id}> *")) do
-          {:ok, content}
-        else
-          _ ->
-            :error
-        end
+        :error
+        # with {:ok, %{id: user_id}} <- cache(User, :me, []),
+        #      ["", content] <- String.split(content, Regex.compile!("^<@!?#{user_id}> *")) do
+        #   {:ok, content}
+        # else
+        #   _ ->
+        #     :error
+        # end
     end
   end
 

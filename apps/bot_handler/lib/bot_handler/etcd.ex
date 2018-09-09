@@ -12,8 +12,10 @@ defmodule Bot.Handler.Etcd do
     end
   end
 
-  @spec get(key :: String.t(), default :: String.t() | nil) ::
-          {:ok, String.t() | nil} | {:error, term()}
+  @spec get(
+          key :: String.t(),
+          default :: String.t() | nil
+        ) :: {:ok, String.t() | nil} | {:error, term()}
   def get(key, default \\ nil) do
     with {:ok, %{body: body}} <-
            Bot.Handler.Rest.post(@address <> "range", %{key: Base.encode64(key)}) do

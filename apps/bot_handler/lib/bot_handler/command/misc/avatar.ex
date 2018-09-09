@@ -5,6 +5,10 @@ defmodule Bot.Handler.Command.Misc.Avatar do
 
   alias Crux.Structs
 
+  def usages(), do: ["<User>"]
+  def examples(), do: ["@space", "218348062828003328"]
+  def description(), do: "Displays the avatar of the mentioned user."
+
   def fetch(message, []), do: {:ok, message.author}
 
   def fetch(_message, [head | _tail]) do

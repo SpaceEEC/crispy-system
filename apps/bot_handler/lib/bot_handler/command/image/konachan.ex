@@ -3,6 +3,13 @@ defmodule Bot.Handler.Command.Image.Konachan do
 
   @konachan_post "https://konachan.com/post"
 
+  def usages(), do: ["<...Tags>"]
+  def examples(), do: ["komeiji_satori", "touhou long_sleeves"]
+
+  def description(),
+    do:
+      "Fetches a random picture from https://konachan.net/, optionally with tags to search with."
+
   def fetch(_message, args) when length(args) <= 5 do
     tags =
       args

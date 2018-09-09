@@ -1,6 +1,8 @@
 defmodule Bot.Handler.Command.Util.Invite do
   @behaviour Bot.Handler.Command
 
+  def description(), do: "Invite the bot to your server."
+
   @invite_url "https://discordapp.com/oauth2/authorize?client_id={{id}}&scope=bot&permissions={{permissions}}"
 
   alias Crux.Structs.Permissions

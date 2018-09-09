@@ -1,9 +1,10 @@
 defmodule Bot.Handler.Command.Commands do
-  # Generated 2018-09-04T17:07:15.570000Z
+  # Generated 2018-09-09T16:26:15.302000Z
   @commands %{
     "avatar" => Bot.Handler.Command.Misc.Avatar,
     "donmai" => Bot.Handler.Command.Image.Donmai,
     "eval" => Bot.Handler.Command.Util.Eval,
+    "help" => Bot.Handler.Command.Util.Help,
     "image" => Bot.Handler.Command.Image,
     "invite" => Bot.Handler.Command.Util.Invite,
     "join" => Bot.Handler.Command.Music.Join,
@@ -16,13 +17,15 @@ defmodule Bot.Handler.Command.Commands do
     "play" => Bot.Handler.Command.Music.Play,
     "prefix" => Bot.Handler.Command.Config.Prefix,
     "queue" => Bot.Handler.Command.Music.Queue,
+    "removeprefix" => Bot.Handler.Command.Config.RemovePrefix,
     "resume" => Bot.Handler.Command.Music.Resume,
     "save" => Bot.Handler.Command.Music.Save,
     "shuffle" => Bot.Handler.Command.Music.Shuffle,
     "skip" => Bot.Handler.Command.Music.Skip,
     "stop" => Bot.Handler.Command.Music.Stop,
     "uptime" => Bot.Handler.Command.Util.Uptime,
-    "urban" => Bot.Handler.Command.Misc.Urban
+    "urban" => Bot.Handler.Command.Misc.Urban,
+    "vlogchannel" => Bot.Handler.Command.Config.VlogChannel
   }
   @aliases %{
     "np" => Bot.Handler.Command.Music.NowPlaying,

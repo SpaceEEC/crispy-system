@@ -3,6 +3,13 @@ defmodule Bot.Handler.Command.Image.Donmai do
 
   @donmai_posts "https://safebooru.donmai.us/posts"
 
+  def usages(), do: ["<...Tags>"]
+  def examples(), do: ["komeiji_satori", "touhou long_sleeves"]
+
+  def description(),
+    do:
+      "Fetches a random picture from https://safebooru.donmai.us/, optionally with tags to search with."
+
   def fetch(_message, args) when length(args) <= 2 do
     tags =
       args

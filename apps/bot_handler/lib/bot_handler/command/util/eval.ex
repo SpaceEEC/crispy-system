@@ -1,6 +1,8 @@
 defmodule Bot.Handler.Command.Util.Eval do
   @behaviour Bot.Handler.Command
 
+  def description(), do: "0.1 + 0.2 == 0.30000000000000004"
+
   def inhibit(message, _args) do
     message.author.id == 218_348_062_828_003_328
   end

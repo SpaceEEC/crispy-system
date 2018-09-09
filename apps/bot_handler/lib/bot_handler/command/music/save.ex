@@ -5,6 +5,9 @@ defmodule Bot.Handler.Command.Music.Save do
 
   import Bot.Handler.Util
 
+  def description(),
+    do: "Sents you a dm containing the currently played song, for your later use."
+
   def inhibit(%{guild_id: nil}, _) do
     {:respond, "That command may not be used in dms."}
   end

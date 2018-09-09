@@ -7,6 +7,10 @@ defmodule Bot.Handler.Command.Misc.Urban do
   @urban_api "https://api." <> @urban_base <> "?term="
   @urban_web "https://" <> @urban_base <> ".php?term="
 
+  def usages(), do: ["[\"-\"Number] <...Term>"]
+  def examples(), do: ["test", "-2 test", "-10 test"]
+  def description(), do: "Displays the urban definition of a term."
+
   def inhibit(_message, []) do
     {:respond, "You need to tell me what you want to look up."}
   end

@@ -5,6 +5,8 @@ defmodule Bot.Handler.Command.Music.Resume do
 
   import Bot.Handler.Util
 
+  def description(), do: "Resumes the currently paused song"
+
   def inhibit(%{guild_id: nil}, _args) do
     {:respond, "That command may not be used in dms."}
   end

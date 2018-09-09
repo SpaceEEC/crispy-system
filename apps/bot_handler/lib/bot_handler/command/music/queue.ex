@@ -5,6 +5,8 @@ defmodule Bot.Handler.Command.Music.Queue do
 
   import Bot.Handler.Util
 
+  def description(), do: "Shows the currently queued songs."
+
   def inhibit(%{guild_id: nil}, _args) do
     {:respond, "That command may not be used in dms."}
   end

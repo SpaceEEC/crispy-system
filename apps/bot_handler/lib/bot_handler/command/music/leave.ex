@@ -5,6 +5,8 @@ defmodule Bot.Handler.Command.Music.Leave do
 
   import Bot.Handler.Util
 
+  def description(), do: "Commands the bot to leave your channel."
+
   def inhibit(%{guild_id: nil}, _) do
     {:respond, "That command may not be used in dms."}
   end

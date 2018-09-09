@@ -5,6 +5,8 @@ defmodule Bot.Handler.Command.Music.Shuffle do
 
   import Bot.Handler.Util
 
+  def description(), do: "Shuffles the queue."
+
   def inhibit(%{guild_id: nil}, _) do
     {:respond, "That command may not be used in dms."}
   end

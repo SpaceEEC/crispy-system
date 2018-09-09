@@ -5,6 +5,9 @@ defmodule Bot.Handler.Command.Music.Stop do
 
   import Bot.Handler.Util
 
+  def description(),
+    do: "Stops the currently played song, clears the queue, and disconnects the bot."
+
   def inhibit(%{guild_id: nil} = message, _) do
     rest(:create_message, [message, [content: "That command may not be used in dms."]])
   end

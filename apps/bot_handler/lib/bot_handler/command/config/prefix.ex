@@ -3,7 +3,13 @@ defmodule Bot.Handler.Command.Config.Prefix do
 
   import Bot.Handler.Util
 
+  alias Bot.Handler.Command
+  alias Bot.Handler.Config.Guild
   alias Crux.Structs.Permissions
+
+  def usages(), do: ["", "<NewPrefix>"]
+  def examples(), do: ["", "!"]
+  def description(), do: "Set or display the current prefix."
 
   def inhibit(_message, []), do: true
 
@@ -11,12 +17,14 @@ defmodule Bot.Handler.Command.Config.Prefix do
     guild = cache(Guild, :fetch!, [guild_id])
     channel = cache(Channel, :fetch!, [channel_id])
 
-    member = case guild.members do
-      %{^user_id => member} ->
-        member
-      _ ->
-        rest(:get_guild_member!, [guild, user_id])
-    end
+    member =
+      case guild.members do
+        %{^user_id => member} ->
+          member
+
+        _ ->
+          rest(:get_guild_member!, [guild, user_id])
+      end
 
     Permissions.from(member, guild, channel)
     |> Permissions.has(:manage_guild) ||
@@ -24,21 +32,16 @@ defmodule Bot.Handler.Command.Config.Prefix do
   end
 
   def process(%{guild_id: guild_id}, []) do
-    prefix = Bot.Handler.Etcd.get!("#{guild_id}:prefix")
+    prefix = Guild.get!(guild_id, "prefix", Command.get_prefix())
 
-    response =
-      if prefix,
-        do: "The current prefix is ``#{prefix}``.",
-        else: "There is no custom prefix set."
-
-    {:respond, response}
+    {:respond, "The current prefix is ``#{prefix}``."}
   end
 
   def process(%{guild_id: guild_id}, args) do
-    old_prefix = Bot.Handler.Etcd.get!("#{guild_id}:prefix")
+    old_prefix = Guild.get!(guild_id, "prefix", Command.get_prefix())
     new_prefix = Enum.join(args, " ")
 
-    Bot.Handler.Etcd.put!("#{guild_id}:prefix", new_prefix)
+    Guild.put!(guild_id, "prefix", new_prefix)
 
     response =
       if old_prefix,

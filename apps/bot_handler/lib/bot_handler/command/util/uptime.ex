@@ -1,6 +1,8 @@
 defmodule Bot.Handler.Command.Util.Uptime do
   @behaviour Bot.Handler.Command
 
+  def description(), do: "Gets the uptime of the nodes."
+
   def process(_message, _args) do
     data =
       [Node.self() | Node.list()]

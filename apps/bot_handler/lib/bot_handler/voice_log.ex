@@ -1,63 +1,71 @@
 defmodule Bot.Handler.VoiceLog do
   import Bot.Handler.Util
+  alias Bot.Handler.Config.Guild
 
   # same channel before and after, ignore
   def handle(%{channel_id: channel_id}, %{channel_id: channel_id}), do: nil
 
-  def handle(%{channel_id: nil}, %{channel_id: new_channel_id, user_id: user_id}) do
-    with {:ok, user} <- cache(User, :fetch, [user_id]),
-         {:ok, new_channel} <- cache(Channel, :fetch, [new_channel_id]) do
-      embed = %{
-        color: 0x7CFC00,
-        user: %{
-          name: "#{user.username}##{user.discriminator} (#{user.id})",
-          icon_url:
-            rest(Crux.Rest.Endpoints, :cdn) <> "/avatars/#{user.id}/#{user.avatar}.png"
-        },
-        timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
-        description: "#{user} connected to #{new_channel} (#{new_channel.name})"
-      }
+  def handle(%{channel_id: old_channel_id}, %{
+        new_channel_id: new_channel_id,
+        user_id: user_id,
+        guild_id: guild_id
+      }) do
+    case Guild.get(guild_id, "vlog_channel_id") do
+      {:ok, nil} ->
+        nil
 
-      rest(:create_message, [242_663_102_590_615_552, [embed: embed]])
+      {:ok, channel_id} ->
+        with {:ok, user} <- cache(User, :fetch, [user_id]),
+             {:ok, old_channel} <-
+               if(old_channel_id, do: cache(Channel, :fetch, [old_channel_id]), else: {:ok, nil}),
+             {:ok, new_channel} <-
+               if(new_channel_id, do: cache(Channel, :fetch, [new_channel_id]), else: {:ok, nil}) do
+          _handle(channel_id, user, old_channel, new_channel)
+        end
     end
   end
 
-  def handle(%{channel_id: old_channel_id}, %{channel_id: nil, user_id: user_id}) do
-    with {:ok, user} <- cache(User, :fetch, [user_id]),
-         {:ok, old_channel} <- cache(Channel, :fetch, [old_channel_id]) do
-      embed = %{
-        color: 0x7CFC00,
-        user: %{
-          name: "#{user.username}##{user.discriminator} (#{user.id})",
-          icon_url:
-            rest(Crux.Rest.Endpoints, :cdn) <> "/avatars/#{user.id}/#{user.avatar}.png"
-        },
-        timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
-        description: "#{user} disconnected from #{old_channel} (#{old_channel.name})"
-      }
+  defp _handle(taget_id, user, nil, new_channel) do
+    embed = %{
+      color: 0x7CFC00,
+      user: %{
+        name: "#{user.username}##{user.discriminator} (#{user.id})",
+        icon_url: rest(Crux.Rest.Endpoints, :cdn) <> "/avatars/#{user.id}/#{user.avatar}.png"
+      },
+      timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
+      description: "#{user} connected to #{new_channel} (#{new_channel.name})"
+    }
 
-      rest(:create_message, [242_663_102_590_615_552, [embed: embed]])
-    end
+    rest(:create_message, [taget_id, [embed: embed]])
   end
 
-  def handle(%{channel_id: old_channel_id}, %{channel_id: new_channel_id, user_id: user_id}) do
-    with {:ok, user} <- cache(User, :fetch, [user_id]),
-         {:ok, old_channel} <- cache(Channel, :fetch, [old_channel_id]),
-         {:ok, new_channel} <- cache(Channel, :fetch, [new_channel_id]) do
-      embed = %{
-        color: 0x7CFC00,
-        user: %{
-          name: "#{user.username}##{user.discriminator} (#{user.id})",
-          icon_url:
-            rest(Crux.Rest.Endpoints, :cdn) <> "/avatars/#{user.id}/#{user.avatar}.png"
-        },
-        timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
-        description:
-          "#{user} moved from #{old_channel} (#{old_channel.name})" <>
-            "to #{new_channel} (#{new_channel.name})"
-      }
+  defp _handle(target_id, user, old_channel, nil) do
+    embed = %{
+      color: 0x7CFC00,
+      user: %{
+        name: "#{user.username}##{user.discriminator} (#{user.id})",
+        icon_url: rest(Crux.Rest.Endpoints, :cdn) <> "/avatars/#{user.id}/#{user.avatar}.png"
+      },
+      timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
+      description: "#{user} disconnected from #{old_channel} (#{old_channel.name})"
+    }
 
-      rest(:create_message, [242_663_102_590_615_552, [embed: embed]])
-    end
+    rest(:create_message, [target_id, [embed: embed]])
+  end
+
+  defp _handle(target_id, user, old_channel, new_channel) do
+    embed = %{
+      color: 0x7CFC00,
+      user: %{
+        name: "#{user.username}##{user.discriminator} (#{user.id})",
+        icon_url: rest(Crux.Rest.Endpoints, :cdn) <> "/avatars/#{user.id}/#{user.avatar}.png"
+      },
+      timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
+      description:
+        "#{user} moved from #{old_channel} (#{old_channel.name})" <>
+          "to #{new_channel} (#{new_channel.name})"
+    }
+
+    rest(:create_message, [target_id, [embed: embed]])
   end
 end

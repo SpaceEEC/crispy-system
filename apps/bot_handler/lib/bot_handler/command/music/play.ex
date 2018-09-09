@@ -6,6 +6,17 @@ defmodule Bot.Handler.Command.Music.Play do
 
   import Bot.Handler.Util
 
+  def usages(), do: ["<...Search>", "<Video URL>", "<Playlist URL>"]
+
+  def examples(),
+    do: [
+      "Maribou State - Tongue (feat. Holly Walker)",
+      "https://www.youtube.com/watch?v=fMZpb9vfiOM",
+      "https://www.youtube.com/playlist?list=PLDfKAXSi6kUafKlwAurWST8zb4-Zy1JcU"
+    ]
+
+  def description(), do: "Displays the currently played song."
+
   def inhibit(%{guild_id: nil}, _args) do
     {:respond, "That command may not be used in dms."}
   end

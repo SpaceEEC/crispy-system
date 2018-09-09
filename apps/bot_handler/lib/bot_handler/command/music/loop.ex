@@ -5,6 +5,10 @@ defmodule Bot.Handler.Command.Music.Loop do
 
   import Bot.Handler.Util
 
+  def usages(), do: ["", "<State>"]
+  def examples(), do: ["", "enable", "disable"]
+  def description(), do: "Enabled, disabled, or shows the current state of the queue."
+
   def inhibit(%{guild_id: nil}, _) do
     {:respond, "That command may not be used in dms."}
   end
