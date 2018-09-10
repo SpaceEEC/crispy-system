@@ -13,17 +13,8 @@ defmodule Bot.Handler.Command.Config.Prefix do
 
   def inhibit(_message, []), do: true
 
-  def inhibit(%{guild_id: guild_id, author: %{id: user_id}}, _) do
+  def inhibit(%{member: member, guild_id: guild_id, author: %{id: user_id}}, _) do
     guild = cache(:Guild, :fetch!, [guild_id])
-
-    member =
-      case guild.members do
-        %{^user_id => member} ->
-          member
-
-        _ ->
-          rest(:get_guild_member!, [guild, user_id])
-      end
 
     Permissions.from(member, guild)
     |> Permissions.has(:manage_guild) ||
