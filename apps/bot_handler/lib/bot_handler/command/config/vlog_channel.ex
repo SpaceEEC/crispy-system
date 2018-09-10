@@ -12,6 +12,10 @@ defmodule Bot.Handler.Command.Config.VlogChannel do
   def description(),
     do: "See, set, or remove the current voice log channel from the configuration."
 
+  def inhibit(%{guild_id: nil}, _) do
+    {:respond, "That command may not be used in dms."}
+  end
+
   def inhibit(%{member: member, guild_id: guild_id, author: %{id: user_id}}, _) do
     guild = cache(:Guild, :fetch!, [guild_id])
 

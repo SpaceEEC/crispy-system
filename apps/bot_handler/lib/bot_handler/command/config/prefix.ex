@@ -11,6 +11,10 @@ defmodule Bot.Handler.Command.Config.Prefix do
   def examples(), do: ["", "!"]
   def description(), do: "Set or display the current prefix."
 
+  def inhibit(%{guild_id: nil}, _) do
+    {:respond, "That command may not be used in dms."}
+  end
+
   def inhibit(_message, []), do: true
 
   def inhibit(%{member: member, guild_id: guild_id, author: %{id: user_id}}, _) do

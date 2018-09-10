@@ -9,6 +9,10 @@ defmodule Bot.Handler.Command.Config.RemovePrefix do
 
   def description(), do: "Remove the currently set prefix."
 
+  def inhibit(%{guild_id: nil}, _) do
+    {:respond, "That command may not be used in dms."}
+  end
+
   def inhibit(%{member: member, guild_id: guild_id, author: %{id: user_id}}, _) do
     guild = cache(:Guild, :fetch!, [guild_id])
 
