@@ -13,7 +13,7 @@ defmodule Bot.Handler.Command.Config.RemovePrefix do
     {:respond, "That command may not be used in dms."}
   end
 
-  def inhibit(%{member: member, guild_id: guild_id, author: %{id: user_id}}, _) do
+  def inhibit(%{member: member, guild_id: guild_id}, _) do
     guild = cache(:Guild, :fetch!, [guild_id])
 
     Permissions.from(member, guild)

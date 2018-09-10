@@ -17,7 +17,7 @@ defmodule Bot.Handler.Command.Config.Prefix do
 
   def inhibit(_message, []), do: true
 
-  def inhibit(%{member: member, guild_id: guild_id, author: %{id: user_id}}, _) do
+  def inhibit(%{member: member, guild_id: guild_id}, _) do
     guild = cache(:Guild, :fetch!, [guild_id])
 
     Permissions.from(member, guild)
