@@ -77,7 +77,7 @@ defmodule Bot.Handler.Command.Util.Help do
     fields =
       if function_exported?(command, :aliases, 0) do
         [
-          %{name: "❯ Alias(es)", value: command.aliases() |> Enum.join("\n")}
+          %{name: "❯ Alias(es)", value: "`#{command.aliases() |> Enum.join("`, `")}`"}
           | fields
         ]
       else

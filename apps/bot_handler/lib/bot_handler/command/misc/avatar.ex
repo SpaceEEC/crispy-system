@@ -32,7 +32,7 @@ defmodule Bot.Handler.Command.Misc.Avatar do
     |> case do
       # 16 - 19 chars long
       {id, ""} when id >= 1.0e15 and id <= 1.0e18 ->
-        with :error <- cache(User, :fetch, [id]),
+        with :error <- cache(:User, :fetch, [id]),
              {:error, _} <- rest(:get_user, [id]) do
           {:respond, "Could not find that user"}
         end

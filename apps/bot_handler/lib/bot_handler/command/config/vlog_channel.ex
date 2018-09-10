@@ -13,8 +13,8 @@ defmodule Bot.Handler.Command.Config.VlogChannel do
     do: "See, set, or remove the current voice log channel from the configuration."
 
   def inhibit(%{channel_id: channel_id, guild_id: guild_id, author: %{id: user_id}}, _) do
-    guild = cache(Guild, :fetch!, [guild_id])
-    channel = cache(Channel, :fetch!, [channel_id])
+    guild = cache(:Guild, :fetch!, [guild_id])
+    channel = cache(:Channel, :fetch!, [channel_id])
 
     member =
       case guild.members do
@@ -37,7 +37,7 @@ defmodule Bot.Handler.Command.Config.VlogChannel do
   def fetch(%{guild_id: guild_id}, ["<#" <> rest | _]) do
     id = String.slice(rest, 0..-2)
 
-    case cache(Channel, :fetch, [id]) do
+    case cache(:Channel, :fetch, [id]) do
       :error ->
         {:respond, "Could not find a channel with the id #{id} from <##{id}>."}
 

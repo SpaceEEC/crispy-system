@@ -16,7 +16,7 @@ defmodule Bot.Handler.Command.Music.NowPlaying do
   def inhibit(_message, _args), do: true
 
   def fetch(%{channel_id: channel_id}, _args) do
-    channel = cache(Channel, :fetch!, [channel_id])
+    channel = cache(:Channel, :fetch!, [channel_id])
 
     {:ok, channel}
   end

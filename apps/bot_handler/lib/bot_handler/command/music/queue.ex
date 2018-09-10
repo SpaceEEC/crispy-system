@@ -61,7 +61,7 @@ defmodule Bot.Handler.Command.Music.Queue do
           current_time
           |> Util.format_milliseconds()
 
-        me = cache(User, :me!)
+        me = cache(:User, :me!)
 
         loop = if loop, do: "**Loop is enabled**\n", else: ""
 

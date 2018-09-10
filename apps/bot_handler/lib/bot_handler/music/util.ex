@@ -24,7 +24,7 @@ defmodule Bot.Handler.Music.Util do
         do: "**Loop is enabled**",
         else: ""
 
-    me = cache(User, :me!)
+    me = cache(:User, :me!)
 
     %{
       author: %{

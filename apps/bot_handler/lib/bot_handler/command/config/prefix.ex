@@ -15,7 +15,7 @@ defmodule Bot.Handler.Command.Config.Prefix do
 
   def inhibit(%{channel_id: channel_id, guild_id: guild_id, author: %{id: user_id}}, _) do
     guild = cache(:Guild, :fetch!, [guild_id])
-    channel = cache(Channel, :fetch!, [channel_id])
+    channel = cache(:Channel, :fetch!, [channel_id])
 
     member =
       case guild.members do

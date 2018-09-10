@@ -12,7 +12,7 @@ defmodule Bot.Handler.Command.Music.Join do
   def inhibit(_message, _args), do: true
 
   def fetch(%{guild_id: guild_id}, _args) do
-    guild = cache(Guild, :fetch!, [guild_id])
+    guild = cache(:Guild, :fetch!, [guild_id])
     {:ok, guild}
   end
 

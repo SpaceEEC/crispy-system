@@ -22,7 +22,7 @@ defmodule Bot.Handler.Command.Util.Invite do
         :speak
       ])
 
-    user = cache(User, :me!)
+    user = cache(:User, :me!)
 
     url =
       @invite_url

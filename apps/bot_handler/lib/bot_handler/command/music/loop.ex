@@ -18,8 +18,8 @@ defmodule Bot.Handler.Command.Music.Loop do
   def fetch(message, []), do: fetch(message, [""])
 
   def fetch(%{guild_id: guild_id}, args) do
-    guild = cache(Guild, :fetch!, [guild_id])
-    %{id: own_id} = cache(User, :me!)
+    guild = cache(:Guild, :fetch!, [guild_id])
+    %{id: own_id} = cache(:User, :me!)
 
     {:ok, {own_id, guild, args}}
   end

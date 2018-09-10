@@ -14,7 +14,7 @@ defmodule Bot.Handler do
       ]
 
       children =
-        case cache(User, :me, []) do
+        case cache(:User, :me, []) do
           {:ok, _user} ->
             [Bot.Handler.Lavalink.Connection | children]
 

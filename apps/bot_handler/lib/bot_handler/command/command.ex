@@ -79,7 +79,7 @@ defmodule Bot.Handler.Command do
     else
       _ ->
         :error
-        # with {:ok, %{id: user_id}} <- cache(User, :me, []),
+        # with {:ok, %{id: user_id}} <- cache(:User, :me, []),
         #      ["", content] <- String.split(content, Regex.compile!("^<@!?#{user_id}> *")) do
         #   {:ok, content}
         # else

@@ -22,11 +22,11 @@ defmodule Bot.Handler.VoiceLog do
         nil
 
       {:ok, channel_id} ->
-        with {:ok, user} <- cache(User, :fetch, [user_id]),
+        with {:ok, user} <- cache(:User, :fetch, [user_id]),
              {:ok, old_channel} <-
-               if(old_channel_id, do: cache(Channel, :fetch, [old_channel_id]), else: {:ok, nil}),
+               if(old_channel_id, do: cache(:Channel, :fetch, [old_channel_id]), else: {:ok, nil}),
              {:ok, new_channel} <-
-               if(new_channel_id, do: cache(Channel, :fetch, [new_channel_id]), else: {:ok, nil}) do
+               if(new_channel_id, do: cache(:Channel, :fetch, [new_channel_id]), else: {:ok, nil}) do
           _handle(channel_id, user, old_channel, new_channel)
         end
     end
