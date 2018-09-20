@@ -13,7 +13,7 @@ defmodule Bot.Handler.Lavalink.Connection do
     Logger.info("[Lavalink]: Starting WebSocket connection")
 
     shard_count = gateway(Application, :fetch_env!, [:crux_gateway, :shard_count])
-    %{id: id} = cache(:User, :me!)
+    id = Application.fetch_env!(:bot_handler, :id)
 
     voice_servers = Map.new()
     voice_states = Map.new()
@@ -55,8 +55,8 @@ defmodule Bot.Handler.Lavalink.Connection do
   def forward(%VoiceState{channel_id: nil}), do: :ok
 
   def forward(%VoiceState{user_id: id} = voice_state) do
-    case cache(:User, :me) do
-      {:ok, %{id: ^id}} ->
+    case Application.fetch_env!(:bot_handler, :id) do
+      ^id ->
         WebSockex.cast(__MODULE__, {:store, voice_state})
 
       _ ->

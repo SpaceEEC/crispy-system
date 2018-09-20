@@ -9,18 +9,15 @@ defmodule Bot.Handler.Command.Music.Shuffle do
   def guild_only(), do: true
 
   def fetch(%{guild_id: guild_id}, _args) do
-    guild = cache(:Guild, :fetch!, [guild_id])
-    %{id: own_id} = cache(:User, :me!)
-
-    {:ok, {own_id, guild}}
+    {:ok, cache(:Guild, :fetch!, [guild_id])}
   end
 
   def process(
         %{author: %{id: user_id}},
-        {own_id, %{id: guild_id, voice_states: voice_states}}
+        %{id: guild_id, voice_states: voice_states}
       ) do
     res =
-      with true <- Music.Util.ensure_connected(voice_states, own_id, user_id) do
+      with true <- Music.Util.ensure_connected(voice_states, user_id) do
         Music.Player.command(guild_id, :shuffle)
       end
 

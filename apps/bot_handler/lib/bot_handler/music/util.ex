@@ -142,10 +142,11 @@ defmodule Bot.Handler.Music.Util do
 
   @spec ensure_connected(
           voice_states :: %{required(Crux.Rest.snowflake()) => Crux.Structs.VoiceState.t()},
-          own_id :: Crux.Rest.snowflake(),
           user_id :: Crux.Rest.snowflake()
         ) :: true | String.t()
-  def ensure_connected(voice_states, own_id, user_id) do
+  def ensure_connected(voice_states, user_id) do
+    own_id = Application.fetch_env!(:bot_handler, :id)
+
     case voice_states do
       %{^own_id => %{channel_id: nil}} ->
         "I am not connected to a voice channel here."
@@ -176,10 +177,11 @@ defmodule Bot.Handler.Music.Util do
 
   @spec will_connect(
           voice_states :: %{required(Crux.Rest.snowflake()) => Crux.Structs.VoiceState.t()},
-          own_id :: Crux.Rest.snowflake(),
           user_id :: Crux.Rest.snowflake()
         ) :: Crux.Rest.snowflake() | String.t()
-  def will_connect(voice_states, own_id, user_id) do
+  def will_connect(voice_states, user_id) do
+    own_id = Application.fetch_env!(:bot_handler, :id)
+
     case voice_states do
       %{^user_id => %{channel_id: nil}} ->
         "You are not connected to a voice channel here."

@@ -79,8 +79,8 @@ defmodule Bot.Handler.Command do
     end
   end
 
-  defp handle_prefix(%{guild_id: nil, content: content}) do
-    #{:ok, content}
+  defp handle_prefix(%{guild_id: nil, content: _content}) do
+    # {:ok, content}
     :error
   end
 
@@ -90,13 +90,15 @@ defmodule Bot.Handler.Command do
       {:ok, content}
     else
       _ ->
-        # with {:ok, %{id: user_id}} <- cache(:User, :me, []),
-        #     ["", content] <- String.split(content, Regex.compile!("^<@!?#{user_id}> *")) do
-        #  {:ok, content}
-        # else
-        #  _ ->
-        :error
-        # end
+        regex = Regex.compile!("^<@!?#{Application.fetch_env!(:bot_handler, :id)}> *")
+
+        case String.split(content, regex) do
+          ["", content] ->
+            {:ok, content}
+
+          _ ->
+            :error
+        end
     end
   end
 

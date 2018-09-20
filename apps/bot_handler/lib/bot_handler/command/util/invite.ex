@@ -6,7 +6,6 @@ defmodule Bot.Handler.Command.Util.Invite do
   @invite_url "https://discordapp.com/oauth2/authorize?client_id={{id}}&scope=bot&permissions={{permissions}}"
 
   alias Crux.Structs.Permissions
-  import Bot.Handler.Util
 
   def process(_message, _args) do
     permissions =
@@ -21,13 +20,16 @@ defmodule Bot.Handler.Command.Util.Invite do
         :connect,
         :speak
       ])
+      |> to_string()
 
-    user = cache(:User, :me!)
+    id =
+      Application.fetch_env!(:bot_handler, :id)
+      |> to_string()
 
     url =
       @invite_url
-      |> String.replace("{{id}}", to_string(user.id))
-      |> String.replace("{{permissions}}", to_string(permissions))
+      |> String.replace("{{id}}", id)
+      |> String.replace("{{permissions}}", permissions)
 
     embed = %{
       author: %{
