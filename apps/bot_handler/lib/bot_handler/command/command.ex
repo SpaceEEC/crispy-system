@@ -51,7 +51,8 @@ defmodule Bot.Handler.Command do
   end
 
   def handle(%{author: %{bot: true}}), do: nil
-  def handle(%{guild_id: guild_id} = message) when not is_nil(guild_id) do
+
+  def handle(message) do
     with {:ok, content} <- handle_prefix(message) do
       [command | args] = String.split(content, ~r/ +/, parts: :infinity)
       command = String.downcase(command)
@@ -78,7 +79,10 @@ defmodule Bot.Handler.Command do
     end
   end
 
-  def handle(_message), do: nil
+  defp handle_prefix(%{guild_id: nil, content: content}) do
+    #{:ok, content}
+    :error
+  end
 
   defp handle_prefix(%{guild_id: guild_id, content: content}) do
     with {:ok, prefix} <- Guild.get(guild_id, "prefix", @prefix),
