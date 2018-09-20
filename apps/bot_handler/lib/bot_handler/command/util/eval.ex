@@ -7,6 +7,8 @@ defmodule Bot.Handler.Command.Util.Eval do
     message.author.id == 218_348_062_828_003_328
   end
 
+  def process(_message, ["#raise" | rest]), do: Enum.join(rest, " ") |> raise()
+
   def process(message, args) do
     {res, _binding} =
       try do
