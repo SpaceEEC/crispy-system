@@ -43,6 +43,7 @@ defmodule Bot.Handler.Command do
     end
   end
 
+  def handle(%{author: %{bot: true}}), do: nil
   def handle(%{guild_id: guild_id} = message) when not is_nil(guild_id) do
     with {:ok, content} <- handle_prefix(message) do
       [command | args] = String.split(content, ~r/ +/, parts: :infinity)
