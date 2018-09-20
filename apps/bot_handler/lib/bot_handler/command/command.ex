@@ -65,7 +65,7 @@ defmodule Bot.Handler.Command do
                 "```elixir\n#{Exception.format_banner(:error, e)}```"
               )
 
-              reraise(e, System.stacktrace())
+              reraise(e, __STACKTRACE__)
           end
       end
     end
