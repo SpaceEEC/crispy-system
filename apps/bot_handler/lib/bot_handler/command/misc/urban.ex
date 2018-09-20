@@ -11,11 +11,9 @@ defmodule Bot.Handler.Command.Misc.Urban do
   def examples(), do: ["test", "-2 test", "-10 test"]
   def description(), do: "Displays the urban definition of a term."
 
-  def inhibit(_message, []) do
+  def fetch(_message, []) do
     {:respond, "You need to tell me what you want to look up."}
   end
-
-  def inhibit(_message, _args), do: true
 
   def fetch(message, ["-" <> number | rest]) do
     case Integer.parse(number) do

@@ -8,11 +8,7 @@ defmodule Bot.Handler.Command.Music.Stop do
   def description(),
     do: "Stops the currently played song, clears the queue, and disconnects the bot."
 
-  def inhibit(%{guild_id: nil}, _) do
-    {:repond, "That command may not be used in dms."}
-  end
-
-  def inhibit(_message, _args), do: true
+  def guild_only(), do: true
 
   def fetch(%{guild_id: guild_id}, _args) do
     guild = cache(:Guild, :fetch!, [guild_id])

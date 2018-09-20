@@ -4,12 +4,7 @@ defmodule Bot.Handler.Command.Music.Join do
   import Bot.Handler.Util
 
   def description(), do: "Commands the bot to join your channel."
-
-  def inhibit(%{guild_id: nil}, _) do
-    {:respond, "That command may not be used in dms."}
-  end
-
-  def inhibit(_message, _args), do: true
+  def guild_only(), do: true
 
   def fetch(%{guild_id: guild_id}, _args) do
     guild = cache(:Guild, :fetch!, [guild_id])

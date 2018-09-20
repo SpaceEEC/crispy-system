@@ -5,15 +5,9 @@ defmodule Bot.Handler.Command.Music.NowPlaying do
 
   import Bot.Handler.Util
 
-  def description(), do: "Displays the currently played song."
-
   def aliases(), do: ["np"]
-
-  def inhibit(%{guild_id: nil}, _) do
-    {:respond, "That command may not be used in dms."}
-  end
-
-  def inhibit(_message, _args), do: true
+  def description(), do: "Displays the currently played song."
+  def guild_only(), do: true
 
   def fetch(%{channel_id: channel_id}, _args) do
     channel = cache(:Channel, :fetch!, [channel_id])

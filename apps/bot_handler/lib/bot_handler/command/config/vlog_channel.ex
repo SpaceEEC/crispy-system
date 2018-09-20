@@ -6,15 +6,12 @@ defmodule Bot.Handler.Command.Config.VlogChannel do
   alias Bot.Handler.Config.Guild
   alias Crux.Structs.Permissions
 
-  def usages(), do: ["", "<\"remove\"|text-channel>"]
-  def examples(), do: ["", "remove", "#text-channel"]
-
   def description(),
     do: "See, set, or remove the current voice log channel from the configuration."
 
-  def inhibit(%{guild_id: nil}, _) do
-    {:respond, "That command may not be used in dms."}
-  end
+  def examples(), do: ["", "remove", "#text-channel"]
+  def guild_only(), do: true
+  def usages(), do: ["", "<\"remove\"|text-channel>"]
 
   def inhibit(%{member: member, guild_id: guild_id}, _) do
     guild = cache(:Guild, :fetch!, [guild_id])

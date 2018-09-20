@@ -1,9 +1,10 @@
 defmodule Bot.Handler.Command do
   # Info
   @callback aliases() :: [String.t()]
-  @callback usages() :: [String.t()]
-  @callback examples() :: [String.t()]
   @callback description() :: String.t()
+  @callback examples() :: [String.t()]
+  @callback guild_only() :: true
+  @callback usages() :: [String.t()]
 
   # Work
   @callback inhibit(Crux.Structs.Message.t(), [String.t()]) ::
@@ -14,7 +15,13 @@ defmodule Bot.Handler.Command do
               {:respond, Crux.Rest.create_message_data()} | term()
   @callback respond(Crux.Structs.Message.t(), term()) :: term()
 
-  @optional_callbacks usages: 0, examples: 0, aliases: 0, inhibit: 2, fetch: 2, respond: 2
+  @optional_callbacks aliases: 0,
+                      examples: 0,
+                      guild_only: 0,
+                      usages: 0,
+                      inhibit: 2,
+                      fetch: 2,
+                      respond: 2
 
   @prefix "ß"
 
@@ -79,54 +86,47 @@ defmodule Bot.Handler.Command do
       {:ok, content}
     else
       _ ->
-        :error
         # with {:ok, %{id: user_id}} <- cache(:User, :me, []),
-        #      ["", content] <- String.split(content, Regex.compile!("^<@!?#{user_id}> *")) do
-        #   {:ok, content}
+        #     ["", content] <- String.split(content, Regex.compile!("^<@!?#{user_id}> *")) do
+        #  {:ok, content}
         # else
-        #   _ ->
-        #     :error
+        #  _ ->
+        :error
         # end
     end
   end
 
   def run(mod, message, args) do
-    with true <- inhibit(mod, message, args),
-         {:ok, args} <- fetch(mod, message, args) do
+    funs = mod.__info__(:functions) |> Map.new()
+
+    with true <- handle_guild_only(mod, message, args, funs),
+         true <- inhibit(mod, message, args, funs),
+         {:ok, args} <- fetch(mod, message, args, funs) do
       mod.process(message, args)
     end
     |> case do
       {:respond, response} ->
-        respond(mod, message, response)
+        respond(mod, message, response, funs)
 
       _ ->
         nil
     end
   end
 
-  defp inhibit(mod, message, args) do
-    if function_exported?(mod, :inhibit, 2) do
-      mod.inhibit(message, args)
-    else
-      true
-    end
+  def handle_guild_only(_mod, %{guild_id: nil}, _args, %{guild_only: 0}) do
+    {:respond, "That command may not be used in dms."}
   end
 
-  defp fetch(mod, message, args) do
-    if function_exported?(mod, :fetch, 2) do
-      mod.fetch(message, args)
-    else
-      {:ok, args}
-    end
-  end
+  def handle_guild_only(_mod, _message, _args, _funs), do: true
 
-  defp respond(mod, message, response) do
-    if function_exported?(mod, :respond, 2) do
-      mod.respond(message, response)
-    else
-      default_respond(message, response)
-    end
-  end
+  defp inhibit(mod, message, args, %{inhibit: 2}), do: mod.inhibit(message, args)
+  defp inhibit(_mod, _message, _args, _funs), do: true
+
+  defp fetch(mod, message, args, %{fetch: 2}), do: mod.fetch(message, args)
+  defp fetch(_mod, _message, args, _funs), do: {:ok, args}
+
+  defp respond(mod, message, response, %{respond: 2}), do: mod.respond(message, response)
+  defp respond(_mod, message, response, _funs), do: default_respond(message, response)
 
   defp default_respond(message, response) when is_bitstring(response) do
     default_respond(message, content: response)

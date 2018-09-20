@@ -6,7 +6,7 @@ defmodule Bot.Handler.Command.Music.Play do
 
   import Bot.Handler.Util
 
-  def usages(), do: ["<...Search>", "<Video URL>", "<Playlist URL>"]
+  def description(), do: "Displays the currently played song."
 
   def examples(),
     do: [
@@ -15,17 +15,12 @@ defmodule Bot.Handler.Command.Music.Play do
       "https://www.youtube.com/playlist?list=PLDfKAXSi6kUafKlwAurWST8zb4-Zy1JcU"
     ]
 
-  def description(), do: "Displays the currently played song."
+  def usages(), do: ["<...Search>", "<Video URL>", "<Playlist URL>"]
+  def guild_only(), do: true
 
-  def inhibit(%{guild_id: nil}, _args) do
-    {:respond, "That command may not be used in dms."}
-  end
-
-  def inhibit(_message, []) do
+  def fetch(_message, []) do
     {:respond, "You have to give me a url, or something to search for."}
   end
-
-  def inhibit(_message, _args), do: true
 
   def fetch(_message, args) do
     {identifier, playlist} =
