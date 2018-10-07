@@ -5,6 +5,8 @@ defmodule Mix.Tasks.Commands do
 
   @template ~S"""
   defmodule Bot.Handler.Command.Commands do
+    @moduledoc false
+
     # Generated #{generated}
     @commands #{commands}
     @aliases #{aliases}

@@ -1,7 +1,7 @@
 defmodule Bot.Handler.Command.Commands do
   @moduledoc false
 
-  # Generated 2018-09-09T16:26:15.302000Z
+  # Generated 2018-10-07T12:55:16.011000Z
   @commands %{
     "avatar" => Bot.Handler.Command.Misc.Avatar,
     "donmai" => Bot.Handler.Command.Image.Donmai,

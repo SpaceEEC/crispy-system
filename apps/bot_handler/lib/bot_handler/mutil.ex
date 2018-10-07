@@ -149,8 +149,6 @@ defmodule Bot.Handler.Mutil do
   def ensure_connected(voice_states, user_id) do
     own_id = Application.fetch_env!(:bot_handler, :id)
 
-    IO.inspect(own_id, label: "own id")
-
     case voice_states do
       %{^own_id => %{channel_id: nil}} ->
         "I am not connected to a voice channel here."
