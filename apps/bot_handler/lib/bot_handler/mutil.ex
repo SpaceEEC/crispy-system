@@ -1,4 +1,6 @@
-defmodule Bot.Handler.Music.Util do
+defmodule Bot.Handler.Mutil do
+  @moduledoc false
+
   import Bot.Handler.Util
 
   @spec build_embed(
@@ -146,6 +148,8 @@ defmodule Bot.Handler.Music.Util do
         ) :: true | String.t()
   def ensure_connected(voice_states, user_id) do
     own_id = Application.fetch_env!(:bot_handler, :id)
+
+    IO.inspect(own_id, label: "own id")
 
     case voice_states do
       %{^own_id => %{channel_id: nil}} ->

@@ -30,6 +30,7 @@ defmodule Bot.Gateway.MixProject do
     [
       {:crux_gateway, git: "http://github.com/spaceeec/crux_gateway", override: true},
       {:sentry, "~> 6.2.1"},
+      {:credo, "~> 0.10.0", only: [:dev, :test], runtime: false},
       {:distillery, "~> 1.5.2", runtime: false}
     ]
   end

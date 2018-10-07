@@ -1,4 +1,6 @@
 defmodule Bot.Handler.Consumer.Supervisor do
+  @moduledoc false
+
   use ConsumerSupervisor
 
   def start_link([mod] = args) when is_atom(mod) do

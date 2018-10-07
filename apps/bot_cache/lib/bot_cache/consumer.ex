@@ -6,6 +6,9 @@ defmodule Bot.Cache.Consumer do
 
   use GenStage
 
+  alias Bot.Cache.Producer
+  alias Crux.Base.Consumer
+
   @gateway :"gateway@127.0.0.1"
   @registry Bot.Cache.Registry
 
@@ -35,9 +38,9 @@ defmodule Bot.Cache.Consumer do
   @doc false
   def handle_events(events, _from, nil) do
     for {type, data, shard_id} <- events,
-        value <- [Crux.Base.Consumer.handle_event(type, data, shard_id)],
+        value <- [Consumer.handle_event(type, data, shard_id)],
         value != nil do
-      Bot.Cache.Producer.dispatch({type, value, shard_id})
+      Producer.dispatch({type, value, shard_id})
     end
 
     {:noreply, [], nil}

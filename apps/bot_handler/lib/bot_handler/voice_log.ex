@@ -1,18 +1,22 @@
 defmodule Bot.Handler.VoiceLog do
+  @moduledoc false
+
   import Bot.Handler.Util
   alias Bot.Handler.Config.Guild
+  alias Crux.Structs.{Message, VoiceState}
 
+  @spec handle(
+          old :: term(),
+          new :: term()
+        ) :: nil | {:ok, Message.t()} | {:error, term()}
   # same channel before and after, ignore
-  def handle(
-        %Crux.Structs.VoiceState{channel_id: channel_id},
-        %Crux.Structs.VoiceState{channel_id: channel_id}
-      ) do
+  def handle(%VoiceState{channel_id: channel_id}, %VoiceState{channel_id: channel_id}) do
     nil
   end
 
-  def handle(nil, state), do: handle(%Crux.Structs.VoiceState{channel_id: nil}, state)
+  def handle(nil, %VoiceState{} = new), do: handle(%VoiceState{channel_id: nil}, new)
 
-  def handle(%Crux.Structs.VoiceState{channel_id: old_channel_id}, %Crux.Structs.VoiceState{
+  def handle(%VoiceState{channel_id: old_channel_id}, %VoiceState{
         channel_id: new_channel_id,
         user_id: user_id,
         guild_id: guild_id

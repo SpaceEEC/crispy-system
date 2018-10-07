@@ -1,13 +1,26 @@
-defmodule Bot.Handler.Music.Player do
+defmodule Bot.Lavalink.Player do
+  @moduledoc false
+
+  @enforce_keys [:guild_id, :channel_id]
+  defstruct message: nil,
+            guild_id: nil,
+            # text channel
+            channel_id: nil,
+            queue: :queue.new(),
+            loop: false,
+            position: 0,
+            paused: false
+
   use GenServer
 
   require Logger
 
-  alias Bot.Handler.Lavalink
+  alias Bot.Lavalink.{Connection, Payload, Player}
+  alias Bot.Handler.Mutil, as: Util
 
   import Bot.Handler.Util
 
-  @registry Bot.Handler.Music.Registry
+  @registry Bot.Lavalink.Player.Registry
 
   def start_link({guild_id, _channel_id} = state) do
     name = {:via, Registry, {@registry, guild_id}}
@@ -20,7 +33,7 @@ defmodule Bot.Handler.Music.Player do
       pid
     else
       _ ->
-        Bot.Handler.Music.Supervisor.start_child(state)
+        Player.Supervisor.start_child(state)
         ensure_started(state)
     end
   end
@@ -52,15 +65,10 @@ defmodule Bot.Handler.Music.Player do
   end
 
   def init({guild_id, channel_id}) do
-    state = %{
-      message: nil,
+    state = %__MODULE__{
       guild_id: guild_id,
       # text channel
-      channel_id: channel_id,
-      queue: :queue.new(),
-      loop: false,
-      position: 0,
-      paused: false
+      channel_id: channel_id
     }
 
     {:ok, state}
@@ -108,7 +116,7 @@ defmodule Bot.Handler.Music.Player do
   end
 
   def handle_cast({:dispatch, event}, state) do
-    IO.inspect(event, label: "Other event")
+    Logger.debug(fn -> "[Lavalink][Player][Other Event]: #{inspect(event)}" end)
     {:noreply, state}
   end
 
@@ -123,8 +131,9 @@ defmodule Bot.Handler.Music.Player do
 
     state =
       if should_start do
-        Lavalink.Payload.volume(50, guild_id)
-        |> Lavalink.Connection.send()
+        50
+        |> Payload.volume(guild_id)
+        |> Connection.send()
 
         play(track, state)
       else
@@ -138,11 +147,12 @@ defmodule Bot.Handler.Music.Player do
     {:reply, state, state}
   end
 
+  def handle_call({:loop, :show}, _from, state) do
+    {:reply, loop_state(state), state}
+  end
+
   def handle_call({:loop, new_loop_state}, _from, state) do
-    state =
-      unless new_loop_state == :show,
-        do: Map.put(state, :loop, new_loop_state),
-        else: state
+    state = Map.put(state, :loop, new_loop_state)
 
     {:reply, loop_state(state), state}
   end
@@ -151,8 +161,9 @@ defmodule Bot.Handler.Music.Player do
       when pause_or_resume in [:pause, :resume] do
     pause = pause_or_resume == :pause
 
-    Lavalink.Payload.pause(pause, guild_id)
-    |> Lavalink.Connection.send()
+    pause
+    |> Payload.pause(guild_id)
+    |> Connection.send()
 
     res =
       cond do
@@ -162,8 +173,8 @@ defmodule Bot.Handler.Music.Player do
         pause && !state.paused ->
           "Paused the player."
 
-        pause_or_resume == :resume && state.paused ->
-          "Resume the player."
+        !pause && state.paused ->
+          "Resumed the player."
 
         pause && state.paused ->
           "The player is already playing."
@@ -178,7 +189,7 @@ defmodule Bot.Handler.Music.Player do
         {:value, {_author, current}} ->
           time =
             current.info.length
-            |> Bot.Handler.Music.Util.format_milliseconds()
+            |> Util.format_milliseconds()
 
           "You just skipped `#{current.info.title}` (`#{time}`), such a shame"
 
@@ -186,8 +197,9 @@ defmodule Bot.Handler.Music.Player do
           "The queue looks empty to me"
       end
 
-    Lavalink.Payload.stop(guild_id)
-    |> Lavalink.Connection.send()
+    guild_id
+    |> Payload.stop()
+    |> Connection.send()
 
     {:reply, res, state}
   end
@@ -195,8 +207,9 @@ defmodule Bot.Handler.Music.Player do
   def handle_call(:stop, _from, %{guild_id: guild_id, queue: queue} = state) do
     first = :queue.get(queue)
 
-    Lavalink.Payload.stop(guild_id)
-    |> Lavalink.Connection.send()
+    guild_id
+    |> Payload.stop()
+    |> Connection.send()
 
     queue = :queue.in(first, :queue.new())
 
@@ -239,11 +252,12 @@ defmodule Bot.Handler.Music.Player do
     {:ok, message} =
       rest(:create_message, [
         channel_id,
-        [embed: Bot.Handler.Music.Util.build_embed(info, author, "play")]
+        [embed: Util.build_embed(info, author, "play")]
       ])
 
-    Lavalink.Payload.play(track, guild_id)
-    |> Lavalink.Connection.send()
+    track
+    |> Payload.play(guild_id)
+    |> Connection.send()
 
     Map.put(state, :message, message)
   end

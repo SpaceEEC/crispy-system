@@ -1,7 +1,9 @@
 defmodule Bot.Handler.Command.Music.Shuffle do
+  @moduledoc false
+
   @behaviour Bot.Handler.Command
 
-  alias Bot.Handler.Music
+  alias Bot.Handler.Mutil
 
   import Bot.Handler.Util
 
@@ -17,8 +19,8 @@ defmodule Bot.Handler.Command.Music.Shuffle do
         %{id: guild_id, voice_states: voice_states}
       ) do
     res =
-      with true <- Music.Util.ensure_connected(voice_states, user_id) do
-        Music.Player.command(guild_id, :shuffle)
+      with true <- Mutil.ensure_connected(voice_states, user_id) do
+        lavalink(Player, :command, [guild_id, :shuffle])
       end
 
     {:respond, res}

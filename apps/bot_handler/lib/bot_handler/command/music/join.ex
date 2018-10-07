@@ -1,4 +1,6 @@
 defmodule Bot.Handler.Command.Music.Join do
+  @moduledoc false
+
   @behaviour Bot.Handler.Command
 
   import Bot.Handler.Util

@@ -1,4 +1,6 @@
 defmodule Bot.Handler.Command.Util.Uptime do
+  @moduledoc false
+
   @behaviour Bot.Handler.Command
 
   def description(), do: "Gets the uptime of the nodes."
@@ -44,7 +46,8 @@ defmodule Bot.Handler.Command.Util.Uptime do
   end
 
   defp fetch_uptime(node) do
-    :rpc.call(node, :erlang, :statistics, [:wall_clock])
+    node
+    |> :rpc.call(:erlang, :statistics, [:wall_clock])
     |> elem(0)
   end
 
@@ -52,21 +55,24 @@ defmodule Bot.Handler.Command.Util.Uptime do
     uptime = div(uptime, 1000)
 
     seconds =
-      rem(uptime, 60)
+      uptime
+      |> rem(60)
       |> to_string
       |> String.pad_leading(2, "0")
 
     uptime = div(uptime, 60)
 
     minutes =
-      rem(uptime, 60)
+      uptime
+      |> rem(60)
       |> to_string
       |> String.pad_leading(2, "0")
 
     uptime = div(uptime, 60)
 
     hours =
-      rem(uptime, 24)
+      uptime
+      |> rem(24)
       |> to_string
       |> String.pad_leading(2, "0")
 

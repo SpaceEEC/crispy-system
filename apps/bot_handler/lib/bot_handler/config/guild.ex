@@ -1,4 +1,6 @@
 defmodule Bot.Handler.Config.Guild do
+  @moduledoc false
+
   alias Crux.Structs.Guild
   use Bot.Handler.Config.Base
 

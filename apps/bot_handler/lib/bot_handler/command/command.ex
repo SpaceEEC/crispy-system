@@ -1,4 +1,6 @@
 defmodule Bot.Handler.Command do
+  @moduledoc false
+
   # Info
   @callback aliases() :: [String.t()]
   @callback description() :: String.t()
@@ -53,7 +55,7 @@ defmodule Bot.Handler.Command do
   def handle(%{author: %{bot: true}}), do: nil
 
   def handle(message) do
-    with {:ok, content} <- handle_prefix(message) do
+    with {:ok, content} <- handle_prefix(message) |> IO.inspect(label: "handle_prefix") do
       [command | args] = String.split(content, ~r/ +/, parts: :infinity)
       command = String.downcase(command)
 

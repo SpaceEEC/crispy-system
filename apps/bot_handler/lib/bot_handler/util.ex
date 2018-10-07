@@ -1,10 +1,17 @@
 defmodule Bot.Handler.Util do
+  @moduledoc false
+
   @gateway :"gateway@127.0.0.1"
+  def gateway(), do: @gateway
   @rest :"rest@127.0.0.1"
+  def rest(), do: @rest
   @cache :"cache@127.0.0.1"
+  def cache(), do: @cache
+  @lavalink :"lavalink@127.0.0.1"
+  def lavalink(), do: @lavalink
 
   @spec gateway(mod :: atom(), fun :: atom(), args :: list()) :: term() | no_return()
-  def gateway(mod, fun, args \\ []), do: :rpc.call(@gateway, mod, fun, args) |> handle_rpc(args)
+  def gateway(mod, fun, args \\ []), do: @gateway |> :rpc.call(mod, fun, args) |> handle_rpc(args)
 
   @spec rest(fun :: atom()) :: term() | no_return()
   def rest(fun) when is_atom(fun), do: rest(fun, [])
@@ -15,28 +22,21 @@ defmodule Bot.Handler.Util do
 
   @spec rest(mod :: atom(), fun :: atom(), args :: list()) :: term() | no_return()
   def rest(mod, fun, args) when is_atom(mod) and is_atom(fun) and is_list(args) do
-    :rpc.call(@rest, mod, fun, args)
+    @rest
+    |> :rpc.call(mod, fun, args)
     |> handle_rpc(args)
   end
 
-  # @spec cache(fun :: atom()) :: term() | no_return()
-  # def cache(fun) when is_atom(fun), do: cache(fun, [])
-  # @spec cache(fun :: atom(), args :: list()) :: term() | no_return()
-  # def cache(fun, args) when is_atom(fun) and is_list(args), do: cache(Crux.Cache, fun, args)
-  # @spec cache(mod :: atom(), fun :: atom()) :: term() | no_return()
-  # def cache(mod, fun) when is_atom(mod) and is_atom(fun), do: cache(mod, fun, [])
-
-  # @spec cache(mod :: atom(), fun :: atom(), args :: list()) :: term() | no_return()
-  # def cache(mod, fun, args) when is_atom(mod) and is_atom(fun) and is_list(args) do
-  #   :rpc.call(@cache, mod, fun, args)
-  #   |> handle_rpc(args)
-  # end
+  @spec lavalink(mod :: atom(), fun :: atom(), args :: list()) :: term() | no_return()
+  def lavalink(mod, fun, args \\ []),
+    do: @lavalink |> :rpc.call(Module.concat(Bot.Lavalink, mod), fun, args) |> handle_rpc(args)
 
   @spec cache(mod :: atom(), fun :: atom(), args :: list()) :: term() | no_return()
   def cache(mod, fun, args \\ []) do
     mod = Module.concat(Crux.Cache, mod)
 
-    :rpc.call(@cache, mod, fun, args)
+    @cache
+    |> :rpc.call(mod, fun, args)
     |> handle_rpc(args)
   end
 
@@ -44,7 +44,8 @@ defmodule Bot.Handler.Util do
   def _cache_alive?(), do: Node.ping(@cache) == :pong
 
   @spec _producers() :: %{required(non_neg_integer()) => pid()} | no_return()
-  def _producers(), do: :rpc.call(@cache, Bot.Cache.Application, :producers, []) |> handle_rpc([])
+  def _producers(),
+    do: @cache |> :rpc.call(Bot.Cache.Application, :producers, []) |> handle_rpc([])
 
   defp handle_rpc({:badrpc, {:EXIT, {kind, stacktrace}}}, args) do
     # Generates an actually really good stacktraces to see what went wrong.

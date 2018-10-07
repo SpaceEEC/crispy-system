@@ -1,4 +1,6 @@
 defmodule Bot.Handler.Rest do
+  @moduledoc false
+
   use HTTPoison.Base
 
   @user_agent "crispy-system (https://github.com/spaceeec/crispy-system.git)"

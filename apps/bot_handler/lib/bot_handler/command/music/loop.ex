@@ -1,7 +1,7 @@
 defmodule Bot.Handler.Command.Music.Loop do
-  @behaviour Bot.Handler.Command
+  @moduledoc false
 
-  alias Bot.Handler.Music
+  @behaviour Bot.Handler.Command
 
   import Bot.Handler.Util
 
@@ -30,8 +30,8 @@ defmodule Bot.Handler.Command.Music.Loop do
       end
 
     res =
-      with true <- Music.Util.ensure_connected(guild.voice_states, user_id) do
-        Music.Player.command(guild.id, {:loop, state})
+      with true <- lavalink(Util, :ensure_connected, [guild.voice_states, user_id]) do
+        lavalink(Player, :command, [guild.id, {:loop, state}])
       end
 
     {:respond, res}

@@ -1,4 +1,6 @@
 defmodule Bot.Handler.Command.Image do
+  @moduledoc false
+
   @behaviour Bot.Handler.Command
 
   alias Bot.Handler.Command

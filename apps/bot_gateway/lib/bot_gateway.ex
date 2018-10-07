@@ -1,5 +1,8 @@
 defmodule Bot.Gateway do
+  @moduledoc false
+
   alias Crux.Gateway
+  alias Crux.Gateway.{Command, Connection}
 
   @rest :"rest@127.0.0.1"
 
@@ -36,9 +39,10 @@ defmodule Bot.Gateway do
     use Bitwise
 
     shard_count = Application.fetch_env!(:crux_gateway, :shard_count)
-    shard_id = guild_id >>> 22 |> rem(shard_count)
+    shard_id = guild_id |> bsr(22) |> rem(shard_count)
 
-    Gateway.Command.voice_state_update(guild_id, channel_id, states)
-    |> Gateway.Connection.send_command(shard_id)
+    guild_id
+    |> Command.voice_state_update(channel_id, states)
+    |> Connection.send_command(shard_id)
   end
 end

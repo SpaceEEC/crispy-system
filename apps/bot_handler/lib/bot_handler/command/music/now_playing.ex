@@ -1,7 +1,9 @@
 defmodule Bot.Handler.Command.Music.NowPlaying do
+  @moduledoc false
+
   @behaviour Bot.Handler.Command
 
-  alias Bot.Handler.Music.{Player, Util}
+  alias Bot.Handler.Mutil
 
   import Bot.Handler.Util
 
@@ -15,8 +17,9 @@ defmodule Bot.Handler.Command.Music.NowPlaying do
     {:ok, channel}
   end
 
-  def process(_message, channel) do
-    Player.command(channel.guild_id, :queue)
+  def process(_message, %{guild_id: guild_id}) do
+    Player
+    |> lavalink(:command, [guild_id, :queue])
     |> case do
       res when is_bitstring(res) ->
         {:respond, res}
@@ -26,22 +29,25 @@ defmodule Bot.Handler.Command.Music.NowPlaying do
 
         track_length =
           track.info.length
-          |> Util.format_milliseconds()
+          |> Mutil.format_milliseconds()
 
+        # credo:disable-for-next-line Credo.Check.Refactor.PipeChainStart
         tmp = (position / track.info.length * 10) |> Float.ceil() |> trunc()
         played_bars = String.pad_leading("", tmp, "▬")
 
         track_position =
           position
-          |> Util.format_milliseconds()
+          |> Mutil.format_milliseconds()
 
         unplayed_bars = String.pad_leading("", 10 - tmp, "▬")
 
         embed =
-          Util.build_embed(track, user, "np", loop)
+          track
+          |> Mutil.build_embed(user, "np", loop)
           |> Map.update!(:description, fn description ->
             description =
-              String.split(description, "Length:")
+              description
+              |> String.split("Length:")
               |> List.first()
 
             "#{description}\n **Progress**: " <>

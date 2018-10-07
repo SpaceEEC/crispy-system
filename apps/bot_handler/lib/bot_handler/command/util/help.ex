@@ -1,4 +1,6 @@
 defmodule Bot.Handler.Command.Util.Help do
+  @moduledoc false
+
   alias Bot.Handler.Command
   @behaviour Command
 
@@ -57,7 +59,7 @@ defmodule Bot.Handler.Command.Util.Help do
   def process(%{guild_id: guild_id}, command) do
     prefix = Guild.get!(guild_id, "prefix", Command.get_prefix())
 
-    name = Module.split(command) |> List.last() |> to_string()
+    name = command |> Module.split() |> List.last() |> to_string()
     examples = if(function_exported?(command, :examples, 0), do: command.examples(), else: [""])
     usages = if(function_exported?(command, :usages, 0), do: command.usages(), else: [""])
 

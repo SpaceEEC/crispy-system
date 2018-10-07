@@ -1,7 +1,11 @@
 defmodule Bot.Handler.Command.Image.Donmai do
+  @moduledoc false
+
   @behaviour Bot.Handler.Command
 
   @donmai_posts "https://safebooru.donmai.us/posts"
+
+  alias Bot.Handler.Rest
 
   def usages(), do: ["<...Tags>"]
   def examples(), do: ["komeiji_satori", "touhou long_sleeves"]
@@ -16,7 +20,7 @@ defmodule Bot.Handler.Command.Image.Donmai do
       |> Enum.join(" ")
       |> URI.encode()
 
-    res = Bot.Handler.Rest.get("#{@donmai_posts}.json?limit=1&random=true&tags=#{tags}")
+    res = Rest.get("#{@donmai_posts}.json?limit=1&random=true&tags=#{tags}")
     {:ok, {res, tags}}
   end
 

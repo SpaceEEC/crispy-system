@@ -1,4 +1,6 @@
 defmodule Bot.Handler.Command.Config.Prefix do
+  @moduledoc false
+
   @behaviour Bot.Handler.Command
 
   import Bot.Handler.Util
@@ -15,7 +17,8 @@ defmodule Bot.Handler.Command.Config.Prefix do
   def inhibit(%{member: member, guild_id: guild_id}, _) do
     guild = cache(:Guild, :fetch!, [guild_id])
 
-    Permissions.from(member, guild)
+    member
+    |> Permissions.from(guild)
     |> Permissions.has(:manage_guild) ||
       {:respond, "You do not have the manage guild permission required to set the prefix."}
   end

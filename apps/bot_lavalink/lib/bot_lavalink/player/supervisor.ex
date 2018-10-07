@@ -1,8 +1,12 @@
-defmodule Bot.Handler.Music.Supervisor do
+defmodule Bot.Lavalink.Player.Supervisor do
+  @moduledoc false
+
   use Supervisor
   require Logger
 
-  @registry Bot.Handler.Music.Registry
+  alias Bot.Lavalink.Player
+
+  @registry Bot.Lavalink.Player.Registry
 
   def start_link(_) do
     Supervisor.start_link(__MODULE__, %{}, name: __MODULE__)
@@ -19,7 +23,7 @@ defmodule Bot.Handler.Music.Supervisor do
   end
 
   def try_dispatch(%{"guildId" => guild_id} = event) do
-    with {:ok, pid} <- Bot.Handler.Music.Player.lookup(String.to_integer(guild_id)) do
+    with {:ok, pid} <- Player.lookup(String.to_integer(guild_id)) do
       GenServer.cast(pid, {:dispatch, event})
     end
   end
@@ -34,7 +38,7 @@ defmodule Bot.Handler.Music.Supervisor do
     Supervisor.start_child(
       __MODULE__,
       Supervisor.child_spec(
-        {Bot.Handler.Music.Player, state},
+        {Player, state},
         id: guild_id,
         restart: :temporary
       )

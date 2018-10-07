@@ -1,4 +1,6 @@
 defmodule Bot.Handler.Command.Config.VlogChannel do
+  @moduledoc false
+
   @behaviour Bot.Handler.Command
 
   import Bot.Handler.Util
@@ -16,7 +18,8 @@ defmodule Bot.Handler.Command.Config.VlogChannel do
   def inhibit(%{member: member, guild_id: guild_id}, _) do
     guild = cache(:Guild, :fetch!, [guild_id])
 
-    Permissions.from(member, guild)
+    member
+    |> Permissions.from(guild)
     |> Permissions.has(:manage_guild) ||
       {:respond,
        "You do not have the required manage guild permission to see or modify the voice log channel."}

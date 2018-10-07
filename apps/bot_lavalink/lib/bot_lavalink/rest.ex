@@ -1,4 +1,6 @@
-defmodule Bot.Handler.Lavalink.Rest do
+defmodule Bot.Lavalink.Rest do
+  @moduledoc false
+
   @url "localhost:2333/loadtracks"
   @authorization "12345"
 
@@ -21,8 +23,8 @@ defmodule Bot.Handler.Lavalink.Rest do
 
   @spec fetch_tracks(identifier :: String.t()) :: {:ok, list()} | {:error, term()}
   def fetch_tracks(identifier) do
-    HTTPoison.get(
-      @url,
+    @url
+    |> HTTPoison.get(
       [{"Authorization", @authorization}],
       params: [identifier: identifier]
     )

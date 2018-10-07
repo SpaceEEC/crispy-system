@@ -1,7 +1,9 @@
 defmodule Bot.Handler.Command.Music.Save do
+  @moduledoc false
+
   @behaviour Bot.Handler.Command
 
-  alias Bot.Handler.Music
+  alias Bot.Handler.Mutil
 
   import Bot.Handler.Util
 
@@ -10,8 +12,9 @@ defmodule Bot.Handler.Command.Music.Save do
 
   def guild_only(), do: true
 
-  def process(message, _args) do
-    Music.Player.command(message.guild_id, :queue)
+  def process(%{guild_id: guild_id, author: author}, _args) do
+    Player
+    |> lavalink(:command, [guild_id, :queue])
     |> case do
       res when is_bitstring(res) ->
         {:respond, res}
@@ -20,10 +23,11 @@ defmodule Bot.Handler.Command.Music.Save do
         {:value, {_user, track}} = :queue.peek(queue)
 
         embed =
-          Music.Util.build_embed(track, message.author, "save")
+          track
+          |> Mutil.build_embed(author, "save")
           |> Map.delete(:author)
 
-        {:ok, dm_channel} = rest(:create_dm, [message.author])
+        {:ok, dm_channel} = rest(:create_dm, [author])
 
         case rest(:create_message, [dm_channel, [embed: embed]]) do
           {:ok, _} ->

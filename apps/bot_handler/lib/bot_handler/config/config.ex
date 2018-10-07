@@ -1,4 +1,6 @@
 defmodule Bot.Handler.Config do
+  @moduledoc false
+
   @callback transform_base(base :: term()) :: String.t()
   @callback run(
               fun :: atom(),

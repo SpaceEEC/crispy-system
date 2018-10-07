@@ -1,4 +1,6 @@
 defmodule Bot.Handler.Command.Util.Invite do
+  @moduledoc false
+
   @behaviour Bot.Handler.Command
 
   def description(), do: "Invite the bot to your server."
@@ -9,7 +11,7 @@ defmodule Bot.Handler.Command.Util.Invite do
 
   def process(_message, _args) do
     permissions =
-      Permissions.resolve([
+      [
         :view_channel,
         :send_messages,
         # :manage_messages,
@@ -19,7 +21,8 @@ defmodule Bot.Handler.Command.Util.Invite do
         # :add_reactions,
         :connect,
         :speak
-      ])
+      ]
+      |> Permissions.resolve()
       |> to_string()
 
     id =

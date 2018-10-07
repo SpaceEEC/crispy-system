@@ -37,7 +37,8 @@ defmodule Bot.Cache.Application do
   end
 
   def producers do
-    Supervisor.which_children(Bot.Cache.Supervisor)
+    Bot.Cache.Supervisor
+    |> Supervisor.which_children()
     |> Enum.reduce(Map.new(), fn {id, pid, _type, _modules}, acc ->
       case id do
         "producer_" <> id ->

@@ -1,8 +1,9 @@
 defmodule Bot.Handler.Command.Music.Play do
+  @moduledoc false
+
   @behaviour Bot.Handler.Command
 
-  alias Bot.Handler.Music.{Player, Util}
-  alias Bot.Handler.Lavalink
+  alias Bot.Handler.Mutil
 
   import Bot.Handler.Util
 
@@ -23,13 +24,14 @@ defmodule Bot.Handler.Command.Music.Play do
   end
 
   def fetch(_message, args) do
-    {identifier, playlist} =
+    query =
       args
       |> Enum.join(" ")
       |> String.replace(~r/<(.+)>/, "\\1")
-      |> Lavalink.Rest.resolve_identifier()
 
-    case Lavalink.Rest.fetch_tracks(identifier) do
+    {identifier, playlist} = lavalink(Rest, :resolve_identifier, [query])
+
+    case lavalink(Rest, :fetch_tracks, [identifier]) do
       {:ok, []} ->
         {:respond, "Could not find anything."}
 
@@ -48,16 +50,16 @@ defmodule Bot.Handler.Command.Music.Play do
     channel = cache(:Channel, :fetch!, [channel_id])
     %{id: guild_id, voice_states: voice_states} = cache(:Guild, :fetch!, [channel.guild_id])
 
-    case Util.will_connect(voice_states, user_id) do
+    case Mutil.will_connect(voice_states, user_id) do
       voice_channel_id when is_number(voice_channel_id) ->
         unless voice_channel_id == 0 do
           gateway(Bot.Gateway, :voice_state_update, [guild_id, voice_channel_id])
         end
 
-        Player.ensure_started({guild_id, channel_id})
+        lavalink(Player, :ensure_started, [{guild_id, channel_id}])
         tracks = Enum.map(tracks, &{author, &1})
 
-        if Player.queue(tracks, guild_id) do
+        if lavalink(Player, :queue, [tracks, guild_id]) do
           nil
         else
           {:respond,
@@ -66,7 +68,7 @@ defmodule Bot.Handler.Command.Music.Play do
                tracks
                |> List.first()
                |> elem(1)
-               |> Util.build_embed(author, "add")
+               |> Mutil.build_embed(author, "add")
            ]}
         end
 

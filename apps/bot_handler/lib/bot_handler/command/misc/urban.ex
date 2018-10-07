@@ -1,4 +1,8 @@
 defmodule Bot.Handler.Command.Misc.Urban do
+  @moduledoc false
+
+  alias Bot.Handler.Rest
+
   @behaviour Bot.Handler.Command
 
   import Bot.Handler.Util
@@ -32,7 +36,7 @@ defmodule Bot.Handler.Command.Misc.Urban do
       |> Enum.join("+")
       |> URI.encode()
 
-    res = Bot.Handler.Rest.get(@urban_api <> search)
+    res = Rest.get(@urban_api <> search)
 
     {:ok, {res, number, search}}
   end

@@ -1,4 +1,8 @@
 defmodule Bot.Handler.Etcd do
+  @moduledoc false
+
+  alias Bot.Handler.Rest
+
   @address "http://localhost:2379/v3beta/kv/"
 
   @spec get!(key :: String.t(), default :: String.t() | nil) :: String.t() | nil | no_return()
@@ -17,8 +21,7 @@ defmodule Bot.Handler.Etcd do
           default :: String.t() | nil
         ) :: {:ok, String.t() | nil} | {:error, term()}
   def get(key, default \\ nil) do
-    with {:ok, %{body: body}} <-
-           Bot.Handler.Rest.post(@address <> "range", %{key: Base.encode64(key)}) do
+    with {:ok, %{body: body}} <- Rest.post(@address <> "range", %{key: Base.encode64(key)}) do
       case body do
         %{"kvs" => [%{"value" => value}]} ->
           Base.decode64(value)
@@ -39,7 +42,7 @@ defmodule Bot.Handler.Etcd do
   @spec put(key :: String.t(), value :: String.t()) :: :ok | {:error, term()}
   def put(key, value) do
     with {:ok, _} <-
-           Bot.Handler.Rest.post(@address <> "put", %{
+           Rest.post(@address <> "put", %{
              key: Base.encode64(key),
              value: Base.encode64(value)
            }) do
@@ -61,7 +64,7 @@ defmodule Bot.Handler.Etcd do
   @spec delete(key :: String.t()) :: {:ok, non_neg_integer()} | {:error, term()}
   def delete(key) do
     with {:ok, %{body: %{"deleted" => deleted}}} <-
-           Bot.Handler.Rest.post(@address <> "deleterange", %{key: Base.encode64(key)}) do
+           Rest.post(@address <> "deleterange", %{key: Base.encode64(key)}) do
       {:ok, deleted}
     end
   end

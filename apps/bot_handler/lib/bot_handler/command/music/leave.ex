@@ -1,7 +1,9 @@
 defmodule Bot.Handler.Command.Music.Leave do
+  @moduledoc false
+
   @behaviour Bot.Handler.Command
 
-  alias Bot.Handler.Music.Util
+  alias Bot.Handler.Mutil
 
   import Bot.Handler.Util
 
@@ -18,7 +20,7 @@ defmodule Bot.Handler.Command.Music.Leave do
       ) do
     # Util.ensure_connected returns a string explaining what's wrong if there is something wrong
     response =
-      with true <- Util.ensure_connected(voice_states, user_id) do
+      with true <- Mutil.ensure_connected(voice_states, user_id) do
         gateway(Bot.Gateway, :voice_state_update, [guild_id])
 
         "Leaving you..."

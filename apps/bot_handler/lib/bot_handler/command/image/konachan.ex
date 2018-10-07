@@ -1,7 +1,11 @@
 defmodule Bot.Handler.Command.Image.Konachan do
+  @moduledoc false
+
   @behaviour Bot.Handler.Command
 
   @konachan_post "https://konachan.com/post"
+
+  alias Bot.Handler.Rest
 
   def usages(), do: ["<...Tags>"]
   def examples(), do: ["komeiji_satori", "touhou long_sleeves"]
@@ -16,7 +20,7 @@ defmodule Bot.Handler.Command.Image.Konachan do
       |> Enum.join(" ")
       |> URI.encode()
 
-    res = Bot.Handler.Rest.get("#{@konachan_post}.json?tags=#{tags}+rating:s&limit=100")
+    res = Rest.get("#{@konachan_post}.json?tags=#{tags}+rating:s&limit=100")
     {:ok, {res, tags}}
   end
 

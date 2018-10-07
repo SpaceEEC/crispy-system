@@ -1,4 +1,6 @@
 defmodule Bot.Handler.Config.Base do
+  @moduledoc false
+
   defmacro __using__(_) do
     quote location: :keep do
       @behaviour Bot.Handler.Config

@@ -1,4 +1,6 @@
 defmodule Mix.Tasks.Commands do
+  @moduledoc false
+
   use Mix.Task
 
   @template ~S"""
@@ -28,32 +30,30 @@ defmodule Mix.Tasks.Commands do
       |> Enum.reduce([%{}, %{}], fn name, [cmds, aliases] ->
         module = Module.concat(Bot.Handler.Command, name)
 
-        cond do
-          Code.ensure_loaded?(module) ->
-            name =
-              name
-              |> String.split(".")
-              |> List.last()
-              |> String.downcase()
+        if Code.ensure_loaded?(module) do
+          name =
+            name
+            |> String.split(".")
+            |> List.last()
+            |> String.downcase()
 
-            cmds = Map.put(cmds, name, module)
+          cmds = Map.put(cmds, name, module)
 
-            new_aliases =
-              if function_exported?(module, :aliases, 0) do
-                module.aliases()
-                |> Map.new(&{&1, module})
-              else
-                %{}
-              end
+          new_aliases =
+            if function_exported?(module, :aliases, 0) do
+              module.aliases()
+              |> Map.new(&{&1, module})
+            else
+              %{}
+            end
 
-            aliases = Map.merge(aliases, new_aliases, &raise_on_duplicate/3)
+          aliases = Map.merge(aliases, new_aliases, &raise_on_duplicate/3)
 
-            [cmds, aliases]
+          [cmds, aliases]
+        else
+          Mix.shell().info("Skipping #{inspect(module)} since it was not found.")
 
-          true ->
-            Mix.shell().info("Skipping #{inspect(module)} since it was not found.")
-
-            [cmds, aliases]
+          [cmds, aliases]
         end
       end)
       |> Enum.map(&inspect(&1, pretty: true))
@@ -75,6 +75,7 @@ defmodule Mix.Tasks.Commands do
     [head | _tails] = path = Enum.map(path, &String.capitalize/1)
 
     if(head == file, do: path, else: [file | path])
+    # credo:disable-for-next-line Credo.Check.Refactor.PipeChainStart
     |> Enum.reverse()
     |> Enum.join(".")
   end

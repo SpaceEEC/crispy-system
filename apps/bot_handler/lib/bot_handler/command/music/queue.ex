@@ -1,7 +1,9 @@
 defmodule Bot.Handler.Command.Music.Queue do
+  @moduledoc false
+
   @behaviour Bot.Handler.Command
 
-  alias Bot.Handler.Music.{Player, Util}
+  alias Bot.Handler.Mutil
 
   import Bot.Handler.Util
 
@@ -11,7 +13,7 @@ defmodule Bot.Handler.Command.Music.Queue do
   def process(message, []), do: process(message, ["1"])
 
   def process(%{guild_id: guild_id}, [page | _rest]) do
-    case Player.command(guild_id, :queue) do
+    case lavalink(Player, :command, [guild_id, :queue]) do
       not_playing when is_bitstring(not_playing) ->
         {:respond, not_playing}
 
@@ -24,10 +26,11 @@ defmodule Bot.Handler.Command.Music.Queue do
         total_length =
           queue
           |> Enum.reduce(0, fn {_user, track}, acc -> track.info.length + acc end)
-          |> Util.format_milliseconds()
+          |> Mutil.format_milliseconds()
 
         pages =
           ((total_songs - 1) / 10)
+          # credo:disable-for-next-line Credo.Check.Refactor.PipeChainStart
           |> Float.ceil()
           |> trunc()
 
@@ -50,11 +53,11 @@ defmodule Bot.Handler.Command.Music.Queue do
 
         current_length =
           current.info.length
-          |> Util.format_milliseconds()
+          |> Mutil.format_milliseconds()
 
         current_time =
           current_time
-          |> Util.format_milliseconds()
+          |> Mutil.format_milliseconds()
 
         me = cache(:User, :me!)
 
@@ -72,7 +75,7 @@ defmodule Bot.Handler.Command.Music.Queue do
           #{songs}
           """,
           thumbnail: %{
-            url: Util.image_from_track(current.info)
+            url: Mutil.image_from_track(current.info)
           },
           footer: %{
             icon_url: rest(Crux.Rest.Endpoints, :cdn) <> "/avatars/#{me.id}/#{me.avatar}",
@@ -94,7 +97,7 @@ defmodule Bot.Handler.Command.Music.Queue do
     |> Enum.map_join("\n", fn {{_user, track}, index} ->
       length =
         track.info.length
-        |> Util.format_milliseconds()
+        |> Mutil.format_milliseconds()
 
       "`#{index}.` #{length} - [#{track.info.title}](#{track.info.uri})"
     end)

@@ -1,14 +1,17 @@
-defmodule Bot.Handler.Lavalink.Connection do
+defmodule Bot.Lavalink.Connection do
+  @moduledoc false
+
   use WebSockex
 
   require Logger
 
+  alias Bot.Lavalink.{Payload, Player}
   alias Crux.Structs.VoiceState
-  alias Bot.Handler.Lavalink.Payload
+  alias WebSockex.Conn
 
   import Bot.Handler.Util
 
-  @spec start_link(term()) :: {:ok, pid()} | {:error, term()}
+  @spec start_link(ignored :: term()) :: {:ok, pid()} | {:error, term()}
   def start_link(_ \\ []) do
     Logger.info("[Lavalink]: Starting WebSocket connection")
 
@@ -18,7 +21,7 @@ defmodule Bot.Handler.Lavalink.Connection do
     voice_servers = Map.new()
     voice_states = Map.new()
 
-    WebSockex.Conn.new(
+    Conn.new(
       "ws://localhost:8080",
       extra_headers: [
         {"Authorization", "12345"},
@@ -45,7 +48,7 @@ defmodule Bot.Handler.Lavalink.Connection do
   # https://github.com/Frederikam/Lavalink/blob/master/IMPLEMENTATION.md#outgoing-messages
   @spec send(data :: String.t()) :: term()
   def send(data) do
-    Logger.debug("[Lavalink][send]: #{inspect(data)}")
+    Logger.debug(fn -> "[Lavalink][send]: #{inspect(data)}" end)
 
     WebSockex.send_frame(__MODULE__, {:text, data})
   end
@@ -60,12 +63,13 @@ defmodule Bot.Handler.Lavalink.Connection do
         WebSockex.cast(__MODULE__, {:store, voice_state})
 
       _ ->
+        Logger.debug(fn -> "[Lavalink][Connection]: Voice State for #{id}" end)
         :ok
     end
   end
 
   def forward(data) do
-    # IO.inspect(data, label: "forward")
+    Logger.debug(fn -> "[Lavalink][Forward]: #{inspect(data)}" end)
     WebSockex.cast(__MODULE__, {:store, data})
   end
 
@@ -83,7 +87,8 @@ defmodule Bot.Handler.Lavalink.Connection do
 
     if voice_server && voice_state do
       packet =
-        Payload.voice_update(voice_server, voice_state.session_id, to_string(guild_id))
+        voice_server
+        |> Payload.voice_update(voice_state.session_id, to_string(guild_id))
         |> Poison.encode!()
 
       {:reply, {:text, packet}, state}
@@ -100,6 +105,8 @@ defmodule Bot.Handler.Lavalink.Connection do
         {:store, %VoiceState{guild_id: guild_id} = voice_state},
         {voice_servers, voice_states}
       ) do
+    Logger.debug(fn -> "[Lavalink][Connection]: Voice State #{guild_id}" end)
+
     try_join(
       guild_id,
       {
@@ -110,6 +117,8 @@ defmodule Bot.Handler.Lavalink.Connection do
   end
 
   def handle_cast({:store, %{guild_id: guild_id} = voice_server}, {voice_servers, voice_states}) do
+    Logger.debug(fn -> "[Lavalink][Connection]: Voice Server #{guild_id}" end)
+
     # Lavalink can not handle integer guild ids. One might think it's written in JavaScript...
     voice_server = Map.update!(voice_server, :guild_id, &Integer.to_string/1)
     voice_servers = Map.put(voice_servers, guild_id, voice_server)
@@ -145,7 +154,7 @@ defmodule Bot.Handler.Lavalink.Connection do
     spawn(fn ->
       frame
       |> Poison.decode!()
-      |> Bot.Handler.Music.Supervisor.try_dispatch()
+      |> Player.Supervisor.try_dispatch()
     end)
 
     # Logger.debug("[Lavalink][handle_frame]: #{frame}")

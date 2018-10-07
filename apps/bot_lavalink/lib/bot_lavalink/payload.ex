@@ -1,4 +1,6 @@
-defmodule Bot.Handler.Lavalink.Payload do
+defmodule Bot.Lavalink.Payload do
+  @moduledoc false
+
   @spec play(
           track :: String.t(),
           guild_id :: Crux.Rest.snoflake(),
@@ -6,8 +8,9 @@ defmodule Bot.Handler.Lavalink.Payload do
             [{:startTime, Integer.t()} | {:endTime, Integer.t()}]
             | %{optional(:startTime) => Integer.t(), optional(:endTime) => Integer.t()}
         ) :: map()
-  def play(track, guild_id, start_end \\ []) do
-    Map.new(start_end)
+  def play(track, guild_id, start_end \\ %{}) do
+    start_end
+    |> Map.new()
     |> Map.put("track", track)
     |> finalize("play", guild_id)
   end

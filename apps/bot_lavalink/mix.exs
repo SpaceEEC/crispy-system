@@ -1,19 +1,15 @@
-defmodule Bot.Handler.MixProject do
+defmodule Bot.Lavalink.MixProject do
   use Mix.Project
 
   def project do
-    {result, _exit_code} = System.cmd("git", ["rev-parse", "HEAD"])
-
-    git_sha = String.slice(result, 0, 7)
-
     [
-      app: :bot_handler,
-      version: "0.1.0-#{git_sha}",
+      app: :bot_lavalink,
+      version: "0.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
-      elixir: "~> 1.6",
+      elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -22,22 +18,21 @@ defmodule Bot.Handler.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
+      applications: [:websockex, :httpoison],
       extra_applications: [:logger],
-      mod: {Bot.Handler, []}
+      mod: {Bot.Lavalink, []}
     ]
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:crux_structs, git: "http://github.com/spaceeec/crux_structs", override: true},
-      {:poison, "~> 3.1.0"},
-      {:gen_stage, "~> 0.13.1"},
-      {:httpoison, "~> 1.1.1"},
       {:websockex, "~> 0.4.1"},
-      {:sentry, "~> 6.2.1"},
       {:credo, "~> 0.10.0", only: [:dev, :test], runtime: false},
-      {:distillery, "~> 1.5.2", runtime: false}
+      {:bot_handler, in_umbrella: true}
+      # {:dep_from_hexpm, "~> 0.3.0"},
+      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
+      # {:sibling_app_in_umbrella, in_umbrella: true},
     ]
   end
 end

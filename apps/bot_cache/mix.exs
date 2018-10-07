@@ -36,7 +36,8 @@ defmodule Bot.Cache.MixProject do
       {:crux_rest, git: "http://github.com/spaceeec/crux_rest", override: true, runtime: false},
       {:sentry, "~> 6.2.1"},
       {:gen_stage, "~> 0.13.1"},
-      {:distillery, "~> 1.5.2", runtime: false}
+      {:distillery, "~> 1.5.2", runtime: false},
+      {:credo, "~> 0.10.0", only: [:dev, :test], runtime: false}
     ]
   end
 end
