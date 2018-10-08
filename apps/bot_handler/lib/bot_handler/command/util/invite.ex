@@ -3,7 +3,7 @@ defmodule Bot.Handler.Command.Util.Invite do
 
   @behaviour Bot.Handler.Command
 
-  def description(), do: "Invite the bot to your server."
+  def description(), do: :LOC_DESC_INVITE
 
   @invite_url "https://discordapp.com/oauth2/authorize?client_id={{id}}&scope=bot&permissions={{permissions}}"
 
@@ -36,14 +36,10 @@ defmodule Bot.Handler.Command.Util.Invite do
 
     embed = %{
       author: %{
-        name: "Invite",
+        name: :LOC_INVITE,
         url: url
       },
-      description: """
-      To invite me to your server click [this](#{url}) link.
-      **Note**: You need the **Manage Server** permission to add me there.
-      \u200b
-      """
+      description: {:LOC_INVITE_DESCRIPTION, [url: url]}
     }
 
     {:respond, [embed: embed]}

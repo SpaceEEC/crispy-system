@@ -3,9 +3,10 @@ defmodule Bot.Handler.Command.Util.Ping do
 
   @behaviour Bot.Handler.Command
 
-  def description(), do: "Ping? Pong? Peng!"
+  @spec description() :: String.t() | atom()
+  def description(), do: "Ping? Pong? Pang!"
 
   def process(_message, _args) do
-    {:respond, "Peng! 💥"}
+    {:respond, "Pang! 💥"}
   end
 end

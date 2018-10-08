@@ -7,7 +7,7 @@ defmodule Bot.Handler.Command.Music.Pause do
 
   import Bot.Handler.Util
 
-  def description(), do: "Pauses the currently played song."
+  def description(), do: :LOC_DESC_PAUSE
   def guild_only(), do: true
 
   def fetch(%{guild_id: guild_id}, _args) do

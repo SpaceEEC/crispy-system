@@ -5,7 +5,7 @@ defmodule Bot.Handler.Command.Music.Join do
 
   import Bot.Handler.Util
 
-  def description(), do: "Commands the bot to join your channel."
+  def description(), do: :LOC_DESC_JOIN
   def guild_only(), do: true
 
   def fetch(%{guild_id: guild_id}, _args) do
@@ -18,10 +18,10 @@ defmodule Bot.Handler.Command.Music.Join do
       %{^user_id => %{channel_id: channel_id}} when not is_nil(channel_id) ->
         gateway(Bot.Gateway, :voice_state_update, [guild_id, channel_id])
 
-        {:respond, "Joining you..."}
+        {:respond, :LOC_MUSIC_JOINING}
 
       _ ->
-        {:respond, "You don't look connected to me."}
+        {:respond, :LOC_MUSIC_NOT_CONNECTED}
     end
   end
 end

@@ -7,7 +7,7 @@ defmodule Bot.Handler.Command.Music.Shuffle do
 
   import Bot.Handler.Util
 
-  def description(), do: "Shuffles the queue."
+  def description(), do: :LOC_DESC_SHUFFLE
   def guild_only(), do: true
 
   def fetch(%{guild_id: guild_id}, _args) do

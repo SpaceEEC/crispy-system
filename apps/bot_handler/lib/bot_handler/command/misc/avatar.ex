@@ -10,11 +10,10 @@ defmodule Bot.Handler.Command.Misc.Avatar do
 
   def usages(), do: ["<User>"]
   def examples(), do: ["@space", "218348062828003328"]
-  def description(), do: "Displays the avatar of the mentioned user."
+  def description(), do: :LOC_DESC_AVATAR
+  def fetch(message, %{args: []}), do: {:ok, message.author}
 
-  def fetch(message, []), do: {:ok, message.author}
-
-  def fetch(_message, [head | _tail]) do
+  def fetch(_message, %{args: [head | _tail]}) do
     head
     |> case do
       # Mention with nickname
@@ -37,11 +36,11 @@ defmodule Bot.Handler.Command.Misc.Avatar do
       {id, ""} when id >= 1.0e15 and id <= 1.0e18 ->
         with :error <- cache(:User, :fetch, [id]),
              {:error, _} <- rest(:get_user, [id]) do
-          {:respond, "Could not find that user"}
+          {:respond, :LOC_USER_NOT_FOUND}
         end
 
       _ ->
-        {:respond, "Could not find that user"}
+        {:respond, :LOC_USER_NOT_FOUND}
     end
   end
 

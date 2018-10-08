@@ -11,10 +11,21 @@ defmodule Bot.Lavalink.Player do
             position: 0,
             paused: false
 
+  @type t :: %{
+          message: nil | Crux.Structs.Message.t(),
+          guild_id: Crux.Rest.snowflake(),
+          channel_id: Crux.Rest.snowflake(),
+          queue: :queue.queue(),
+          loop: boolean(),
+          position: integer(),
+          paused: boolean()
+        }
+
   use GenServer
 
   require Logger
 
+  alias Bot.Handler.Locale
   alias Bot.Handler.Mutil, as: Util
   alias Bot.Lavalink.{Connection, Payload, Player}
 
@@ -60,7 +71,7 @@ defmodule Bot.Lavalink.Player do
       GenServer.call(pid, command)
     else
       :error ->
-        "I am currently not playing anything here."
+        :LOC_MUSIC_NOT_PLAYING_HERE
     end
   end
 
@@ -76,7 +87,7 @@ defmodule Bot.Lavalink.Player do
 
   def handle_cast(
         {:dispatch, %{"op" => "event", "reason" => reason, "type" => "TrackEndEvent"}},
-        state
+        %__MODULE__{} = state
       ) do
     state =
       state
@@ -123,7 +134,7 @@ defmodule Bot.Lavalink.Player do
   def handle_call(
         {:queue, [track | _tracks] = tracks},
         _from,
-        %{queue: queue, guild_id: guild_id} = state
+        %__MODULE__{queue: queue, guild_id: guild_id} = state
       )
       when is_list(tracks) do
     should_start = :queue.is_empty(queue)
@@ -157,7 +168,7 @@ defmodule Bot.Lavalink.Player do
     {:reply, loop_state(state), state}
   end
 
-  def handle_call(pause_or_resume, _from, %{guild_id: guild_id} = state)
+  def handle_call(pause_or_resume, _from, %__MODULE__{guild_id: guild_id} = state)
       when pause_or_resume in [:pause, :resume] do
     pause = pause_or_resume == :pause
 
@@ -168,22 +179,22 @@ defmodule Bot.Lavalink.Player do
     res =
       cond do
         pause && state.paused ->
-          "The player is already paused."
+          :LOC_MUSIC_ALREADY_PAUSED
 
         pause && !state.paused ->
-          "Paused the player."
+          :LOC_MUSIC_PAUSED
 
         !pause && state.paused ->
-          "Resumed the player."
+          :LOC_MUSIC_RESUMED
 
         pause && state.paused ->
-          "The player is already playing."
+          :LOC_MUSIC_AREADY_PLAYING
       end
 
     {:reply, res, Map.put(state, :paused, pause)}
   end
 
-  def handle_call(:skip, _from, %{queue: queue, guild_id: guild_id} = state) do
+  def handle_call(:skip, _from, %__MODULE__{queue: queue, guild_id: guild_id} = state) do
     res =
       case :queue.peek(queue) do
         {:value, {_author, current}} ->
@@ -191,10 +202,10 @@ defmodule Bot.Lavalink.Player do
             current.info.length
             |> Util.format_milliseconds()
 
-          "You just skipped `#{current.info.title}` (`#{time}`), such a shame"
+          {:LOC_MUSIC_JUST_SKIPPED, [title: current.info.title, time: time]}
 
         :empty ->
-          "The queue looks empty to me"
+          :LOC_MUSIC_QUEUE_EMPTY
       end
 
     guild_id
@@ -204,7 +215,7 @@ defmodule Bot.Lavalink.Player do
     {:reply, res, state}
   end
 
-  def handle_call(:stop, _from, %{guild_id: guild_id, queue: queue} = state) do
+  def handle_call(:stop, _from, %__MODULE__{guild_id: guild_id, queue: queue} = state) do
     first = :queue.get(queue)
 
     guild_id
@@ -213,19 +224,19 @@ defmodule Bot.Lavalink.Player do
 
     queue = :queue.in(first, :queue.new())
 
-    {:reply, "Congratulations, you just killed the party 🎉", Map.put(state, :queue, queue)}
+    {:reply, :LOC_MUSIC_STOPPED, Map.put(state, :queue, queue)}
   end
 
-  def handle_call(:shuffle, _from, %{queue: queue} = state) do
+  def handle_call(:shuffle, _from, %__MODULE__{queue: queue} = state) do
     [first | rest] = :queue.to_list(queue)
     rest = Enum.shuffle(rest)
     queue = :queue.from_list([first | rest])
 
-    {:reply, "Shuffled playlist", Map.put(state, :queue, queue)}
+    {:reply, :LOC_MUSIC_SHUFFLED, Map.put(state, :queue, queue)}
   end
 
   @spec play_next(state :: map()) :: {:ok, map()} | {:error, :empty | :end, map()}
-  defp play_next(%{queue: queue, guild_id: guild_id} = state) do
+  defp play_next(%__MODULE__{queue: queue, guild_id: guild_id} = state) do
     with false <- :queue.is_empty(queue),
          queue <- :queue.drop(queue),
          {:value, next} <- :queue.peek(queue) do
@@ -245,14 +256,22 @@ defmodule Bot.Lavalink.Player do
     end
   end
 
+  @spec play(term(), t()) :: t()
   defp play(
          {author, %{track: track, info: info}},
-         %{guild_id: guild_id, channel_id: channel_id} = state
+         %__MODULE__{guild_id: guild_id, channel_id: channel_id} = state
        ) do
-    {:ok, message} =
-      rest(:create_message, [
+    locale = Locale.fetch!(guild_id)
+
+    embed =
+      info
+      |> Util.build_embed(author, "play")
+      |> Locale.localize_embed(locale)
+
+    message =
+      rest(:create_message!, [
         channel_id,
-        [embed: Util.build_embed(info, author, "play")]
+        [embed: embed]
       ])
 
     track
@@ -262,6 +281,6 @@ defmodule Bot.Lavalink.Player do
     Map.put(state, :message, message)
   end
 
-  defp loop_state(%{loop: true}), do: "Loop is enabled."
-  defp loop_state(%{loop: false}), do: "Loop is disabled."
+  defp loop_state(%{loop: true}), do: :LOC_MUSIC_LOOP_ENABLED
+  defp loop_state(%{loop: false}), do: :LOC_MUSIC_LOOP_DISABLED
 end

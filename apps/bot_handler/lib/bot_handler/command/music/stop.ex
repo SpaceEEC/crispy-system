@@ -7,8 +7,7 @@ defmodule Bot.Handler.Command.Music.Stop do
 
   import Bot.Handler.Util
 
-  def description(),
-    do: "Stops the currently played song, clears the queue, and disconnects the bot."
+  def description(), do: :LOC_DESC_STOP
 
   def guild_only(), do: true
 

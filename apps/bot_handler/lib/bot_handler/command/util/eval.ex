@@ -9,9 +9,9 @@ defmodule Bot.Handler.Command.Util.Eval do
     message.author.id == 218_348_062_828_003_328
   end
 
-  def process(_message, ["#raise" | rest]), do: rest |> Enum.join(" ") |> raise()
+  def process(_message, %{args: ["#raise" | rest]}), do: rest |> Enum.join(" ") |> raise()
 
-  def process(message, args) do
+  def process(message, %{args: args}) do
     {res, _binding} =
       try do
         args

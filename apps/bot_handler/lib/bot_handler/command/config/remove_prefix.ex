@@ -9,7 +9,7 @@ defmodule Bot.Handler.Command.Config.RemovePrefix do
   alias Bot.Handler.Config.Guild
   alias Crux.Structs.Permissions
 
-  def description(), do: "Remove the currently set prefix."
+  def description(), do: :LOC_DESC_PREFIX
   def guild_only(), do: true
 
   def inhibit(%{member: member, guild_id: guild_id}, _) do
@@ -17,18 +17,17 @@ defmodule Bot.Handler.Command.Config.RemovePrefix do
 
     member
     |> Permissions.from(guild)
-    |> Permissions.has(:manage_guild) ||
-      {:respond, "You do not have the required manage guild permission to remove the prefix."}
+    |> Permissions.has(:manage_guild) || {:respond, :LOC_REMOVEPREFIX_PERMS}
   end
 
   def process(%{guild_id: guild_id}, _) do
     response =
       case Guild.delete!(guild_id, "prefix") do
         0 ->
-          "No custom prefix to remote is set, the default one is ``#{Command.get_prefix()}``."
+          {:LOV_REMOVEPREFIX_NONE, [default: Command.get_prefix()]}
 
         _ ->
-          "Custom prefix had been removed, now using default prefix ``#{Command.get_prefix()}``."
+          {:LOV_REMOVEPREFIX_REMOVED, [default: Command.get_prefix()]}
       end
 
     {:respond, response}

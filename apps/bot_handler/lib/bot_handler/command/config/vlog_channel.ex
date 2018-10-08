@@ -8,8 +8,7 @@ defmodule Bot.Handler.Command.Config.VlogChannel do
   alias Bot.Handler.Config.Guild
   alias Crux.Structs.Permissions
 
-  def description(),
-    do: "See, set, or remove the current voice log channel from the configuration."
+  def description(), do: :LOC_DESC_VLOG
 
   def examples(), do: ["", "remove", "#text-channel"]
   def guild_only(), do: true
@@ -20,59 +19,57 @@ defmodule Bot.Handler.Command.Config.VlogChannel do
 
     member
     |> Permissions.from(guild)
-    |> Permissions.has(:manage_guild) ||
-      {:respond,
-       "You do not have the required manage guild permission to see or modify the voice log channel."}
+    |> Permissions.has(:manage_guild) || {:respond, :LOC_VLOG_PERMS}
   end
 
-  def fetch(_message, []), do: {:ok, :show}
-  def fetch(_message, ["remove" | _]), do: {:ok, :remove}
+  def fetch(_message, %{args: []}), do: {:ok, :show}
+  def fetch(_message, %{args: ["remove" | _]}), do: {:ok, :remove}
 
-  def fetch(%{guild_id: guild_id}, ["<#" <> rest | _]) do
+  def fetch(%{guild_id: guild_id}, %{args: ["<#" <> rest | _]}) do
     id = String.slice(rest, 0..-2)
 
     case cache(:Channel, :fetch, [id]) do
       :error ->
-        {:respond, "Could not find a channel with the id #{id} from <##{id}>."}
+        {:respond, {:LOC_VLOG_NO_CHANNEL, [id: id]}}
 
       {:ok, %{guild_id: other_guild_id}} when guild_id != other_guild_id ->
-        {:respond, "The requested channel is not in this guild."}
+        {:respond, :LOG_VLOG_WRONG_GUILD}
 
-      {:ok, %{type: 0} = channel} ->
-        {:ok, [channel.id]}
+      {:ok, %{type: 0, id: id}} ->
+        {:ok, [id]}
 
       {:ok, channel} ->
-        {:respond, "#{channel} is not a text channel."}
+        {:respond, {:LOG_VLOG_NOT_TEXT_CHANNEL, [channel: channel]}}
     end
   end
 
   def fetch(_message, _args) do
-    {:respond, "Pass either nothing, \"remove\", or a channel mention."}
+    {:respond, :LOG_VLOG_INVALID_ARGS}
   end
 
   def process(%{guild_id: guild_id}, :show) do
     case Guild.get!(guild_id, "vlog_channel_id") do
       nil ->
-        "No voice log channel was set up."
+        :LOG_VLOG_NO_SETUP
 
       id ->
-        "The current voice log channel is <##{id}>."
+        {:LOG_VLOG_SETUP, [id: id]}
     end
   end
 
   def process(%{guild_id: guild_id}, :remove) do
     case Guild.delete!(guild_id, "vlog_channel_id") do
       1 ->
-        "Removed the set voice log channel from the configuration."
+        :LOG_VLOG_REMOVED
 
       0 ->
-        "No voice log channel was set up."
+        :LOG_VLOG_NOTHING_REMOVED
     end
   end
 
   def process(%{guild_id: guild_id}, channel_id) do
     Guild.put!(guild_id, "vlog_channel_id", channel_id)
 
-    {:respond, "Set the voice log channel to <##{channel_id}>"}
+    {:respond, {:LOC_VLOG_SET_CHANNEL, [id: channel_id]}}
   end
 end

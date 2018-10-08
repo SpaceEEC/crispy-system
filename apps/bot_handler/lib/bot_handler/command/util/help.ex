@@ -9,14 +9,14 @@ defmodule Bot.Handler.Command.Util.Help do
 
   def usages(), do: ["<Command>"]
   def examples(), do: ["", "invite"]
-  def description(), do: "Display a list of commands, or help for a specific one."
+  def description(), do: :LOC_DESC_HELP
 
-  def fetch(_message, []), do: {:ok, nil}
+  def fetch(_message, %{args: []}), do: {:ok, nil}
 
-  def fetch(_message, [command | _]) do
+  def fetch(_message, %{args: [command | _]}) do
     case command |> String.downcase() |> Command.resolve() do
       nil ->
-        {:respond, "Could not find such a command."}
+        {:respond, :LOC_HELP_NO_SUCH_COMMAND}
 
       command ->
         {:ok, command}
@@ -47,9 +47,8 @@ defmodule Bot.Handler.Command.Util.Help do
       end)
 
     embed = %{
-      title: "❯ Command List",
-      description:
-        "A list of all commands.\nUse `help <Command>` for more info for a specific command.",
+      title: :LOC_HELP_EMBED_TITLE,
+      description: :LOC_HELP_EMBED_DESCRIPTION,
       fields: fields
     }
 
@@ -65,12 +64,12 @@ defmodule Bot.Handler.Command.Util.Help do
 
     fields = [
       %{
-        name: "❯ Usage(s)",
+        name: :LOC_HELP_USAGES,
         value: "`#{prefix}#{name} #{usages |> Enum.join("`\n`#{prefix}#{name} ")}`",
         inline: true
       },
       %{
-        name: "❯ Example(s)",
+        name: :LOC_HELP_EXAMPLES,
         value: "`#{prefix}#{name} #{examples |> Enum.join("`\n`#{prefix}#{name} ")}`",
         inline: true
       }
@@ -79,7 +78,7 @@ defmodule Bot.Handler.Command.Util.Help do
     fields =
       if function_exported?(command, :aliases, 0) do
         [
-          %{name: "❯ Alias(es)", value: "`#{command.aliases() |> Enum.join("`, `")}`"}
+          %{name: :LOC_HELP_ALIASES, value: "`#{command.aliases() |> Enum.join("`, `")}`"}
           | fields
         ]
       else

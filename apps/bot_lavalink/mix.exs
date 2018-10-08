@@ -18,7 +18,7 @@ defmodule Bot.Lavalink.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      applications: [:websockex, :httpoison],
+      applications: [:websockex, :httpoison, :sentry],
       extra_applications: [:logger],
       mod: {Bot.Lavalink, []}
     ]
@@ -28,6 +28,7 @@ defmodule Bot.Lavalink.MixProject do
   defp deps do
     [
       {:websockex, "~> 0.4.1"},
+      {:sentry, "~> 6.2.1"},
       {:credo, "~> 0.10.0", only: [:dev, :test], runtime: false},
       {:bot_handler, in_umbrella: true}
       # {:dep_from_hexpm, "~> 0.3.0"},

@@ -9,27 +9,29 @@ defmodule Bot.Handler.Command.Config.Prefix do
   alias Bot.Handler.Config.Guild
   alias Crux.Structs.Permissions
 
-  def description(), do: "Set or display the current prefix."
+  @spec description() :: String.t() | atom()
+  def description(), do: :LOC_DESC_PREFIX
   def examples(), do: ["", "!"]
   def guild_only(), do: true
   def usages(), do: ["", "<NewPrefix>"]
+
+  def inhibit(_message, %{args: []}), do: true
 
   def inhibit(%{member: member, guild_id: guild_id}, _) do
     guild = cache(:Guild, :fetch!, [guild_id])
 
     member
     |> Permissions.from(guild)
-    |> Permissions.has(:manage_guild) ||
-      {:respond, "You do not have the manage guild permission required to set the prefix."}
+    |> Permissions.has(:manage_guild) || {:respond, :LOC_PREFIX_PERMS}
   end
 
-  def process(%{guild_id: guild_id}, []) do
+  def process(%{guild_id: guild_id}, %{args: []}) do
     prefix = Guild.get!(guild_id, "prefix", Command.get_prefix())
 
-    {:respond, "The current prefix is ``#{prefix}``."}
+    {:respond, {:LOC_PREFIX_CURRENT, [prefix: prefix]}}
   end
 
-  def process(%{guild_id: guild_id}, args) do
+  def process(%{guild_id: guild_id}, %{args: args}) do
     old_prefix = Guild.get!(guild_id, "prefix", Command.get_prefix())
     new_prefix = Enum.join(args, " ")
 
@@ -37,8 +39,8 @@ defmodule Bot.Handler.Command.Config.Prefix do
 
     response =
       if old_prefix,
-        do: "Prefix changed from ``#{old_prefix}`` to ``#{new_prefix}``.",
-        else: "Prefix set to ``#{new_prefix}``."
+        do: {:LOC_PREFIX_CHANGED, [old: old_prefix, new: new_prefix]},
+        else: {:LOC_PREFIX_SET, [new: new_prefix]}
 
     {:respond, response}
   end

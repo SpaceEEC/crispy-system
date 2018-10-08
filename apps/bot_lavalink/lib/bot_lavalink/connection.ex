@@ -63,13 +63,11 @@ defmodule Bot.Lavalink.Connection do
         WebSockex.cast(__MODULE__, {:store, voice_state})
 
       _ ->
-        Logger.debug(fn -> "[Lavalink][Connection]: Voice State for #{id}" end)
         :ok
     end
   end
 
   def forward(data) do
-    Logger.debug(fn -> "[Lavalink][Forward]: #{inspect(data)}" end)
     WebSockex.cast(__MODULE__, {:store, data})
   end
 
@@ -88,7 +86,7 @@ defmodule Bot.Lavalink.Connection do
     if voice_server && voice_state do
       packet =
         voice_server
-        |> Payload.voice_update(voice_state.session_id, to_string(guild_id))
+        |> Payload.voice_update(voice_state.session_id, guild_id)
         |> Poison.encode!()
 
       {:reply, {:text, packet}, state}
@@ -105,8 +103,6 @@ defmodule Bot.Lavalink.Connection do
         {:store, %VoiceState{guild_id: guild_id} = voice_state},
         {voice_servers, voice_states}
       ) do
-    Logger.debug(fn -> "[Lavalink][Connection]: Voice State #{guild_id}" end)
-
     try_join(
       guild_id,
       {
@@ -117,8 +113,6 @@ defmodule Bot.Lavalink.Connection do
   end
 
   def handle_cast({:store, %{guild_id: guild_id} = voice_server}, {voice_servers, voice_states}) do
-    Logger.debug(fn -> "[Lavalink][Connection]: Voice Server #{guild_id}" end)
-
     # Lavalink can not handle integer guild ids. One might think it's written in JavaScript...
     voice_server = Map.update!(voice_server, :guild_id, &Integer.to_string/1)
     voice_servers = Map.put(voice_servers, guild_id, voice_server)
@@ -157,7 +151,7 @@ defmodule Bot.Lavalink.Connection do
       |> Player.Supervisor.try_dispatch()
     end)
 
-    # Logger.debug("[Lavalink][handle_frame]: #{frame}")
+    # Logger.debug(fn -> "[Lavalink][handle_frame]: #{frame}" end)
 
     {:ok, state}
   end

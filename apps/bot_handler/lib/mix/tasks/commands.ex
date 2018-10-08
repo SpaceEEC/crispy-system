@@ -18,17 +18,13 @@ defmodule Mix.Tasks.Commands do
   end
   """
 
+  # credo:disable-for-next-line Credo.Check.Refactor.ABCSize
   def run(_args) do
     [commands, aliases] =
       [".", "lib", "bot_handler", "command", "*", "*.ex"]
       |> Path.join()
       |> Path.wildcard()
-      |> Enum.map(fn "lib/bot_handler/command/" <> path ->
-        path
-        |> Path.split()
-        |> Enum.reverse()
-        |> correct_path()
-      end)
+      |> Enum.map(&correct_path/1)
       |> Enum.reduce([%{}, %{}], fn name, [cmds, aliases] ->
         module = Module.concat(Bot.Handler.Command, name)
 
@@ -72,7 +68,12 @@ defmodule Mix.Tasks.Commands do
     |> File.write!(content)
   end
 
-  defp correct_path([file | path]) do
+  defp correct_path("lib/bot_handler/command/" <> rest) do
+    [file | path] =
+      rest
+      |> Path.split()
+      |> Enum.reverse()
+
     file = file |> Path.basename(".ex") |> Macro.camelize()
     [head | _tails] = path = Enum.map(path, &String.capitalize/1)
 

@@ -44,7 +44,7 @@ defmodule Bot.Handler.VoiceLog do
         icon_url: rest(Crux.Rest.Endpoints, :cdn) <> "/avatars/#{user.id}/#{user.avatar}.png"
       },
       timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
-      description: "#{user} connected to #{new_channel} (#{new_channel.name})"
+      description: "📥 #{user} -> #{new_channel} (#{new_channel.name})"
     }
 
     rest(:create_message, [taget_id, [embed: embed]])
@@ -58,7 +58,7 @@ defmodule Bot.Handler.VoiceLog do
         icon_url: rest(Crux.Rest.Endpoints, :cdn) <> "/avatars/#{user.id}/#{user.avatar}.png"
       },
       timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
-      description: "#{user} disconnected from #{old_channel} (#{old_channel.name})"
+      description: "📤 #{user} <- #{old_channel} (#{old_channel.name})"
     }
 
     rest(:create_message, [target_id, [embed: embed]])
@@ -73,8 +73,8 @@ defmodule Bot.Handler.VoiceLog do
       },
       timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
       description:
-        "#{user} moved from #{old_channel} (#{old_channel.name})" <>
-          "to #{new_channel} (#{new_channel.name})"
+        "#{user} <-> #{old_channel} (#{old_channel.name})" <>
+          "-> #{new_channel} (#{new_channel.name})"
     }
 
     rest(:create_message, [target_id, [embed: embed]])

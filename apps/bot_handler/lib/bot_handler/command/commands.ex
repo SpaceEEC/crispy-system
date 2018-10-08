@@ -1,7 +1,7 @@
 defmodule Bot.Handler.Command.Commands do
   @moduledoc false
 
-  # Generated 2018-10-07T12:55:16.011000Z
+  # Generated 2018-10-07T20:17:50.162000Z
   @commands %{
     "avatar" => Bot.Handler.Command.Misc.Avatar,
     "donmai" => Bot.Handler.Command.Image.Donmai,
@@ -11,6 +11,7 @@ defmodule Bot.Handler.Command.Commands do
     "invite" => Bot.Handler.Command.Util.Invite,
     "join" => Bot.Handler.Command.Music.Join,
     "konachan" => Bot.Handler.Command.Image.Konachan,
+    "language" => Bot.Handler.Command.Config.Language,
     "leave" => Bot.Handler.Command.Music.Leave,
     "loop" => Bot.Handler.Command.Music.Loop,
     "nowplaying" => Bot.Handler.Command.Music.NowPlaying,
@@ -30,6 +31,7 @@ defmodule Bot.Handler.Command.Commands do
     "vlogchannel" => Bot.Handler.Command.Config.VlogChannel
   }
   @aliases %{
+    "lang" => Bot.Handler.Command.Config.Language,
     "np" => Bot.Handler.Command.Music.NowPlaying,
     "picture" => Bot.Handler.Command.Image
   }

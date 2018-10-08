@@ -3,7 +3,7 @@ defmodule Bot.Lavalink.Payload do
 
   @spec play(
           track :: String.t(),
-          guild_id :: Crux.Rest.snoflake(),
+          guild_id :: Crux.Rest.snowflake() | String.t(),
           start_end ::
             [{:startTime, Integer.t()} | {:endTime, Integer.t()}]
             | %{optional(:startTime) => Integer.t(), optional(:endTime) => Integer.t()}
@@ -42,7 +42,8 @@ defmodule Bot.Lavalink.Payload do
     |> finalize("voiceUpdate", guild_id)
   end
 
-  @spec finalize(data :: map(), op :: String.t(), guild_id :: String.t()) :: map()
+  @spec finalize(data :: map(), op :: String.t(), guild_id :: Crux.Rest.Snowflake | String.t()) ::
+          map()
   defp finalize(data, op, guild_id) do
     %{
       "op" => op,

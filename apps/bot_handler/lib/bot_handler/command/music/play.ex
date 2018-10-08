@@ -3,11 +3,13 @@ defmodule Bot.Handler.Command.Music.Play do
 
   @behaviour Bot.Handler.Command
 
-  alias Bot.Handler.Mutil
+  alias Bot.Handler.{Locale, Mutil}
 
   import Bot.Handler.Util
 
-  def description(), do: "Displays the currently played song."
+  require Bot.Handler.Locale
+
+  def description(), do: :LOC_DESC_PLAY
 
   def examples(),
     do: [
@@ -19,11 +21,11 @@ defmodule Bot.Handler.Command.Music.Play do
   def usages(), do: ["<...Search>", "<Video URL>", "<Playlist URL>"]
   def guild_only(), do: true
 
-  def fetch(_message, []) do
-    {:respond, "You have to give me a url, or something to search for."}
+  def fetch(_message, %{args: []}) do
+    {:respond, :LOC_MUSIC_NO_QUERY}
   end
 
-  def fetch(_message, args) do
+  def fetch(_message, %{args: args}) do
     query =
       args
       |> Enum.join(" ")
@@ -33,7 +35,7 @@ defmodule Bot.Handler.Command.Music.Play do
 
     case lavalink(Rest, :fetch_tracks, [identifier]) do
       {:ok, []} ->
-        {:respond, "Could not find anything."}
+        {:respond, :LOC_NOTHING_FOUND}
 
       {:ok, tracks} when playlist ->
         {:ok, tracks}
@@ -72,7 +74,9 @@ defmodule Bot.Handler.Command.Music.Play do
            ]}
         end
 
-      res when is_bitstring(res) ->
+      res
+      when Locale.is_localizable(res)
+      when is_bitstring(res) ->
         {:respond, res}
     end
   end

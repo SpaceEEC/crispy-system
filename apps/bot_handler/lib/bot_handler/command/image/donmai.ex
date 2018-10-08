@@ -10,11 +10,9 @@ defmodule Bot.Handler.Command.Image.Donmai do
   def usages(), do: ["<...Tags>"]
   def examples(), do: ["komeiji_satori", "touhou long_sleeves"]
 
-  def description(),
-    do:
-      "Fetches a random picture from https://safebooru.donmai.us/, optionally with tags to search with."
+  def description(), do: :LOC_DESC_DONMAI
 
-  def fetch(_message, args) when length(args) <= 2 do
+  def fetch(_message, %{args: args}) when length(args) <= 2 do
     tags =
       args
       |> Enum.join(" ")
@@ -25,15 +23,14 @@ defmodule Bot.Handler.Command.Image.Donmai do
   end
 
   def fetch(_message, _args) do
-    {:respond, "The maximum amount of tags you can specify is 2."}
+    {:respond, {:LOC_IMAGE_MAX_TAGS, [max: 2]}}
   end
 
   def process(_message, {{:ok, %{body: []}}, tags}) do
     data = [
       embed: %{
-        title: "No results",
-        description:
-          "Could not find anything.\nMaybe made a typo? [Search](#{@donmai_posts}?tags=#{tags})"
+        title: :LOC_NO_RESULTS,
+        description: {:LOC_NOTHING_FOUND_URL, [url: "#{@donmai_posts}?tags=#{tags}"]}
       }
     ]
 
@@ -52,6 +49,6 @@ defmodule Bot.Handler.Command.Image.Donmai do
   end
 
   def process(_message, {{:error, _err}, _tags}) do
-    {:respond, "An error occured while fetching an image."}
+    {:respond, :LOC_IMAGE_ERROR}
   end
 end

@@ -3,12 +3,14 @@ defmodule Bot.Handler.Command.Music.NowPlaying do
 
   @behaviour Bot.Handler.Command
 
-  alias Bot.Handler.Mutil
+  alias Bot.Handler.{Locale, Mutil}
 
   import Bot.Handler.Util
 
+  require Bot.Handler.Locale
+
   def aliases(), do: ["np"]
-  def description(), do: "Displays the currently played song."
+  def description(), do: :LOC_DESC_NP
   def guild_only(), do: true
 
   def fetch(%{channel_id: channel_id}, _args) do
@@ -17,45 +19,53 @@ defmodule Bot.Handler.Command.Music.NowPlaying do
     {:ok, channel}
   end
 
+  @spec process(any(), %{guild_id: any()}) :: {:respond, bitstring() | [{any(), any()}, ...]}
   def process(_message, %{guild_id: guild_id}) do
     Player
     |> lavalink(:command, [guild_id, :queue])
-    |> case do
-      res when is_bitstring(res) ->
-        {:respond, res}
+    |> handle_response()
+  end
 
-      %{queue: queue, position: position, loop: loop} ->
-        {:value, {user, track}} = :queue.peek(queue)
+  defp handle_response(response)
+       when Locale.is_localizable(response)
+       when is_bitstring(response) do
+    {:respond, response}
+  end
 
-        track_length =
-          track.info.length
-          |> Mutil.format_milliseconds()
+  defp handle_response(%{queue: queue, position: position, loop: loop}) do
+    {:value, {user, track}} = :queue.peek(queue)
 
-        # credo:disable-for-next-line Credo.Check.Refactor.PipeChainStart
-        tmp = (position / track.info.length * 10) |> Float.ceil() |> trunc()
-        played_bars = String.pad_leading("", tmp, "▬")
+    track_length =
+      track.info.length
+      |> Mutil.format_milliseconds()
 
-        track_position =
-          position
-          |> Mutil.format_milliseconds()
+    # credo:disable-for-next-line Credo.Check.Refactor.PipeChainStart
+    tmp = (position / track.info.length * 10) |> Float.ceil() |> trunc()
+    played_bars = String.pad_leading("", tmp, "▬")
 
-        unplayed_bars = String.pad_leading("", 10 - tmp, "▬")
+    track_position =
+      position
+      |> Mutil.format_milliseconds()
 
-        embed =
-          track
-          |> Mutil.build_embed(user, "np", loop)
-          |> Map.update!(:description, fn description ->
-            description =
-              description
-              |> String.split("Length:")
-              |> List.first()
+    unplayed_bars = String.pad_leading("", 10 - tmp, "▬")
 
-            "#{description}\n **Progress**: " <>
-              "**[#{played_bars}](https://crux.randomly.space/)#{unplayed_bars}** " <>
-              " (`#{track_position}`/`#{track_length}`)"
-          end)
+    key = if(loop, do: :LOC_NP_EMBED_LOOP, else: :LOC_NP_EMBED)
 
-        {:respond, [embed: embed]}
-    end
+    embed =
+      track
+      |> Mutil.build_embed(user, "np", loop)
+      |> Map.update!(:description, fn {_key, args} ->
+        args =
+          Keyword.merge(args,
+            played_bars: played_bars,
+            unplayed_bars: unplayed_bars,
+            position: track_position,
+            length: track_length
+          )
+
+        {key, args}
+      end)
+
+    {:respond, [embed: embed]}
   end
 end

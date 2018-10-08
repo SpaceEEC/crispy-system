@@ -3,7 +3,7 @@ defmodule Bot.Handler.Command.Util.Uptime do
 
   @behaviour Bot.Handler.Command
 
-  def description(), do: "Gets the uptime of the nodes."
+  def description(), do: :LOC_DESC_UPTIME
 
   def process(_message, _args) do
     data =
@@ -21,14 +21,7 @@ defmodule Bot.Handler.Command.Util.Uptime do
         "#{String.pad_trailing(node, longest)} :: #{uptime}"
       end)
 
-    content = """
-    **Uptime:**
-    ```asciidoc
-    #{content}
-    ```
-    """
-
-    {:respond, content}
+    {:respond, {:LOC_UPTIME, [content: content]}}
   end
 
   defp fetch_nodes_data(nodes) do
@@ -82,6 +75,7 @@ defmodule Bot.Handler.Command.Util.Uptime do
       if days == 0 do
         ""
       else
+        # TODO: localizing?
         "#{days} days "
       end
 

@@ -7,7 +7,7 @@ defmodule Bot.Handler.Command.Music.Resume do
 
   import Bot.Handler.Util
 
-  def description(), do: "Resumes the currently paused song"
+  def description(), do: :LOC_DESC_RESUME
   def guild_only(), do: true
 
   def fetch(%{guild_id: guild_id}, _args) do

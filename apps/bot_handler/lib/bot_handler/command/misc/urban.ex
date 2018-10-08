@@ -13,24 +13,24 @@ defmodule Bot.Handler.Command.Misc.Urban do
 
   def usages(), do: ["[\"-\"Number] <...Term>"]
   def examples(), do: ["test", "-2 test", "-10 test"]
-  def description(), do: "Displays the urban definition of a term."
+  def description(), do: :LOC_DESC_URBAN
 
-  def fetch(_message, []) do
-    {:respond, "You need to tell me what you want to look up."}
+  def fetch(_message, %{args: []}) do
+    {:respond, :LOC_URBAN_NO_QUERY}
   end
 
-  def fetch(message, ["-" <> number | rest]) do
+  def fetch(message, %{args: ["-" <> number | rest]} = info) do
     case Integer.parse(number) do
       {number, ""} ->
         number = Enum.max([1, number])
-        fetch(message, [number | rest])
+        fetch(message, Map.put(info, :args, [number | rest]))
 
       _ ->
-        fetch(message, [1 | rest])
+        fetch(message, Map.put(info, :args, [1 | rest]))
     end
   end
 
-  def fetch(_message, [number | args]) when is_integer(number) do
+  def fetch(_message, %{args: [number | args]}) when is_integer(number) do
     search =
       args
       |> Enum.join("+")
@@ -41,7 +41,7 @@ defmodule Bot.Handler.Command.Misc.Urban do
     {:ok, {res, number, search}}
   end
 
-  def fetch(message, args), do: fetch(message, [1 | args])
+  def fetch(message, info), do: fetch(message, Map.update!(info, :args, &[1 | &1]))
 
   def process(message, {{:ok, %{body: %{"list" => []}}}, _number, search}) do
     embed = %{
@@ -51,11 +51,8 @@ defmodule Bot.Handler.Command.Misc.Urban do
         url: "http://www.urbandictionary.com/",
         icon_url: "http://www.urbandictionary.com/favicon.ico"
       },
-      thumbnail: %{url: "https://a.safe.moe/7BZzg.png"},
-      description: """
-      Could not find anything.
-      Maybe made a typo? [Search](#{@urban_web}#{search})
-      """,
+      # thumbnail: %{url: ""},
+      description: {:LOC_NOTHING_FOUND_URL, [url: @urban_web <> search]},
       footer: %{
         text: message.content,
         icon_url: rest(CDN, :user_avatar, [message.author])
@@ -82,57 +79,23 @@ defmodule Bot.Handler.Command.Misc.Urban do
       color: 0x1D2439,
       author: %{
         name: "Urbandictionary",
-        icon_url: "https://a.safe.moe/7BZzg.png",
+        # icon_url: "",
         url: "http://www.urbandictionary.com/"
       },
-      thumbnail: %{
-        url: "https://a.safe.moe/7BZzg.png"
-      },
+      # thumbnail: %{url: ""},
       title: "#{search} [#{number}/#{Enum.count(results)}]",
       footer: %{
-        text: "#{message.content} | Definition #{number} out of #{Enum.count(results)}",
+        text:
+          {:LOC_URBAN_FOOTER,
+           [content: message.content, number: number, total: Enum.count(results)]},
         icon_url: rest(Crux.Rest.CDN, :user_avatar, [message.author, [size: 32]])
       }
     }
 
-    example_fields =
-      if example do
-        [[example_first | _] | example_rest] = Regex.scan(~r/(.|[\r\n]){1,1024}/, example)
+    example_fields = chunk(:LOC_URBAN_EXAMPLE, example)
+    definition_fields = chunk(:LOC_URBAN_DEFINITION, definition)
 
-        [
-          %{
-            name: "❯ Example",
-            value: example_first
-          }
-          | for [chunk | _] <- example_rest do
-              %{
-                name: "\u200b",
-                value: chunk
-              }
-            end
-        ]
-      else
-        []
-      end
-
-    [[definition_first | _] | definition_rest] = Regex.scan(~r/(.|[\r\n]){1,1024}/, definition)
-
-    definition_fields = [
-      %{
-        name: "❯  Definition",
-        value: definition_first
-      }
-      | for [chunk | _] <- definition_rest do
-          %{
-            name: "\u200b",
-            value: chunk
-          }
-        end
-    ]
-
-    embed =
-      embed
-      |> Map.put(:fields, definition_fields ++ example_fields)
+    embed = Map.put(embed, :fields, definition_fields ++ example_fields)
 
     {:respond, [embed: embed]}
   end
@@ -145,10 +108,8 @@ defmodule Bot.Handler.Command.Misc.Urban do
         url: "http://www.urbandictionary.com/",
         icon_url: "http://www.urbandictionary.com/favicon.ico"
       },
-      thumbnail: %{url: "https://a.safe.moe/7BZzg.png"},
-      description: """
-      An error occurred while fetching. [Search](#{@urban_web}#{search})
-      """,
+      # thumbnail: %{url: ""},
+      description: {:LOC_URBAN_ERROR, [url: @urban_web <> search]},
       footer: %{
         text: message.content,
         icon_url: rest(CDN, :user_avatar, [message.author])
@@ -156,5 +117,21 @@ defmodule Bot.Handler.Command.Misc.Urban do
     }
 
     {:respond, [embed: embed]}
+  end
+
+  def chunk(_title, nil), do: []
+
+  def chunk(title, text) do
+    [[first | _] | rest] = Regex.scan(~r/(.|[\r\n]){1,1024}/, text)
+
+    [
+      %{
+        name: title,
+        value: first
+      }
+      | for [chunk | _] <- rest do
+          %{name: "\u200b", value: chunk}
+        end
+    ]
   end
 end

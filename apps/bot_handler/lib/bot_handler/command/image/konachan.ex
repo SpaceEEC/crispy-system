@@ -10,11 +10,9 @@ defmodule Bot.Handler.Command.Image.Konachan do
   def usages(), do: ["<...Tags>"]
   def examples(), do: ["komeiji_satori", "touhou long_sleeves"]
 
-  def description(),
-    do:
-      "Fetches a random picture from https://konachan.net/, optionally with tags to search with."
+  def description(), do: :LOC_DESC_KONACHAN
 
-  def fetch(_message, args) when length(args) <= 5 do
+  def fetch(_message, %{args: args}) when length(args) <= 5 do
     tags =
       args
       |> Enum.join(" ")
@@ -25,15 +23,14 @@ defmodule Bot.Handler.Command.Image.Konachan do
   end
 
   def fetch(_message, _args) do
-    {:respond, "The maximum amount of tags you can specify is 5."}
+    {:respond, {:LOC_IMAGE_MAX_TAGS, [max: 5]}}
   end
 
   def process(_message, {:ok, %{body: []}, tags}) do
     data = [
       embed: %{
-        title: "No results",
-        description:
-          "Could not find anything.\nMaybe made a typo? [Search](#{@konachan_post}?tags=#{tags})"
+        title: :LOC_NO_RESULTS,
+        description: {:LOC_NOTHING_FOUND_URL, [url: "#{@konachan_post}?tags=#{tags}"]}
       }
     ]
 
@@ -54,6 +51,6 @@ defmodule Bot.Handler.Command.Image.Konachan do
   end
 
   def process(_message, {{:error, _error}, _tags}) do
-    {:respond, "An error occured while fetching an image."}
+    {:respond, :LOC_IMAGE_ERROR}
   end
 end

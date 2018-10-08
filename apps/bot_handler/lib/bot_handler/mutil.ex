@@ -21,10 +21,10 @@ defmodule Bot.Handler.Mutil do
       type
       |> type_data()
 
-    loop =
+    locale_key =
       if loop,
-        do: "**Loop is enabled**",
-        else: ""
+        do: :LOC_MUSIC_EMBED_LOOP,
+        else: :LOC_MUSIC_EMBED
 
     me = cache(:User, :me!)
 
@@ -40,12 +40,7 @@ defmodule Bot.Handler.Mutil do
     }
     |> Map.merge(type_embed)
     |> Map.update!(:description, fn description ->
-      """
-      #{loop}
-      #{description} [#{track.title}](#{track.uri})
-      Length: #{time_string}
-      """
-      |> String.trim()
+      {locale_key, [prefix: description, title: track.title, uri: track.uri, length: time_string]}
     end)
     |> put_in(
       [:footer, :icon_url],
@@ -58,7 +53,7 @@ defmodule Bot.Handler.Mutil do
       color: 0x7EB7E4,
       description: "💾",
       footer: %{
-        text: "saved, just for you."
+        text: :LOC_MUSIC_SAVE
       }
     }
   end
@@ -68,7 +63,7 @@ defmodule Bot.Handler.Mutil do
       color: 0x00FF08,
       description: "**>>**",
       footer: %{
-        text: "is now being played."
+        text: :LOC_MUSIC_PLAY
       }
     }
   end
@@ -78,7 +73,7 @@ defmodule Bot.Handler.Mutil do
       color: 0xFFFF00,
       description: "**++**",
       footer: %{
-        text: "has been added."
+        text: :LOC_MUSIC_ADD
       }
     }
   end
@@ -88,7 +83,7 @@ defmodule Bot.Handler.Mutil do
       color: 0x0800FF,
       description: "**>>**",
       footer: %{
-        text: "currently playing."
+        text: :LOC_MUSIC_NP
       }
     }
   end
@@ -151,10 +146,10 @@ defmodule Bot.Handler.Mutil do
 
     case voice_states do
       %{^own_id => %{channel_id: nil}} ->
-        "I am not connected to a voice channel here."
+        :LOC_MUSIC_SELF_DISCONNECTED
 
       %{^user_id => %{channel_id: nil}} ->
-        "You are not connected to a voice channel here."
+        :LOC_MUSIC_YOU_DISCONNECTED
 
       %{
         ^user_id => %{channel_id: user_channel_id},
@@ -167,13 +162,13 @@ defmodule Bot.Handler.Mutil do
         ^user_id => %{},
         ^own_id => %{}
       } ->
-        "You are in a different voice channel."
+        :LOC_MUSIC_DIFFERENT_CHANNEL
 
       %{^own_id => %{}} ->
-        "You are not connected to a voice channel here."
+        :LOC_MUSIC_YOU_DISCONNECTED
 
       _ ->
-        "I am not connected to a voice channel here."
+        :LOC_MUSIC_SELF_DISCONNECTED
     end
   end
 
@@ -186,7 +181,7 @@ defmodule Bot.Handler.Mutil do
 
     case voice_states do
       %{^user_id => %{channel_id: nil}} ->
-        "You are not connected to a voice channel here."
+        :LOC_MUSIC_YOU_DISCONNECTED
 
       %{
         ^user_id => %{channel_id: user_channel_id},
@@ -200,16 +195,16 @@ defmodule Bot.Handler.Mutil do
         ^own_id => %{channel_id: own_channel_id}
       }
       when not is_nil(own_channel_id) ->
-        "You are in a different voice channel."
+        :LOC_MUSIC_DIFFERENT_CHANNEL
 
       %{^own_id => %{channel_id: own_channel_id}} when not is_nil(own_channel_id) ->
-        "You are not connected to a voice channel here."
+        :LOC_MUSIC_YOU_DISCONNECTED
 
       %{^user_id => %{channel_id: channel_id}} ->
         channel_id
 
       %{} ->
-        "You are not connected to a voice channel here."
+        :LOC_MUSIC_YOU_DISCONNECTED
     end
   end
 

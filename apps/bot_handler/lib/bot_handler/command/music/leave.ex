@@ -7,7 +7,7 @@ defmodule Bot.Handler.Command.Music.Leave do
 
   import Bot.Handler.Util
 
-  def description(), do: "Commands the bot to leave your channel."
+  def description(), do: :LOC_DESC_LEAVE
   def guild_only(), do: true
 
   def fetch(%{guild_id: guild_id}, _args) do
@@ -23,7 +23,7 @@ defmodule Bot.Handler.Command.Music.Leave do
       with true <- Mutil.ensure_connected(voice_states, user_id) do
         gateway(Bot.Gateway, :voice_state_update, [guild_id])
 
-        "Leaving you..."
+        :LOC_MUSIC_LEAVING
       end
 
     {:respond, response}

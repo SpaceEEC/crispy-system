@@ -3,16 +3,17 @@ defmodule Bot.Handler.Command.Music.Loop do
 
   @behaviour Bot.Handler.Command
 
+  alias Bot.Handler.Mutil
   import Bot.Handler.Util
 
   def usages(), do: ["", "<State>"]
   def examples(), do: ["", "enable", "disable"]
-  def description(), do: "Enabled, disabled, or shows the current state of the queue."
+  def description(), do: :LOC_DESC_LOOP
   def guild_only(), do: true
 
-  def fetch(message, []), do: fetch(message, [""])
+  def fetch(message, %{args: []} = info), do: fetch(message, Map.put(info, :args, [""]))
 
-  def fetch(%{guild_id: guild_id}, args) do
+  def fetch(%{guild_id: guild_id}, %{args: args}) do
     {:ok, {cache(:Guild, :fetch!, [guild_id]), args}}
   end
 
@@ -30,7 +31,7 @@ defmodule Bot.Handler.Command.Music.Loop do
       end
 
     res =
-      with true <- lavalink(Util, :ensure_connected, [guild.voice_states, user_id]) do
+      with true <- Mutil.ensure_connected(guild.voice_states, user_id) do
         lavalink(Player, :command, [guild.id, {:loop, state}])
       end
 

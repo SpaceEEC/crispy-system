@@ -3,12 +3,13 @@ defmodule Bot.Handler.Command.Music.Save do
 
   @behaviour Bot.Handler.Command
 
-  alias Bot.Handler.Mutil
+  alias Bot.Handler.{Locale, Mutil}
 
   import Bot.Handler.Util
 
-  def description(),
-    do: "Sents you a dm containing the currently played song, for your later use."
+  require Bot.Handler.Locale
+
+  def description(), do: :LOC_DESC_SAVE
 
   def guild_only(), do: true
 
@@ -16,25 +17,30 @@ defmodule Bot.Handler.Command.Music.Save do
     Player
     |> lavalink(:command, [guild_id, :queue])
     |> case do
-      res when is_bitstring(res) ->
+      res
+      when Locale.is_localizable(res)
+      when is_bitstring(res) ->
         {:respond, res}
 
       %{queue: queue} ->
         {:value, {_user, track}} = :queue.peek(queue)
 
+        locale = Locale.fetch!(guild_id)
+
         embed =
           track
           |> Mutil.build_embed(author, "save")
           |> Map.delete(:author)
+          |> Locale.localize_embed(locale)
 
         {:ok, dm_channel} = rest(:create_dm, [author])
 
         case rest(:create_message, [dm_channel, [embed: embed]]) do
           {:ok, _} ->
-            {:respond, "Sent you a dm."}
+            {:respond, :LOC_SENT_DM}
 
           {:error, _} ->
-            {:respond, "I could not dm you.\nDid you disable dms or perhaps blocks me?"}
+            {:respond, :LOC_FAILED_DM}
         end
     end
   end

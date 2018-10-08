@@ -7,7 +7,7 @@ defmodule Bot.Handler.Command.Music.Skip do
 
   import Bot.Handler.Util
 
-  def description(), do: "Skips the currently played song."
+  def description(), do: :LOC_DESC_SKIP
   def guild_only(), do: true
 
   def fetch(%{guild_id: guild_id}, _args) do
