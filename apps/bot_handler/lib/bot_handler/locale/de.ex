@@ -116,7 +116,7 @@ defmodule Bot.Handler.Locale.DE do
     # Invite
     LOC_INVITE: "Einladung",
     LOC_INVITE_DESCRIPTION: """
-    Um mich zu deinem Server einzuladen klicke [diesen]([{url}}) Link.
+    Um mich zu deinem Server einzuladen klicke [diesen]({{url}}) Link.
     **Hinweis**: Du benötigst dazu **Server Verwalten** Rechte dort.
     \u200b
     """,

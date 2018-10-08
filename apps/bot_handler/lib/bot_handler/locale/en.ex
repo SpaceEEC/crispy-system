@@ -113,7 +113,7 @@ defmodule Bot.Handler.Locale.EN do
     # Invite
     LOC_INVITE: "Invite",
     LOC_INVITE_DESCRIPTION: """
-    To invite me to your server click [this]([{url}}) link.
+    To invite me to your server click [this]({{url}}) link.
     **Note**: You need the **Manage Server** permission to add me there.
     \u200b
     """,
