@@ -22,7 +22,8 @@ defmodule Bot.Handler.Command.Config.Prefix do
 
     member
     |> Permissions.from(guild)
-    |> Permissions.has(:manage_guild) || {:respond, :LOC_PREFIX_PERMS}
+    |> Permissions.has(:manage_guild)
+    |> Kernel.||({:respond, :LOC_PREFIX_PERMS})
   end
 
   def process(%{guild_id: guild_id}, %{args: []}) do

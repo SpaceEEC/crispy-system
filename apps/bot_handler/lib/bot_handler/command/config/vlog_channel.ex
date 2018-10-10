@@ -19,7 +19,8 @@ defmodule Bot.Handler.Command.Config.VlogChannel do
 
     member
     |> Permissions.from(guild)
-    |> Permissions.has(:manage_guild) || {:respond, :LOC_VLOG_PERMS}
+    |> Permissions.has(:manage_guild)
+    |> Kernel.||({:respond, :LOC_VLOG_PERMS})
   end
 
   def fetch(_message, %{args: []}), do: {:ok, :show}

@@ -17,7 +17,8 @@ defmodule Bot.Handler.Command.Config.RemovePrefix do
 
     member
     |> Permissions.from(guild)
-    |> Permissions.has(:manage_guild) || {:respond, :LOC_REMOVEPREFIX_PERMS}
+    |> Permissions.has(:manage_guild)
+    |> Kernel.||({:respond, :LOC_REMOVEPREFIX_PERMS})
   end
 
   def process(%{guild_id: guild_id}, _) do

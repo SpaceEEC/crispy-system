@@ -22,7 +22,8 @@ defmodule Bot.Handler.Command.Config.Language do
 
     member
     |> Permissions.from(guild)
-    |> Permissions.has(:manage_guild) || {:respond, :LOC_LANG_PERMS}
+    |> Permissions.has(:manage_guild)
+    |> Kernel.||({:respond, :LOC_LANG_PERMS})
   end
 
   def fetch(_message, %{args: []}), do: {:ok, []}
