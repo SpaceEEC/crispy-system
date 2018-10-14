@@ -1,4 +1,4 @@
-defmodule Bot.Handler.Etcd do
+defmodule Bot.Handler.Config.Etcd do
   @moduledoc false
 
   alias Bot.Handler.Rest

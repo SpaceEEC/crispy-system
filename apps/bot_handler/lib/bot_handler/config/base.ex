@@ -61,7 +61,7 @@ defmodule Bot.Handler.Config.Base do
 
       def run(fun, base, key, value \\ nil) do
         base = transform_base(base)
-        alias Bot.Handler.Etcd
+        alias Bot.Handler.Config.Etcd
         Code.ensure_loaded(Etcd)
 
         if function_exported?(Etcd, fun, 2) do
