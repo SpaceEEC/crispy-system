@@ -21,8 +21,9 @@ defmodule Mix.Tasks.Commands do
   # credo:disable-for-next-line Credo.Check.Refactor.ABCSize
   def run(_args) do
     [commands, aliases] =
-      [".", "lib", "bot_handler", "command", "*", "*.ex"]
+      ["..", "..", "bot_handler", "command", "*", "*.ex"]
       |> Path.join()
+      |> Path.expand(__DIR__)
       |> Path.wildcard()
       |> Enum.map(&correct_path/1)
       |> Enum.reduce([%{}, %{}], fn name, [cmds, aliases] ->
@@ -63,14 +64,17 @@ defmodule Mix.Tasks.Commands do
       |> String.replace("\#{commands}", commands)
       |> String.replace("\#{aliases}", aliases)
 
-    [".", "lib", "bot_handler", "command", "commands.ex"]
+    ["..", "..", "bot_handler", "command", "commands.ex"]
     |> Path.join()
+    |> Path.expand(__DIR__)
     |> File.write!(content)
   end
 
-  defp correct_path("lib/bot_handler/command/" <> rest) do
+  defp correct_path(absolute) do
     [file | path] =
-      rest
+      absolute
+      |> String.split("lib/bot_handler/command/")
+      |> Enum.at(1)
       |> Path.split()
       |> Enum.reverse()
 
