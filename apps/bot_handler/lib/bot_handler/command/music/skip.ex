@@ -5,7 +5,7 @@ defmodule Bot.Handler.Command.Music.Skip do
 
   alias Bot.Handler.Mutil
 
-  import Bot.Handler.Util
+  import Bot.Handler.Rpc
 
   def description(), do: :LOC_DESC_SKIP
   def guild_only(), do: true

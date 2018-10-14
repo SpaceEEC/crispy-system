@@ -1,6 +1,7 @@
 defmodule Bot.Handler.Consumer.Supervisor do
   @moduledoc false
 
+  alias Bot.Handler.Rpc
   use ConsumerSupervisor
 
   def start_link([mod] = args) when is_atom(mod) do
@@ -8,10 +9,8 @@ defmodule Bot.Handler.Consumer.Supervisor do
   end
 
   def init(children) do
-    alias Bot.Handler.Util
-
-    if Util._cache_alive?() do
-      producers = Util._producers() |> Map.values()
+    if Node.ping(Rpc.cache()) == :pong do
+      producers = Rpc._producers() |> Map.values()
       opts = [strategy: :one_for_one, subscribe_to: producers]
 
       ConsumerSupervisor.init(children, opts)

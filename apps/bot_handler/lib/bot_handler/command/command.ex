@@ -50,7 +50,7 @@ defmodule Bot.Handler.Command do
   alias Bot.Handler.Config.Guild
   alias Bot.Handler.Locale
 
-  import Bot.Handler.Util
+  import Bot.Handler.Rpc
 
   # for guard
   require Bot.Handler.Locale

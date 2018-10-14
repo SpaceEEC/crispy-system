@@ -3,7 +3,7 @@ defmodule Bot.Handler.Command.Config.Prefix do
 
   @behaviour Bot.Handler.Command
 
-  import Bot.Handler.Util
+  import Bot.Handler.Rpc
 
   alias Bot.Handler.Command
   alias Bot.Handler.Config.Guild

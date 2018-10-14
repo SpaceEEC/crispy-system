@@ -1,5 +1,9 @@
-defmodule Bot.Handler.Util do
-  @moduledoc false
+defmodule Bot.Handler.Rpc do
+  @moduledoc """
+    Wrapper for erlang's :rpc module making calls to other node and raising proper errors on failure.
+  """
+
+  alias Bot.Handler.RpcError
 
   @gateway :"gateway@127.0.0.1"
   def gateway(), do: @gateway
@@ -11,7 +15,8 @@ defmodule Bot.Handler.Util do
   def lavalink(), do: @lavalink
 
   @spec gateway(mod :: atom(), fun :: atom(), args :: list()) :: term() | no_return()
-  def gateway(mod, fun, args \\ []), do: @gateway |> :rpc.call(mod, fun, args) |> handle_rpc(args)
+  def gateway(mod, fun, args \\ []),
+    do: @gateway |> :rpc.call(mod, fun, args) |> handle_rpc(args, @gateway)
 
   @spec rest(fun :: atom()) :: term() | no_return()
   def rest(fun) when is_atom(fun), do: rest(fun, [])
@@ -24,12 +29,15 @@ defmodule Bot.Handler.Util do
   def rest(mod, fun, args) when is_atom(mod) and is_atom(fun) and is_list(args) do
     @rest
     |> :rpc.call(mod, fun, args)
-    |> handle_rpc(args)
+    |> handle_rpc(args, @rest)
   end
 
   @spec lavalink(mod :: atom(), fun :: atom(), args :: list()) :: term() | no_return()
   def lavalink(mod, fun, args \\ []),
-    do: @lavalink |> :rpc.call(Module.concat(Bot.Lavalink, mod), fun, args) |> handle_rpc(args)
+    do:
+      @lavalink
+      |> :rpc.call(Module.concat(Bot.Lavalink, mod), fun, args)
+      |> handle_rpc(args, @lavalink)
 
   @spec cache(mod :: atom(), fun :: atom(), args :: list()) :: term() | no_return()
   def cache(mod, fun, args \\ []) do
@@ -37,32 +45,36 @@ defmodule Bot.Handler.Util do
 
     @cache
     |> :rpc.call(mod, fun, args)
-    |> handle_rpc(args)
+    |> handle_rpc(args, @cache)
   end
-
-  @spec _cache_alive?() :: boolean()
-  def _cache_alive?(), do: Node.ping(@cache) == :pong
 
   @spec _producers() :: %{required(non_neg_integer()) => pid()} | no_return()
   def _producers(),
-    do: @cache |> :rpc.call(Bot.Cache.Application, :producers, []) |> handle_rpc([])
+    do: @cache |> :rpc.call(Bot.Cache.Application, :producers, []) |> handle_rpc([], @cache)
 
-  defp handle_rpc({:badrpc, {:EXIT, {kind, stacktrace}}}, args) do
-    # Generates an actually really good stacktraces to see what went wrong.
+  def handle_rpc({:badrpc, {:EXIT, {kind, stacktrace}}}, args, _target) do
+    # Generates an actually really good stacktrace to see what went wrong.
     exception = Exception.normalize(:error, kind, stacktrace)
 
-    reraise Bot.Handler.RpcError, [exception, args], stacktrace
+    reraise RpcError, [exception, args], stacktrace
   end
 
-  defp handle_rpc({:badrpc, reason}, args) do
-    raise """
+  def handle_rpc({:badrpc, :nodedown}, args, target) do
+    raise RpcError, ["The target node \"#{target}\" is down", args]
+  end
+
+  def handle_rpc({:badrpc, reason}, args, target) do
+    raise RpcError, """
       received a non ":EXIT" ":badrcp":
       #{inspect(reason)}
+
+      target:
+      #{target}
 
       args:
       #{inspect(args)}
     """
   end
 
-  defp handle_rpc(other, _args), do: other
+  def handle_rpc(other, _args, _target), do: other
 end

@@ -2,7 +2,7 @@ defmodule Bot.Lavalink do
   @moduledoc false
 
   use Application
-  import Bot.Handler.Util
+  import Bot.Handler.Rpc
 
   def start(_type, _args) do
     :ok = :error_logger.add_report_handler(Sentry.Logger)

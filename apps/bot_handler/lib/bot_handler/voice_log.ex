@@ -1,7 +1,7 @@
 defmodule Bot.Handler.VoiceLog do
   @moduledoc false
 
-  import Bot.Handler.Util
+  import Bot.Handler.Rpc
   alias Bot.Handler.Config.Guild
   alias Crux.Structs.{Message, VoiceState}
 

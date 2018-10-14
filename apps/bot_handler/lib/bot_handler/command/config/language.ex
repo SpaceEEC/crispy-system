@@ -3,7 +3,7 @@ defmodule Bot.Handler.Command.Config.Language do
 
   @behaviour Bot.Handler.Command
 
-  import Bot.Handler.Util
+  import Bot.Handler.Rpc
 
   alias Bot.Handler.Config.Guild
   alias Bot.Handler.Locale

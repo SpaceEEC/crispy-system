@@ -3,7 +3,7 @@ defmodule Bot.Handler.Consumer do
 
   alias Bot.Handler.{Command, VoiceLog}
 
-  import Bot.Handler.Util
+  import Bot.Handler.Rpc
 
   def start_link({type, data, shard_id}) do
     Task.start_link(fn -> handle_event(type, data, shard_id) end)

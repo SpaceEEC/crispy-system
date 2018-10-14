@@ -4,7 +4,7 @@ defmodule Bot.Handler.Command.Music.Loop do
   @behaviour Bot.Handler.Command
 
   alias Bot.Handler.Mutil
-  import Bot.Handler.Util
+  import Bot.Handler.Rpc
 
   def usages(), do: ["", "<State>"]
   def examples(), do: ["", "enable", "disable"]

@@ -5,7 +5,7 @@ defmodule Bot.Handler.Command.Music.NowPlaying do
 
   alias Bot.Handler.{Locale, Mutil}
 
-  import Bot.Handler.Util
+  import Bot.Handler.Rpc
 
   require Bot.Handler.Locale
 

@@ -9,7 +9,7 @@ defmodule Bot.Lavalink.Connection do
   alias Crux.Structs.VoiceState
   alias WebSockex.Conn
 
-  import Bot.Handler.Util
+  import Bot.Handler.Rpc
 
   @spec start_link(ignored :: term()) :: {:ok, pid()} | {:error, term()}
   def start_link(_ \\ []) do

@@ -1,7 +1,7 @@
 defmodule Bot.Handler.Command.Commands do
   @moduledoc false
 
-  # Generated 2018-10-07T20:17:50.162000Z
+  # Generated 2018-10-14T15:27:52.892000Z
   @commands %{
     "avatar" => Bot.Handler.Command.Misc.Avatar,
     "donmai" => Bot.Handler.Command.Image.Donmai,
@@ -33,7 +33,8 @@ defmodule Bot.Handler.Command.Commands do
   @aliases %{
     "lang" => Bot.Handler.Command.Config.Language,
     "np" => Bot.Handler.Command.Music.NowPlaying,
-    "picture" => Bot.Handler.Command.Image
+    "picture" => Bot.Handler.Command.Image,
+    "q" => Bot.Handler.Command.Music.Queue
   }
 
   @spec commands() :: %{required(String.t()) => module()}

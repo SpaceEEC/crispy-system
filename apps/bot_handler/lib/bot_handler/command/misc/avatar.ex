@@ -3,7 +3,7 @@ defmodule Bot.Handler.Command.Misc.Avatar do
 
   @behaviour Bot.Handler.Command
 
-  import Bot.Handler.Util
+  import Bot.Handler.Rpc
 
   alias Bot.Handler.Rest
   alias Crux.Structs

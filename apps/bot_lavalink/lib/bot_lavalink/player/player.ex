@@ -29,7 +29,7 @@ defmodule Bot.Lavalink.Player do
   alias Bot.Handler.Mutil, as: Util
   alias Bot.Lavalink.{Connection, Payload, Player}
 
-  import Bot.Handler.Util
+  import Bot.Handler.Rpc
 
   @registry Bot.Lavalink.Player.Registry
 

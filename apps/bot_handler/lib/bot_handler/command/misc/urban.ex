@@ -5,7 +5,7 @@ defmodule Bot.Handler.Command.Misc.Urban do
 
   @behaviour Bot.Handler.Command
 
-  import Bot.Handler.Util
+  import Bot.Handler.Rpc
 
   @urban_base "urbandictionary.com/v0/define"
   @urban_api "https://api." <> @urban_base <> "?term="

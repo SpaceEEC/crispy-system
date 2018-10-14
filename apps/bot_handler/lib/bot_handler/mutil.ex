@@ -1,7 +1,7 @@
 defmodule Bot.Handler.Mutil do
   @moduledoc false
 
-  import Bot.Handler.Util
+  import Bot.Handler.Rpc
 
   @spec build_embed(
           track :: map(),
