@@ -30,6 +30,8 @@ defmodule Bot.Handler.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      # For the Error struct
+      {:crux_rest, git: "http://github.com/spaceeec/crux_rest", override: true},
       {:crux_structs, git: "http://github.com/spaceeec/crux_structs", override: true},
       {:poison, "~> 3.1.0"},
       {:gen_stage, "~> 0.13.1"},
