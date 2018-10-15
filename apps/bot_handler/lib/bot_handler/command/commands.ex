@@ -1,9 +1,11 @@
 defmodule Bot.Handler.Command.Commands do
   @moduledoc false
 
-  # Generated 2018-10-14T15:27:52.892000Z
+  # Generated 2018-10-15T17:17:47.039000Z
   @commands %{
+    "anime" => Bot.Handler.Command.Misc.Anime,
     "avatar" => Bot.Handler.Command.Misc.Avatar,
+    "character" => Bot.Handler.Command.Misc.Character,
     "donmai" => Bot.Handler.Command.Image.Donmai,
     "eval" => Bot.Handler.Command.Util.Eval,
     "help" => Bot.Handler.Command.Util.Help,
@@ -14,6 +16,7 @@ defmodule Bot.Handler.Command.Commands do
     "language" => Bot.Handler.Command.Config.Language,
     "leave" => Bot.Handler.Command.Music.Leave,
     "loop" => Bot.Handler.Command.Music.Loop,
+    "manga" => Bot.Handler.Command.Misc.Manga,
     "nowplaying" => Bot.Handler.Command.Music.NowPlaying,
     "pause" => Bot.Handler.Command.Music.Pause,
     "ping" => Bot.Handler.Command.Util.Ping,
@@ -31,6 +34,7 @@ defmodule Bot.Handler.Command.Commands do
     "vlogchannel" => Bot.Handler.Command.Config.VlogChannel
   }
   @aliases %{
+    "char" => Bot.Handler.Command.Misc.Character,
     "lang" => Bot.Handler.Command.Config.Language,
     "np" => Bot.Handler.Command.Music.NowPlaying,
     "picture" => Bot.Handler.Command.Image,
