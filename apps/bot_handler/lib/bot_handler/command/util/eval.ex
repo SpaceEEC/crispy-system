@@ -18,7 +18,7 @@ defmodule Bot.Handler.Command.Util.Eval do
         |> Enum.join(" ")
         |> Code.eval_string(message: message)
       rescue
-        e -> {Exception.format(:error, e), nil}
+        e -> {Exception.format(:error, e, __STACKTRACE__), nil}
       end
 
     res =
