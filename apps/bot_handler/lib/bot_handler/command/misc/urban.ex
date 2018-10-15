@@ -1,7 +1,7 @@
 defmodule Bot.Handler.Command.Misc.Urban do
   @moduledoc false
 
-  alias Bot.Handler.Rest
+  alias Bot.Handler.{Embed, Rest}
 
   @behaviour Bot.Handler.Command
 
@@ -92,8 +92,8 @@ defmodule Bot.Handler.Command.Misc.Urban do
       }
     }
 
-    example_fields = chunk(:LOC_URBAN_EXAMPLE, example)
-    definition_fields = chunk(:LOC_URBAN_DEFINITION, definition)
+    example_fields = Embed.chunk(:LOC_URBAN_EXAMPLE, example)
+    definition_fields = Embed.chunk(:LOC_URBAN_DEFINITION, definition)
 
     embed = Map.put(embed, :fields, definition_fields ++ example_fields)
 
@@ -117,21 +117,5 @@ defmodule Bot.Handler.Command.Misc.Urban do
     }
 
     {:respond, [embed: embed]}
-  end
-
-  def chunk(_title, nil), do: []
-
-  def chunk(title, text) do
-    [[first | _] | rest] = Regex.scan(~r/(.|[\r\n]){1,1024}/, text)
-
-    [
-      %{
-        name: title,
-        value: first
-      }
-      | for [chunk | _] <- rest do
-          %{name: "\u200b", value: chunk}
-        end
-    ]
   end
 end
