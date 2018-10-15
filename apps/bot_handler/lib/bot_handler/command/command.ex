@@ -101,7 +101,7 @@ defmodule Bot.Handler.Command do
             e ->
               default_respond(
                 message,
-                "```elixir\n#{Exception.format_banner(:error, e)}```",
+                "```elixir\n#{Exception.format_banner(:error, e) |> String.slice(0..1950)}```",
                 info
               )
 
