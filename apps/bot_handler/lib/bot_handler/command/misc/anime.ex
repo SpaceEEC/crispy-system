@@ -3,7 +3,7 @@ defmodule Bot.Handler.Command.Misc.Anime do
 
   alias Bot.Handler.AniList
 
-  def description(), do: "tbd"
+  def description(), do: :LOC_DESC_ANIME
 
   def fetch(_message, %{args: args}) do
     Enum.join(args, " ")

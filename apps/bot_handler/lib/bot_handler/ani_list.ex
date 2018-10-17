@@ -74,7 +74,7 @@ defmodule Bot.Handler.AniList do
   alias Bot.Handler.{Awaiter, Embed, Rest}
   import Bot.Handler.Rpc
 
-  def fetch("", _type), do: {:respond, "no query"}
+  def fetch("", _type), do: {:respond, :LOC_ANI_LIST_NO_QUERY}
 
   def fetch(query, type) when is_binary(query) and type in ["ANIME", "MANGA"] do
     body =
@@ -103,14 +103,15 @@ defmodule Bot.Handler.AniList do
   end
 
   defp handle_response(%{body: %{"data" => %{"result" => %{"results" => []}}}}) do
-    {:respond, "nothing found"}
+    {:respond, :LOC_ANI_LIST_NOTHING_FOUND}
   end
 
   defp handle_response(%{body: %{"data" => %{"result" => %{"results" => results}}}}) do
     {:ok, results}
   end
 
-  def pick(_message, [], _type), do: {:respond, "nothing found"}
+  # Shouldn't ever get to this clause, but better safe than sorry.
+  def pick(_message, [], _type), do: {:respond, :LOC_ANI_LIST_NOTHING_FOUND}
   def pick(_message, [element], _type), do: element
 
   def pick(message, elements, type) when type in ["ANIME", "CHARACTER", "MANGA"] do
@@ -135,17 +136,12 @@ defmodule Bot.Handler.AniList do
       |> String.slice(0..2023)
 
     embed = %{
-      title: "I found more than one #{type |> String.downcase()}",
+      title: {:LOC_ANI_LIST_PROMPT_TITLE, [type: type |> String.downcase()]},
       description: description,
       fields: [
         %{
-          name: "Notice",
-          value: """
-          For which #{type |> String.downcase()} would you like to see additional information?
-          Please respond with the number of the entry you would like to see, for example `3`.
-
-          To cancel this prompt respond with `cancel` or wait `30` seconds.
-          """
+          name: :LOC_ANI_LIST_PROMPT_FIELD_NAME,
+          value: {:LOC_ANI_LIST_PROMPT_FIELD_VALUE, [type: type |> String.downcase()]}
         }
       ]
     }
@@ -164,18 +160,22 @@ defmodule Bot.Handler.AniList do
     unless response == :timeout do
       rest(:delete_message, [response])
 
-      with {number, _} when number > 0 <- Integer.parse(response.content),
+      with content when content != "cancel" <- String.downcase(response.content),
+           {number, _} when number > 0 <- Integer.parse(content),
            char when not is_nil(char) <- Enum.at(elements, number - 1) do
         char
       else
+        "cancel" ->
+          {:respond, :LOC_ANI_LIST_CANCEL}
+
         {_number, _rest} ->
-          {:respond, "not a positive number"}
+          {:respond, :LOC_ANI_LIST_NO_SUCH_ENTRY}
 
         :error ->
-          {:respond, "not a number"}
+          {:respond, :LOC_ANI_LIST_NOT_A_NUMBER}
 
         nil ->
-          {:respond, "no such entry"}
+          {:respond, :LOC_ANI_LIST_NO_SUCH_ENTRY}
       end
     end
   end
@@ -205,7 +205,7 @@ defmodule Bot.Handler.AniList do
         "CHARACTER"
       ) do
     embed = %{
-      color: 0x02a8fe,
+      color: 0x02A8FE,
       thumbnail: %{
         url: large_image
       },
@@ -227,7 +227,7 @@ defmodule Bot.Handler.AniList do
 
         _ ->
           field = %{
-            name: "Aliases:",
+            name: :LOC_ANI_LIST_ALIASES,
             value: alternative_names |> Enum.map(&Embed.html_entity_to_utf8/1) |> Enum.join(", "),
             inline: true
           }
@@ -235,7 +235,7 @@ defmodule Bot.Handler.AniList do
           Map.update(embed, :fields, [field], &[field | &1])
       end
 
-    rest = Embed.chunk("Description", description)
+    rest = Embed.chunk(:LOC_ANI_LIST_DESCRIPTION, description)
 
     embed = Map.update(embed, :fields, rest, &(&1 ++ rest))
 
@@ -295,19 +295,19 @@ defmodule Bot.Handler.AniList do
     fields =
       [
         %{
-          name: "Rating | Type",
+          name: :LOC_ANI_LIST_RATING_TYPE,
           value: "#{average_score || mean_score || "??"} | #{type |> String.capitalize()}",
           inline: true
         },
         %{
-          name: "Genres",
-          value: not_empty(genres, "Not specified"),
+          name: :LOC_ANI_LIST_GENRES,
+          value: not_empty(genres, "??"),
           inline: true
         }
       ]
       |> add_counts(type, episodes, chapters, volumes)
       |> add_timestamps(start_date, end_date, status)
-      |> Embed.chunk("Description", not_empty(description, "??"))
+      |> Embed.chunk(:LOC_ANI_LIST_DESCRIPTION, not_empty(description, "??"))
       |> add_status(type, status)
       |> add_source(type, source)
       |> Enum.reverse()
@@ -318,7 +318,7 @@ defmodule Bot.Handler.AniList do
       title: title,
       description: embed_description,
       fields: fields,
-      color: 0x02a8fe
+      color: 0x02A8FE
     }
   end
 
@@ -339,7 +339,7 @@ defmodule Bot.Handler.AniList do
 
     [
       %{
-        name: "Origin",
+        name: :LOC_ANI_LIST_ORIGIN,
         value: value,
         inline: true
       }
@@ -352,8 +352,8 @@ defmodule Bot.Handler.AniList do
   defp add_status(fields, type, status) do
     name =
       case type do
-        "ANIME" -> "Airing Status"
-        "MANGA" -> "Publishing Stauts"
+        "ANIME" -> :LOC_ANI_LIST_AIRING_STATUS
+        "MANGA" -> :LOC_ANI_LIST_PUBLISHING_STATUS
       end
 
     value =
@@ -383,7 +383,7 @@ defmodule Bot.Handler.AniList do
   defp add_counts(fields, "ANIME", episodes, _chapters, _volumes) do
     [
       %{
-        name: "Episodes",
+        name: :LOC_ANI_LIST_EPISODES,
         value: episodes || "??",
         inline: true
       }
@@ -394,7 +394,7 @@ defmodule Bot.Handler.AniList do
   defp add_counts(fields, "MANGA", _episodes, chapters, volumes) do
     [
       %{
-        name: "Chapters | Volumes",
+        name: :LOC_ANI_LIST_CHAPTERS_VOLUMES,
         value: "#{chapters || "??"} | #{volumes || "??"}",
         inline: true
       }
@@ -407,7 +407,7 @@ defmodule Bot.Handler.AniList do
   defp add_timestamps(fields, start_date, end_date, "FINISHED") do
     [
       %{
-        name: "Period",
+        name: :LOC_ANI_LIST_PERIOD,
         value: "#{format_date(start_date)} - #{format_date(end_date)}",
         inline: true
       }
@@ -418,7 +418,7 @@ defmodule Bot.Handler.AniList do
   defp add_timestamps(fields, start_date, _end_date, _status) do
     [
       %{
-        name: "Start",
+        name: :LOC_ANI_LIST_START,
         value: format_date(start_date),
         inline: true
       }

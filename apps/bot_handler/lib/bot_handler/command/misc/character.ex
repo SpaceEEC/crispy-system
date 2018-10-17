@@ -4,14 +4,13 @@ defmodule Bot.Handler.Command.Misc.Character do
   alias Bot.Handler.AniList
 
   def aliases(), do: ["char"]
-  def description(), do: "tbd"
+  def description(), do: :LOC_DESC_CHARACTER
 
   def fetch(_message, %{args: args}) do
     Enum.join(args, " ")
     |> AniList.fetch("CHARACTER")
   end
 
-  # Only one element, display it
   def process(message, chars) do
     case AniList.pick(message, chars, "CHARACTER") do
       {:respond, _} = response ->

@@ -6,36 +6,39 @@ defmodule Bot.Handler.Locale.DE do
   @localization %{
     # Meta
     LOC_DESC_LANGUAGE: "Setze oder zeige die aktuelle Sprache.",
-    LOC_DESC_PREFIX: "Setze, zeige oder entferene den Serverprefix.",
-    LOC_DESC_VLOG: "Setze, zeige oder entferene den voice log channel.",
+    LOC_DESC_PREFIX: "Setze, zeige oder entferne den Serverprefix.",
+    LOC_DESC_VLOG: "Setze, zeige oder entferne den voice log channel.",
     LOC_DESC_DONMAI: """
     Rufe ein zufälliges Bild von https://safebooru.donmai.us/ ab, optional mit Konkretisierung mithilfe von Tags.
     """,
     LOC_DESC_IMAGE: """
-    Rufe ein zufälliges Bild von hhttps://safebooru.donmai.us/ oder https://konachan.net/ ab, optional mit Konkretisierung mithilfe von Tags.
+    Rufe ein zufälliges Bild von https://safebooru.donmai.us/ oder https://konachan.net/ ab, optional mit Konkretisierung mithilfe von Tags.
     """,
     LOC_DESC_KONACHAN: """
     Rufe ein zufälliges Bild von https://konachan.net/ ab, optional mit Konkretisierung mithilfe von Tags.
     """,
-    LOC_DESC_AVATAR: "Zeigt das Avatar des erwähnten Nutzers an.",
-    LOC_DESC_URBAN: "Zeigt die \"UrbanDefintion\" eines Begriffes an. (Englisch)",
-    LOC_DESC_JOIN: "Ruft den Bot zu dem aktuellen Channel.",
-    LOC_DESC_LEAVE: "Verstößt den Bot vom dem aktuellen Channel.",
-    LOC_DESC_LOOP: "Aktiviert, deaktiviert do Schleife, oder zeigt den Status dieser an.",
-    LOC_DESC_NP: "Zeigt das aktuel gespielte Lied an.",
-    LOC_DESC_PAUSE: "Pausiert das aktuel gespielte Lied.",
-    LOC_DESC_PLAY: "Startet ein Lied oder fügt dieses der Warteschlange hinzu.",
-    LOC_DESC_QUEUE: "Zeigt die sich aktuel in der Warteschlange befindlichen Lieder an.",
-    LOC_DESC_RESUME: "Setzt die Wiedergabe des aktuel pausierten Liedes fort.",
+    LOC_DESC_ANIME: "Rufe einen Anime von https://anilist.co ab.",
+    LOC_DESC_AVATAR: "Zeige das Avatar des erwähnten Nutzers an.",
+    LOC_DESC_CHARACTER: "Rufe einen Charakter von https://anilist.co ab.",
+    LOC_DESC_MANGA: "Rufe einen Manga von https://anilist.co ab.",
+    LOC_DESC_URBAN: "Zeige die \"UrbanDefintion\" eines Begriffes an. (Englisch)",
+    LOC_DESC_JOIN: "Rufe den Bot zu dem aktuellen Voicechannel.",
+    LOC_DESC_LEAVE: "Verstoße den Bot vom aktuellen Voicechannel.",
+    LOC_DESC_LOOP: "Aktiviere, deaktiviere die Schleife, oder zeige den Status dieser an.",
+    LOC_DESC_NP: "Zeige das aktuel gespielte Lied an.",
+    LOC_DESC_PAUSE: "Pausiere das aktuel gespielte Lied.",
+    LOC_DESC_PLAY: "Starte ein Lied oder fügt dieses der Warteschlange hinzu.",
+    LOC_DESC_QUEUE: "Zeige die sich aktuel in der Warteschlange befindlichen Lieder an.",
+    LOC_DESC_RESUME: "Setze die Wiedergabe des aktuel pausierten Liedes fort.",
     LOC_DESC_SAVE:
-      "Sendet eine Direktnachricht mit dem aktuel gespieltem Lied für den späteren Gebrauch.",
-    LOC_DESC_SHUFFLE: "Mischt die Warteschlange durch.",
-    LOC_DESC_SKIP: "Überspringt das aktuel gespielte Lied.",
+      "Sende dir eine Direktnachricht mit dem aktuel gespieltem Lied für den späteren Gebrauch.",
+    LOC_DESC_SHUFFLE: "Mische die Warteschlange durch.",
+    LOC_DESC_SKIP: "Überspringe das aktuel gespielte Lied.",
     LOC_DESC_STOP:
-      "Stopt das aktuelle Lied, leert die Warteschlange, und beendet die Verbindung.",
-    LOC_DESC_HELP: "Zeigt die Liste von Befehlen, oder Hilfe für einen bestimment Befehl, an.",
+      "Stoppe das aktuelle Lied, leere die Warteschlange, und trenne die Verbindung.",
+    LOC_DESC_HELP: "Zeige die Liste von Befehlen, oder Hilfe für einen bestimment Befehl, an.",
     LOC_DESC_INVITE: "Lade den Bot zu deinem Server ein.",
-    LOC_DESC_UPTIME: "Zeige die Laufzeit der Nodes an.",
+    LOC_DESC_UPTIME: "Zeige die Laufzeit der Nodes des Bots an.",
 
     # General
     LOC_GUILD_ONLY: "Dieser Befehl kann nicht in Direktnachrichten verwendent werden.",
@@ -196,7 +199,37 @@ defmodule Bot.Handler.Locale.DE do
     # Music util
     LOC_MUSIC_SELF_DISCONNECTED: "Ich befinde mich in keinem Channel.",
     LOC_MUSIC_YOU_DISCONNECTED: "Du befindest dich in keinem Channel.",
-    LOC_MUSIC_DIFFERENT_CHANNEL: "Du befindest dich in einem anderen Channel."
+    LOC_MUSIC_DIFFERENT_CHANNEL: "Du befindest dich in einem anderen Channel.",
+
+    # AniList - fetch & pick
+    LOC_ANI_LIST_NO_QUERY: "Du musst mir schon mitteilen wonach du suchst.",
+    LOC_ANI_LIST_NOTHING_FOUND: "Konnte nichts finden.",
+    LOC_ANI_LIST_PROMPT_TITLE: """
+    Ich fand mehr als einen {{type}}.
+    """,
+    LOC_ANI_LIST_PROMPT_FIELD_NAME: "Hinweis",
+    LOC_ANI_LIST_PROMPT_FIELD_VALUE: """
+    Für welchen {{type}} würdest du nähere Details sehen wollen?
+    Bitte antworte mit der Nummer des Eintrags den du zu einzusehen wünscht, zum Beispiel `3`.
+
+    Um diese Abfrage abzubrechen antworte mit `cancel` oder warte `30` Sekunden.
+    """,
+    LOC_ANI_LIST_CANCEL: "Breche dann ab.",
+    LOC_ANI_LIST_NO_SUCH_ENTRY: "Keinen solchen Eintrag.",
+    LOC_ANI_LIST_NOT_A_NUMBER: "Dies ist keine Zahl.",
+
+    # AniList - get_embed
+    LOC_ANI_LIST_ALIASES: "Aliasse:",
+    LOC_ANI_LIST_DESCRIPTION: "Beschreibung",
+    LOC_ANI_LIST_RATING_TYPE: "Bewertung | Typ",
+    LOC_ANI_LIST_GENRES: "Genres",
+    LOC_ANI_LIST_ORIGIN: "Herkunft",
+    LOC_ANI_LIST_AIRING_STATUS: "Ausstrahlungsstatus",
+    LOC_ANI_LIST_PUBLISHING_STATUS: "Veröffentlichungsstatus",
+    LOC_ANI_LIST_EPISODES: "Episoden",
+    LOC_ANI_LIST_CHAPTERS_VOLUMES: "Kapitel | Bände",
+    LOC_ANI_LIST_PERIOD: "Zeitraum",
+    LOC_ANI_LIST_START: "Start"
   }
 
   def get_string(key) do

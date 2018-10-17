@@ -9,31 +9,34 @@ defmodule Bot.Handler.Locale.EN do
     LOC_DESC_PREFIX: "See, set, or remove the current server prefix.",
     LOC_DESC_VLOG: "See, set, or remove the current voice log channel.",
     LOC_DESC_DONMAI: """
-    Fetches a random picture from https://safebooru.donmai.us/, optionally with tags to search with.
+    Fetch a random picture from https://safebooru.donmai.us/, optionally with tags to search with.
     """,
     LOC_DESC_IMAGE: """
-    Fetches a random picture from https://safebooru.donmai.us/ or https://konachan.net/, optionally with tags to search with.
+    Fetch a random picture from https://safebooru.donmai.us/ or https://konachan.net/, optionally with tags to search with.
     """,
     LOC_DESC_KONACHAN: """
-    Fetches a random picture from https://konachan.net/, optionally with tags to search with.
+    Fetch a random picture from https://konachan.net/, optionally with tags to search with.
     """,
-    LOC_DESC_AVATAR: "Displays the avatar of the mentioned user.",
-    LOC_DESC_URBAN: "Displays the urban definition of a term.",
-    LOC_DESC_JOIN: "Commands the bot to join your channel.",
-    LOC_DESC_LEAVE: "Commands the bot to leave your channel.",
-    LOC_DESC_LOOP: "Enabled, disabled, or shows the current state of the queue.",
-    LOC_DESC_NP: "Displays the currently played song.",
-    LOC_DESC_PAUSE: "Pauses the currently played song.",
-    LOC_DESC_PLAY: "Starts a song or queues it up.",
-    LOC_DESC_QUEUE: "Shows the currently queued songs.",
-    LOC_DESC_RESUME: "Resumes the currently paused song",
-    LOC_DESC_SAVE: "Sents you a dm containing the currently played song, for your later use.",
-    LOC_DESC_SHUFFLE: "Shuffles the queue.",
-    LOC_DESC_SKIP: "Skips the currently played song.",
-    LOC_DESC_STOP: "Stops the currently played song, clears the queue, and disconnects the bot.",
+    LOC_DESC_ANIME: "Fetch and display info about an anime from https://anilist.co/.",
+    LOC_DESC_AVATAR: "Display the avatar of the mentioned user.",
+    LOC_DESC_CHARACTER: "Fetch and display info about a character from https://anilist.co/.",
+    LOC_DESC_MANGA: "Fetch and display info about a manga from https://anilist.co/.",
+    LOC_DESC_URBAN: "Fetch the urban definition of a term.",
+    LOC_DESC_JOIN: "Command the bot to join your channel.",
+    LOC_DESC_LEAVE: "Command the bot to leave your channel.",
+    LOC_DESC_LOOP: "Enable, disable, or show the current state of the queue.",
+    LOC_DESC_NP: "Display the currently played song.",
+    LOC_DESC_PAUSE: "Pause the currently played song.",
+    LOC_DESC_PLAY: "Start a song or queue it up.",
+    LOC_DESC_QUEUE: "Show the currently queued songs.",
+    LOC_DESC_RESUME: "Resume the currently paused song",
+    LOC_DESC_SAVE: "Send yourself a dm containing the currently played song, for later use.",
+    LOC_DESC_SHUFFLE: "Shuffle the queue.",
+    LOC_DESC_SKIP: "Skip the currently played song.",
+    LOC_DESC_STOP: "Stop the currently played song, clear the queue, and disconnect the bot.",
     LOC_DESC_HELP: "Display a list of commands, or help for a specific one.",
     LOC_DESC_INVITE: "Invite the bot to your server.",
-    LOC_DESC_UPTIME: "Gets the uptime of the nodes.",
+    LOC_DESC_UPTIME: "Get the uptime of the bot's nodes.",
 
     # General
     LOC_GUILD_ONLY: "That command may not be used in dms.",
@@ -193,7 +196,37 @@ defmodule Bot.Handler.Locale.EN do
     # Music util
     LOC_MUSIC_SELF_DISCONNECTED: "I am not connected to a voice channel here.",
     LOC_MUSIC_YOU_DISCONNECTED: "You are not connected to a voice channel here.",
-    LOC_MUSIC_DIFFERENT_CHANNEL: "You are in a different channel."
+    LOC_MUSIC_DIFFERENT_CHANNEL: "You are in a different channel.",
+
+    # AniList - fetch & pick
+    LOC_ANI_LIST_NO_QUERY: "You need to provide something to search for.",
+    LOC_ANI_LIST_NOTHING_FOUND: "Could not find anything.",
+    LOC_ANI_LIST_PROMPT_TITLE: """
+    I found more than one {{type}}.
+    """,
+    LOC_ANI_LIST_PROMPT_FIELD_NAME: "Notice",
+    LOC_ANI_LIST_PROMPT_FIELD_VALUE: """
+    For which {{type}} would you like to see additional information?
+    Please respond with the number of the entry you would like to see, for example `3`.
+
+    To cancel this prompt respond with `cancel` or wait `30` seconds.
+    """,
+    LOC_ANI_LIST_CANCEL: "Aborting then.",
+    LOC_ANI_LIST_NO_SUCH_ENTRY: "No such entry.",
+    LOC_ANI_LIST_NOT_A_NUMBER: "Not a number.",
+
+    # AniList - get_embed
+    LOC_ANI_LIST_ALIASES: "Aliases:",
+    LOC_ANI_LIST_DESCRIPTION: "Description",
+    LOC_ANI_LIST_RATING_TYPE: "Rating | Type",
+    LOC_ANI_LIST_GENRES: "Genres",
+    LOC_ANI_LIST_ORIGIN: "Origin",
+    LOC_ANI_LIST_AIRING_STATUS: "Airing Status",
+    LOC_ANI_LIST_PUBLISHING_STATUS: "Publishing Status",
+    LOC_ANI_LIST_EPISODES: "Episodes",
+    LOC_ANI_LIST_CHAPTERS_VOLUMES: "Chapters | Volumes",
+    LOC_ANI_LIST_PERIOD: "Period",
+    LOC_ANI_LIST_START: "Start"
   }
 
   def get_string(key) do
