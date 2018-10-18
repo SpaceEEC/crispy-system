@@ -6,7 +6,8 @@ defmodule Bot.Handler.Command.Misc.Manga do
   def description(), do: :LOC_DESC_MANGA
 
   def fetch(_message, %{args: args}) do
-    Enum.join(args, " ")
+    args
+    |> Enum.join(" ")
     |> AniList.fetch("MANGA")
   end
 

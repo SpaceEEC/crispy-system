@@ -7,7 +7,8 @@ defmodule Bot.Handler.Command.Misc.Character do
   def description(), do: :LOC_DESC_CHARACTER
 
   def fetch(_message, %{args: args}) do
-    Enum.join(args, " ")
+    args
+    |> Enum.join(" ")
     |> AniList.fetch("CHARACTER")
   end
 

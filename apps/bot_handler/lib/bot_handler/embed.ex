@@ -8,12 +8,11 @@ defmodule Bot.Handler.Embed do
 
     fields = [%{name: title, value: first} | fields]
 
-    rest =
-      Enum.reduce(
-        rest,
-        fields,
-        &[%{name: "\u200b", value: List.first(&1)} | &2]
-      )
+    Enum.reduce(
+      rest,
+      fields,
+      &[%{name: "\u200b", value: List.first(&1)} | &2]
+    )
   end
 
   # TODO: place this somewhere better

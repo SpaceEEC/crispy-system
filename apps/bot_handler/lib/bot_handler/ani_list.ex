@@ -114,76 +114,95 @@ defmodule Bot.Handler.AniList do
   def pick(_message, [], _type), do: {:respond, :LOC_ANI_LIST_NOTHING_FOUND}
   def pick(_message, [element], _type), do: element
 
-  def pick(message, elements, type) when type in ["ANIME", "CHARACTER", "MANGA"] do
-    length = elements |> Enum.count() |> to_string() |> String.length()
-
-    description =
-      elements
-      |> Enum.with_index()
-      |> Enum.map_join(
-        "\n",
-        fn
-          {%{"name" => %{"first" => first_name, "last" => last_name}}, i} ->
-            i = i |> Kernel.+(1) |> to_string() |> String.pad_trailing(length, " ")
-            "`#{i}` - #{first_name || ""} #{last_name || ""}"
-
-          {%{"title" => %{"english" => title_english, "romaji" => title_romaji}}, i} ->
-            i = i |> Kernel.+(1) |> to_string() |> String.pad_trailing(length, " ")
-            title = not_empty(title_english, title_romaji)
-            "`#{i}` - #{title}"
-        end
-      )
-      |> String.slice(0..2023)
-
-    embed = %{
-      title: {:LOC_ANI_LIST_PROMPT_TITLE, [type: type |> String.downcase()]},
-      description: description,
-      fields: [
-        %{
-          name: :LOC_ANI_LIST_PROMPT_FIELD_NAME,
-          value: {:LOC_ANI_LIST_PROMPT_FIELD_VALUE, [type: type |> String.downcase()]}
-        }
-      ]
-    }
-
-    prompt = rest(:create_message!, [message, [embed: embed]])
+  def pick(%{author: %{id: author_id}, channel_id: channel_id}, elements, type)
+      when type in ["ANIME", "CHARACTER", "MANGA"] do
+    prompt =
+      rest(:create_message!, [
+        channel_id,
+        [
+          embed: %{
+            title: {:LOC_ANI_LIST_PROMPT_TITLE, [type: type |> String.downcase()]},
+            description: format_elements(elements),
+            fields: [
+              %{
+                name: :LOC_ANI_LIST_PROMPT_FIELD_NAME,
+                value: {:LOC_ANI_LIST_PROMPT_FIELD_VALUE, [type: type |> String.downcase()]}
+              }
+            ]
+          }
+        ]
+      ])
 
     response =
       Awaiter.await(
         :MESSAGE_CREATE,
-        fn %{author: %{id: id}} -> id == message.author.id end,
+        fn
+          %{author: %{id: ^author_id}} -> true
+          _ -> false
+        end,
         30_000
       )
 
     rest(:delete_message, [prompt])
 
-    unless response == :timeout do
+    if response == :timeout do
+      {:respond, :LOC_ANI_LIST_CANCEL}
+    else
       rest(:delete_message, [response])
 
-      with content when content != "cancel" <- String.downcase(response.content),
-           {number, _} when number > 0 <- Integer.parse(content),
-           char when not is_nil(char) <- Enum.at(elements, number - 1) do
-        char
-      else
-        "cancel" ->
-          {:respond, :LOC_ANI_LIST_CANCEL}
-
-        {_number, _rest} ->
-          {:respond, :LOC_ANI_LIST_NO_SUCH_ENTRY}
-
-        :error ->
-          {:respond, :LOC_ANI_LIST_NOT_A_NUMBER}
-
-        nil ->
-          {:respond, :LOC_ANI_LIST_NO_SUCH_ENTRY}
-      end
+      response.content
+      |> String.downcase()
+      |> handle_response(elements)
     end
   end
 
-  defp not_empty(nil, other), do: other
-  defp not_empty("", other), do: other
+  defp handle_response("cancel", _elements), do: {:respond, :LOC_ANI_LIST_CANCEL}
 
-  defp not_empty(str, other) do
+  defp handle_response(content, elements) do
+    with {number, _} when number > 0 <- Integer.parse(content),
+         char when not is_nil(char) <- Enum.at(elements, number - 1) do
+      char
+    else
+      {_number, _rest} ->
+        {:respond, :LOC_ANI_LIST_NO_SUCH_ENTRY}
+
+      :error ->
+        {:respond, :LOC_ANI_LIST_NOT_A_NUMBER}
+
+      nil ->
+        {:respond, :LOC_ANI_LIST_NO_SUCH_ENTRY}
+    end
+  end
+
+  defp format_elements(elements) do
+    length = elements |> Enum.count() |> to_string() |> String.length()
+
+    elements
+    |> Enum.with_index()
+    |> Enum.map_join("\n", &format_entry(&1, length))
+    |> String.slice(0..2023)
+  end
+
+  # Character
+  defp format_entry({%{"name" => %{"first" => first_name, "last" => last_name}}, i}, length) do
+    i = i |> Kernel.+(1) |> to_string() |> String.pad_trailing(length, " ")
+    "`#{i}` - #{first_name || ""} #{last_name || ""}"
+  end
+
+  # Anime / Manga
+  defp format_entry(
+         {%{"title" => %{"english" => title_english, "romaji" => title_romaji}}, i},
+         length
+       ) do
+    i = i |> Kernel.+(1) |> to_string() |> String.pad_trailing(length, " ")
+    title = if_empty(title_english, title_romaji)
+    "`#{i}` - #{title}"
+  end
+
+  defp if_empty(nil, other), do: other
+  defp if_empty("", other), do: other
+
+  defp if_empty(str, other) do
     case String.trim(str) do
       "" -> other
       trimmed -> trimmed
@@ -265,8 +284,45 @@ defmodule Bot.Handler.AniList do
         type
       )
       when type in ["ANIME", "MANGA"] do
-    [title, embed_description] =
-      titles
+    [title, embed_description] = map_titles(titles)
+
+    genres =
+      genres
+      |> Enum.chunk_every(3)
+      |> Enum.map_join("\n", &Enum.join(&1, ", "))
+
+    fields =
+      [
+        %{
+          name: :LOC_ANI_LIST_RATING_TYPE,
+          value: "#{average_score || mean_score || "??"} | #{type |> String.capitalize()}",
+          inline: true
+        },
+        %{
+          name: :LOC_ANI_LIST_GENRES,
+          value: if_empty(genres, "??"),
+          inline: true
+        }
+      ]
+      |> add_counts(type, episodes, chapters, volumes)
+      |> add_timestamps(start_date, end_date, status)
+      |> Embed.chunk(:LOC_ANI_LIST_DESCRIPTION, if_empty(description, "??"))
+      |> add_status(type, status)
+      |> add_source(type, source)
+      |> Enum.reverse()
+
+    %{
+      thumbnail: %{url: large_image},
+      url: site_url,
+      title: title,
+      description: embed_description,
+      fields: fields,
+      color: 0x02A8FE
+    }
+  end
+
+  defp map_titles(titles) do
+    titles
       |> Map.values()
       |> Enum.uniq()
       |> Enum.flat_map(fn
@@ -286,40 +342,6 @@ defmodule Bot.Handler.AniList do
         [title] -> [title, nil]
         [title | description] -> [title, Enum.join(description, "\n")]
       end
-
-    genres =
-      genres
-      |> Enum.chunk_every(3)
-      |> Enum.map_join("\n", &Enum.join(&1, ", "))
-
-    fields =
-      [
-        %{
-          name: :LOC_ANI_LIST_RATING_TYPE,
-          value: "#{average_score || mean_score || "??"} | #{type |> String.capitalize()}",
-          inline: true
-        },
-        %{
-          name: :LOC_ANI_LIST_GENRES,
-          value: not_empty(genres, "??"),
-          inline: true
-        }
-      ]
-      |> add_counts(type, episodes, chapters, volumes)
-      |> add_timestamps(start_date, end_date, status)
-      |> Embed.chunk(:LOC_ANI_LIST_DESCRIPTION, not_empty(description, "??"))
-      |> add_status(type, status)
-      |> add_source(type, source)
-      |> Enum.reverse()
-
-    %{
-      thumbnail: %{url: large_image},
-      url: site_url,
-      title: title,
-      description: embed_description,
-      fields: fields,
-      color: 0x02A8FE
-    }
   end
 
   defp add_source(fields, "ANIME", source) do
