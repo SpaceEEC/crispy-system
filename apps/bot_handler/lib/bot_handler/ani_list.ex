@@ -323,25 +323,25 @@ defmodule Bot.Handler.AniList do
 
   defp map_titles(titles) do
     titles
-      |> Map.values()
-      |> Enum.uniq()
-      |> Enum.flat_map(fn
-        nil ->
-          []
+    |> Map.values()
+    |> Enum.uniq()
+    |> Enum.flat_map(fn
+      nil ->
+        []
 
-        "" ->
-          []
+      "" ->
+        []
 
-        title ->
-          case String.trim(title) do
-            "" -> []
-            trimmed -> [trimmed]
-          end
-      end)
-      |> case do
-        [title] -> [title, nil]
-        [title | description] -> [title, Enum.join(description, "\n")]
-      end
+      title ->
+        case String.trim(title) do
+          "" -> []
+          trimmed -> [trimmed]
+        end
+    end)
+    |> case do
+      [title] -> [title, nil]
+      [title | description] -> [title, Enum.join(description, "\n")]
+    end
   end
 
   defp add_source(fields, "ANIME", source) do
