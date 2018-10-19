@@ -3,7 +3,7 @@ defmodule Bot.Handler.Command.Music.Resume do
 
   @behaviour Bot.Handler.Command
 
-  alias Bot.Handler.Mutil
+  alias Bot.Handler.Util
 
   import Bot.Handler.Rpc
 
@@ -16,7 +16,7 @@ defmodule Bot.Handler.Command.Music.Resume do
 
   def process(%{author: %{id: user_id}}, guild) do
     res =
-      with true <- Mutil.ensure_connected(guild.voice_states, user_id) do
+      with true <- Util.ensure_connected(guild.voice_states, user_id) do
         lavalink(Player, :command, [guild.id, :resume])
       end
 

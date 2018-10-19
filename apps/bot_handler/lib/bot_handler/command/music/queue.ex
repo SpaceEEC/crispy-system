@@ -3,7 +3,7 @@ defmodule Bot.Handler.Command.Music.Queue do
 
   @behaviour Bot.Handler.Command
 
-  alias Bot.Handler.{Locale, Mutil}
+  alias Bot.Handler.{Locale, Util}
 
   import Bot.Handler.Rpc
 
@@ -54,7 +54,7 @@ defmodule Bot.Handler.Command.Music.Queue do
     total_length =
       queue
       |> Enum.reduce(0, fn {_user, track}, acc -> track.info.length + acc end)
-      |> Mutil.format_milliseconds()
+      |> Util.format_milliseconds()
 
     pages =
       ((total_songs - 1) / 10)
@@ -68,11 +68,11 @@ defmodule Bot.Handler.Command.Music.Queue do
 
     current_length =
       current.info.length
-      |> Mutil.format_milliseconds()
+      |> Util.format_milliseconds()
 
     current_time =
       current_time
-      |> Mutil.format_milliseconds()
+      |> Util.format_milliseconds()
 
     me = cache(:User, :me!)
 
@@ -91,7 +91,7 @@ defmodule Bot.Handler.Command.Music.Queue do
            songs: songs
          ]},
       thumbnail: %{
-        url: Mutil.image_from_track(current.info)
+        url: Util.image_from_track(current.info)
       },
       footer: %{
         icon_url: rest(Crux.Rest.Endpoints, :cdn) <> "/avatars/#{me.id}/#{me.avatar}",
@@ -112,7 +112,7 @@ defmodule Bot.Handler.Command.Music.Queue do
     |> Enum.map_join("\n", fn {{_user, track}, index} ->
       length =
         track.info.length
-        |> Mutil.format_milliseconds()
+        |> Util.format_milliseconds()
 
       "`#{index}.` #{length} - [#{track.info.title}](#{track.info.uri})"
     end)

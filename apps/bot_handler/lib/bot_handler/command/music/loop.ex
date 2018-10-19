@@ -3,7 +3,7 @@ defmodule Bot.Handler.Command.Music.Loop do
 
   @behaviour Bot.Handler.Command
 
-  alias Bot.Handler.Mutil
+  alias Bot.Handler.Util
   import Bot.Handler.Rpc
 
   def usages(), do: ["", "<State>"]
@@ -31,7 +31,7 @@ defmodule Bot.Handler.Command.Music.Loop do
       end
 
     res =
-      with true <- Mutil.ensure_connected(guild.voice_states, user_id) do
+      with true <- Util.ensure_connected(guild.voice_states, user_id) do
         lavalink(Player, :command, [guild.id, {:loop, state}])
       end
 

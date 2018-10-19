@@ -1,7 +1,7 @@
 defmodule Bot.Handler.Command.Misc.Urban do
   @moduledoc false
 
-  alias Bot.Handler.{Embed, Rest}
+  alias Bot.Handler.{Rest, Util}
 
   @behaviour Bot.Handler.Command
 
@@ -92,8 +92,8 @@ defmodule Bot.Handler.Command.Misc.Urban do
       }
     }
 
-    example_fields = Embed.chunk(:LOC_URBAN_EXAMPLE, example)
-    definition_fields = Embed.chunk(:LOC_URBAN_DEFINITION, definition)
+    example_fields = Util.chunk(:LOC_URBAN_EXAMPLE, example)
+    definition_fields = Util.chunk(:LOC_URBAN_DEFINITION, definition)
 
     embed = Map.put(embed, :fields, definition_fields ++ example_fields)
 

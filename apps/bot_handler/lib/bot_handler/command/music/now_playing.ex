@@ -3,7 +3,7 @@ defmodule Bot.Handler.Command.Music.NowPlaying do
 
   @behaviour Bot.Handler.Command
 
-  alias Bot.Handler.{Locale, Mutil}
+  alias Bot.Handler.{Locale, Util}
 
   import Bot.Handler.Rpc
 
@@ -37,7 +37,7 @@ defmodule Bot.Handler.Command.Music.NowPlaying do
 
     track_length =
       track.info.length
-      |> Mutil.format_milliseconds()
+      |> Util.format_milliseconds()
 
     # credo:disable-for-next-line Credo.Check.Refactor.PipeChainStart
     tmp = (position / track.info.length * 10) |> Float.ceil() |> trunc()
@@ -45,7 +45,7 @@ defmodule Bot.Handler.Command.Music.NowPlaying do
 
     track_position =
       position
-      |> Mutil.format_milliseconds()
+      |> Util.format_milliseconds()
 
     unplayed_bars = String.pad_leading("", 10 - tmp, "▬")
 
@@ -53,7 +53,7 @@ defmodule Bot.Handler.Command.Music.NowPlaying do
 
     embed =
       track
-      |> Mutil.build_embed(user, "np", loop)
+      |> Util.build_embed(user, "np", loop)
       |> Map.update!(:description, fn {_key, args} ->
         args =
           Keyword.merge(args,

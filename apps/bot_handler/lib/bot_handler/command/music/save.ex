@@ -3,7 +3,7 @@ defmodule Bot.Handler.Command.Music.Save do
 
   @behaviour Bot.Handler.Command
 
-  alias Bot.Handler.{Locale, Mutil}
+  alias Bot.Handler.{Locale, Util}
 
   import Bot.Handler.Rpc
 
@@ -29,7 +29,7 @@ defmodule Bot.Handler.Command.Music.Save do
 
         embed =
           track
-          |> Mutil.build_embed(author, "save")
+          |> Util.build_embed(author, "save")
           |> Map.delete(:author)
           |> Locale.localize_embed(locale)
 

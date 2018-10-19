@@ -71,7 +71,7 @@ defmodule Bot.Handler.AniList do
 
   @url "https://graphql.anilist.co"
 
-  alias Bot.Handler.{Awaiter, Embed, Rest}
+  alias Bot.Handler.{Awaiter, Rest, Util}
   import Bot.Handler.Rpc
 
   def fetch("", _type), do: {:respond, :LOC_ANI_LIST_NO_QUERY}
@@ -230,7 +230,7 @@ defmodule Bot.Handler.AniList do
       },
       url: site_url,
       title: "\u200b#{first_name} #{last_name}",
-      description: native_name |> Kernel.||("") |> Embed.html_entity_to_utf8()
+      description: native_name |> Kernel.||("") |> Util.html_entity_to_utf8()
     }
 
     embed =
@@ -247,14 +247,14 @@ defmodule Bot.Handler.AniList do
         _ ->
           field = %{
             name: :LOC_ANI_LIST_ALIASES,
-            value: alternative_names |> Enum.map(&Embed.html_entity_to_utf8/1) |> Enum.join(", "),
+            value: alternative_names |> Enum.map(&Util.html_entity_to_utf8/1) |> Enum.join(", "),
             inline: true
           }
 
           Map.update(embed, :fields, [field], &[field | &1])
       end
 
-    rest = Embed.chunk(:LOC_ANI_LIST_DESCRIPTION, description)
+    rest = Util.chunk(:LOC_ANI_LIST_DESCRIPTION, description)
 
     embed = Map.update(embed, :fields, rest, &(&1 ++ rest))
 
@@ -306,7 +306,7 @@ defmodule Bot.Handler.AniList do
       ]
       |> add_counts(type, episodes, chapters, volumes)
       |> add_timestamps(start_date, end_date, status)
-      |> Embed.chunk(:LOC_ANI_LIST_DESCRIPTION, if_empty(description, "??"))
+      |> Util.chunk(:LOC_ANI_LIST_DESCRIPTION, if_empty(description, "??"))
       |> add_status(type, status)
       |> add_source(type, source)
       |> Enum.reverse()

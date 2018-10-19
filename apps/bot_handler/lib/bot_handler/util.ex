@@ -1,7 +1,32 @@
-defmodule Bot.Handler.Mutil do
+defmodule Bot.Handler.Util do
   @moduledoc false
 
   import Bot.Handler.Rpc
+
+  def chunk(title, text), do: chunk([], title, text) |> Enum.reverse()
+  def chunk(fields, _title, nil), do: fields
+
+  def chunk(fields, title, text) do
+    [[first | _] | rest] = Regex.scan(~r/(.|[\r\n]){1,1024}/, text)
+
+    fields = [%{name: title, value: first} | fields]
+
+    Enum.reduce(
+      rest,
+      fields,
+      &[%{name: "\u200b", value: List.first(&1)} | &2]
+    )
+  end
+
+  def html_entity_to_utf8(str) do
+    Regex.replace(
+      ~r{&#(.+?);},
+      str,
+      fn _, m ->
+        <<m |> String.to_integer()::utf8>>
+      end
+    )
+  end
 
   @spec build_embed(
           track :: map(),

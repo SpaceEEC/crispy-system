@@ -3,7 +3,7 @@ defmodule Bot.Handler.Command.Music.Skip do
 
   @behaviour Bot.Handler.Command
 
-  alias Bot.Handler.Mutil
+  alias Bot.Handler.Util
 
   import Bot.Handler.Rpc
 
@@ -19,7 +19,7 @@ defmodule Bot.Handler.Command.Music.Skip do
         %{id: guild_id, voice_states: voice_states}
       ) do
     res =
-      with true <- Mutil.ensure_connected(voice_states, user_id) do
+      with true <- Util.ensure_connected(voice_states, user_id) do
         lavalink(Player, :command, [guild_id, :skip])
       end
 

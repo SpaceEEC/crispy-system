@@ -26,7 +26,7 @@ defmodule Bot.Lavalink.Player do
   require Logger
 
   alias Bot.Handler.Locale
-  alias Bot.Handler.Mutil, as: Util
+  alias Bot.Handler.Util, as: Util
   alias Bot.Lavalink.{Connection, Payload, Player}
 
   import Bot.Handler.Rpc

@@ -3,7 +3,7 @@ defmodule Bot.Handler.Command.Music.Leave do
 
   @behaviour Bot.Handler.Command
 
-  alias Bot.Handler.Mutil
+  alias Bot.Handler.Util
 
   import Bot.Handler.Rpc
 
@@ -20,7 +20,7 @@ defmodule Bot.Handler.Command.Music.Leave do
       ) do
     # Util.ensure_connected returns a string explaining what's wrong if there is something wrong
     response =
-      with true <- Mutil.ensure_connected(voice_states, user_id) do
+      with true <- Util.ensure_connected(voice_states, user_id) do
         gateway(Bot.Gateway, :voice_state_update, [guild_id])
 
         :LOC_MUSIC_LEAVING

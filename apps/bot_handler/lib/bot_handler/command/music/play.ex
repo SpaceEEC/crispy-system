@@ -3,7 +3,7 @@ defmodule Bot.Handler.Command.Music.Play do
 
   @behaviour Bot.Handler.Command
 
-  alias Bot.Handler.{Locale, Mutil}
+  alias Bot.Handler.{Locale, Util}
 
   import Bot.Handler.Rpc
 
@@ -52,7 +52,7 @@ defmodule Bot.Handler.Command.Music.Play do
     channel = cache(:Channel, :fetch!, [channel_id])
     %{id: guild_id, voice_states: voice_states} = cache(:Guild, :fetch!, [channel.guild_id])
 
-    case Mutil.will_connect(voice_states, user_id) do
+    case Util.will_connect(voice_states, user_id) do
       voice_channel_id when is_number(voice_channel_id) ->
         unless voice_channel_id == 0 do
           gateway(Bot.Gateway, :voice_state_update, [guild_id, voice_channel_id])
@@ -70,7 +70,7 @@ defmodule Bot.Handler.Command.Music.Play do
                tracks
                |> List.first()
                |> elem(1)
-               |> Mutil.build_embed(author, "add")
+               |> Util.build_embed(author, "add")
            ]}
         end
 
