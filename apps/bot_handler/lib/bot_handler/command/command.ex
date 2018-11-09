@@ -52,68 +52,52 @@ defmodule Bot.Handler.Command do
 
   import Bot.Handler.Rpc
 
-  # for guard
+  # for the guard
   require Bot.Handler.Locale
 
   @spec resolve(name_or_alias :: String.t()) :: nil | module()
   def resolve(name_or_alias) do
-    case Commands.commands() do
-      %{^name_or_alias => command} ->
-        command
-
-      _ ->
-        case Commands.aliases() do
-          %{^name_or_alias => command} ->
-            command
-
-          _ ->
-            nil
-        end
-    end
+    Map.get(Commands.commands(), name_or_alias) || Map.get(Commands.aliases(), name_or_alias)
   end
 
   @spec handle(Crux.Structs.Message.t()) :: :error | nil
+  # No bots allowed here
   def handle(%{author: %{bot: true}}), do: nil
 
   def handle(message) do
-    with {:ok, content} <- handle_prefix(message) do
-      [command | args] = String.split(content, ~r/ +/, parts: :infinity)
-      command = String.downcase(command)
+    with {:ok, content} <- handle_prefix(message),
+         [command | args] <- String.split(content, ~r/ +/, parts: :infinity),
+         command <- String.downcase(command),
+         mod when not is_nil(mod) <- resolve(command) do
+      locale = Locale.fetch!(message)
 
-      case resolve(command) do
-        nil ->
-          nil
+      info = %Bot.Handler.CommandInfo{
+        args: args,
+        command: command,
+        locale: locale
+      }
 
-        mod ->
-          locale = Locale.fetch!(message)
+      try do
+        # For some reason it's not always loaded?
+        Code.ensure_loaded(mod)
+        run(mod, message, info)
+      rescue
+        e ->
+          response = """
+          ```elixir
+          #{Exception.format_banner(:error, e) |> String.slice(0..1950)}
+          ```
+          """
 
-          info = %Bot.Handler.CommandInfo{
-            args: args,
-            command: command,
-            locale: locale
-          }
+          default_respond(message, response, info)
 
-          try do
-            # For some reason it's not always loaded?
-            Code.ensure_loaded(mod)
-            run(mod, message, info)
-          rescue
-            e ->
-              default_respond(
-                message,
-                "```elixir\n#{Exception.format_banner(:error, e) |> String.slice(0..1950)}```",
-                info
-              )
-
-              reraise(e, __STACKTRACE__)
-          end
+          reraise(e, __STACKTRACE__)
       end
     end
   end
 
-  defp handle_prefix(%{guild_id: nil, content: content}) do
-    {:ok, content}
-  end
+  @spec handle_prefix(Crux.Structs.Message.t()) :: {:ok, String.t()} | :error
+  defp handle_prefix(%{guild_id: nil, content: content}), do: {:ok, content}
 
   defp handle_prefix(%{guild_id: guild_id, content: content}) do
     with {:ok, prefix} <- Guild.get(guild_id, "prefix", @prefix),
@@ -134,7 +118,7 @@ defmodule Bot.Handler.Command do
   end
 
   def run(mod, message, info) do
-    funs = mod.__info__(:functions) |> Map.new()
+    funs = :functions |> mod.__info__() |> Map.new()
 
     with true <- handle_guild_only(mod, message, info, funs),
          true <- inhibit(mod, message, info, funs),
