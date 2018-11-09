@@ -63,7 +63,7 @@ defmodule Bot.Handler.Command.Misc.Avatar do
     {:respond, [files: files, embed: embed]}
   end
 
-  def handle(message, %Structs.User{} = user) do
+  def handle(_message, %Structs.User{} = user) do
     avatar_url = rest(Crux.Rest.CDN, :user_avatar, [user, [size: 2048]])
     %{body: avatar} = Rest.get!(avatar_url)
 
@@ -78,8 +78,6 @@ defmodule Bot.Handler.Command.Misc.Avatar do
       }
     }
 
-    files = [{avatar, file_name}]
-
-    rest(:create_message, [message.channel_id, [files: files, embed: embed]])
+    [files: [{avatar, file_name}], embed: embed]
   end
 end
