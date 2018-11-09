@@ -1,79 +1,145 @@
 defmodule Bot.Handler.Awaiter do
   use GenStage
+
   alias Bot.Handler.Rpc
   alias __MODULE__
 
-  @spec await(type :: atom(), fun :: (term() -> boolean()), pos_integer() | :infinity) ::
-          term() | :timeout
-  def await(type, fun, timeout \\ 5000) do
-    args = {type, fun, timeout}
-    # Work around to use call
+  @type events :: atom() | list(atom())
+  @type fun :: (Crux.Base.Consumer.event() -> boolean())
+  @type fun_reduce :: (Crux.Base.Consumer.event(), term() -> {:cont, term()} | {:halt, term()})
+
+  @spec await(
+          events :: events(),
+          fun :: fun(),
+          timeout :: timeout()
+        ) :: Crux.Base.Consumer.event() | :timeout
+  def await(events, fun, timeout \\ 5000) do
+    fun = fn packet, nil ->
+      if fun.(packet) do
+        {:halt, packet}
+      else
+        {:cont, nil}
+      end
+    end
+
+    start(events, nil, timeout, fun)
+  end
+
+  @spec await_while(
+          events :: events(),
+          fun :: fun(),
+          timeout :: timeout()
+        ) :: list(Crux.Base.Consumer.event()) | :timeout
+  def await_while(events, fun, timeout \\ 5000) do
+    fun = fn packet, acc ->
+      if fun.(packet) do
+        {:cont, [packet | acc]}
+      else
+        {:halt, Enum.reverse(acc)}
+      end
+    end
+
+    start(events, [], timeout, fun)
+  end
+
+  @spec await_reduce(
+          events :: events(),
+          fun :: fun_reduce(),
+          initial_state :: term(),
+          timeout :: timeout()
+        ) :: term() | :timeout
+  def await_reduce(events, fun, initial_state \\ nil, timeout \\ 5000) do
+    start(events, initial_state, timeout, fun)
+  end
+
+  defp start(events, state, timeout, fun) do
+    args = %{
+      events: events |> List.wrap(),
+      state: state,
+      timeout: timeout,
+      fun: fun,
+      producer: Rpc._producers() |> Map.values()
+    }
+
     {:ok, pid} = Awaiter.Supervisor.start_child(args)
 
     try do
-      GenStage.call(pid, :register, 6000)
+      GenStage.call(pid, :register, timeout)
     catch
       :exit, value ->
         value
     end
   end
 
-  @spec start_link(any()) :: :ignore | {:error, any()} | {:ok, pid()}
+  defstruct(
+    events: MapSet.new(),
+    state: nil,
+    fun: nil,
+    pid: nil
+  )
+
   def start_link(args) do
     GenStage.start_link(__MODULE__, args)
   end
 
-  def init({type, fun, timeout}) do
+  def init(%{
+        events: events,
+        state: state,
+        timeout: timeout,
+        fun: fun,
+        producer: producer
+      }) do
+    state = %__MODULE__{
+      events: events |> MapSet.new(),
+      state: state,
+      fun: fun,
+      pid: nil
+    }
+
     unless timeout == :infinity do
-      :timer.send_after(timeout + 500, :timeout)
+      :timer.send_after(timeout, :timeout)
     end
 
-    {:consumer, {type, fun, nil}, subscribe_to: Rpc._producers() |> Map.values()}
+    {:consumer, state, subscribe_to: producer}
   end
 
-  # Timed out, shutdown
-  def handle_info(:timeout, {_, _, pid} = state) do
-    GenServer.reply(pid, :timeout)
+  def handle_call(:register, from, state) do
+    {:noreply, [], Map.put(state, :pid, from)}
+  end
+
+  def handle_info(:timeout, %{pid: pid, cons_state: cons_state} = state) do
+    GenStage.reply(pid, cons_state)
 
     {:stop, :normal, state}
   end
 
-  def handle_info(:timeout, state) do
-    {:stop, :normal, state}
-  end
+  def handle_events(
+        packets,
+        _from,
+        %{pid: pid, events: events, state: cons_state, fun: fun} = state
+      ) do
+    packets
+    |> Enum.filter(&MapSet.member?(events, elem(&1, 0)))
+    |> Enum.reduce_while(
+      cons_state,
+      fn packet, state ->
+        case fun.(packet, state) do
+          {:cont, _state} = cont ->
+            cont
 
-  # We already got the result before getting called, immediately respond and shutdown
-  def handle_call(:register, {:done, data} = state) do
-    {:stop, :normal, data, state}
-  end
+          {:halt, _halt} = halt ->
+            {:halt, halt}
+        end
+      end
+    )
+    |> case do
+      {:halt, cons_state} ->
+        GenStage.reply(pid, cons_state)
 
-  # Register calling process to respond later
-  def handle_call(:register, from, {type, fun, nil}) do
-    {:noreply, [], {type, fun, from}}
-  end
+        {:stop, :normal, Map.put(state, :cons_state, cons_state)}
 
-  def handle_events(events, _from, {type, fun, pid} = state) do
-    {_type, val, _shard_id} =
-      Enum.find(events, {nil, nil, nil}, fn
-        {^type, data, _shard_id} -> fun.(data)
-        _ -> false
-      end)
-
-    cond do
-      # Found value and process registered, respond and shutdown
-      val && pid ->
-        GenServer.reply(pid, val)
-
-        {:stop, :normal, state}
-
-      # Found value, process did not register yet, save value
-      val ->
-        {:noreply, [], {:done, val}}
-
-      true ->
-        {:noreply, [], state}
+      cons_state ->
+        {:noreply, [], Map.put(state, :cons_state, cons_state)}
     end
   end
-
-  def handle_events(_events, _From, {:done, _} = state), do: {:noreply, [], state}
 end

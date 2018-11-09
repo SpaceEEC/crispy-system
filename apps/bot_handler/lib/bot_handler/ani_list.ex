@@ -71,7 +71,7 @@ defmodule Bot.Handler.AniList do
 
   @url "https://graphql.anilist.co"
 
-  alias Bot.Handler.{Awaiter, Rest, Util}
+  alias Bot.Handler.{Awaiter, Rest, Util, Locale}
   import Bot.Handler.Rpc
 
   def fetch("", _type), do: {:respond, :LOC_ANI_LIST_NO_QUERY}
@@ -114,8 +114,10 @@ defmodule Bot.Handler.AniList do
   def pick(_message, [], _type), do: {:respond, :LOC_ANI_LIST_NOTHING_FOUND}
   def pick(_message, [element], _type), do: element
 
-  def pick(%{author: %{id: author_id}, channel_id: channel_id}, elements, type)
+  def pick(%{author: %{id: author_id}, channel_id: channel_id} = message, elements, type)
       when type in ["ANIME", "CHARACTER", "MANGA"] do
+    locale = Locale.fetch!(message)
+
     prompt =
       rest(:create_message!, [
         channel_id,
@@ -129,7 +131,7 @@ defmodule Bot.Handler.AniList do
                 value: {:LOC_ANI_LIST_PROMPT_FIELD_VALUE, [type: type |> String.downcase()]}
               }
             ]
-          }
+          } |> Locale.localize_embed(locale)
         ]
       ])
 
@@ -137,11 +139,15 @@ defmodule Bot.Handler.AniList do
       Awaiter.await(
         :MESSAGE_CREATE,
         fn
-          %{author: %{id: ^author_id}} -> true
+          {_, %{author: %{id: ^author_id}}, _} -> true
           _ -> false
         end,
         30_000
       )
+      |> case do
+        {_, message, _} -> message
+        other -> other
+      end
 
     rest(:delete_message, [prompt])
 
