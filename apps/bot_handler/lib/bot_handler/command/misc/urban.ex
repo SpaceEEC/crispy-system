@@ -55,7 +55,7 @@ defmodule Bot.Handler.Command.Misc.Urban do
       description: {:LOC_NOTHING_FOUND_URL, [url: @urban_web <> search]},
       footer: %{
         text: message.content,
-        icon_url: rest(CDN, :user_avatar, [message.author])
+        icon_url: rest(Crux.Rest.CDN, :user_avatar, [message.author])
       }
     }
 
@@ -112,7 +112,7 @@ defmodule Bot.Handler.Command.Misc.Urban do
       description: {:LOC_URBAN_ERROR, [url: @urban_web <> search]},
       footer: %{
         text: message.content,
-        icon_url: rest(CDN, :user_avatar, [message.author])
+        icon_url: rest(Crux.Rest.CDN, :user_avatar, [message.author])
       }
     }
 
