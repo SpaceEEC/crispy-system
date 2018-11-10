@@ -94,7 +94,7 @@ defmodule Bot.Handler.Command.Music.Queue do
         url: Util.image_from_track(current.info)
       },
       footer: %{
-        icon_url: rest(Crux.Rest.Endpoints, :cdn) <> "/avatars/#{me.id}/#{me.avatar}",
+        icon_url: rest(Crux.Rest.CDN, :user_avatar, [me]),
         text: {:LOC_QUEUE_FOOTER, [page: page, pages: pages]}
       },
       timestamp: DateTime.utc_now() |> DateTime.to_iso8601()

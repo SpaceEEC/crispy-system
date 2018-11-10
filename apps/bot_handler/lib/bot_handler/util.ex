@@ -56,7 +56,7 @@ defmodule Bot.Handler.Util do
     %{
       author: %{
         name: "#{author.username}##{author.discriminator} (#{author.id})",
-        icon_url: rest(Crux.Rest.Endpoints, :cdn) <> "/avatars/#{author.id}/#{author.avatar}.png"
+        icon_url: rest(Crux.Rest.CDN, :user_avatar, [author])
       },
       timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
       image: %{
@@ -69,7 +69,7 @@ defmodule Bot.Handler.Util do
     end)
     |> put_in(
       [:footer, :icon_url],
-      rest(Crux.Rest.Endpoints, :cdn) <> "/avatars/#{me.id}/#{me.avatar}.png"
+      rest(Crux.Rest.CDN, :user_avatar, [me])
     )
   end
 

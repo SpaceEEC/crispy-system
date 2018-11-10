@@ -41,7 +41,7 @@ defmodule Bot.Handler.VoiceLog do
       color: 0x7CFC00,
       user: %{
         name: "#{user.username}##{user.discriminator} (#{user.id})",
-        icon_url: rest(Crux.Rest.Endpoints, :cdn) <> "/avatars/#{user.id}/#{user.avatar}.png"
+        icon_url: rest(Crux.Rest.CDN, :user_avatar, [user])
       },
       timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
       description: "📥 #{user} -> #{new_channel} (#{new_channel.name})"
@@ -55,7 +55,7 @@ defmodule Bot.Handler.VoiceLog do
       color: 0x7CFC00,
       user: %{
         name: "#{user.username}##{user.discriminator} (#{user.id})",
-        icon_url: rest(Crux.Rest.Endpoints, :cdn) <> "/avatars/#{user.id}/#{user.avatar}.png"
+        icon_url: rest(Crux.Rest.CDN, :user_avatar, [user])
       },
       timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
       description: "📤 #{user} <- #{old_channel} (#{old_channel.name})"
@@ -69,7 +69,7 @@ defmodule Bot.Handler.VoiceLog do
       color: 0x7CFC00,
       user: %{
         name: "#{user.username}##{user.discriminator} (#{user.id})",
-        icon_url: rest(Crux.Rest.Endpoints, :cdn) <> "/avatars/#{user.id}/#{user.avatar}.png"
+        icon_url: rest(Crux.Rest.CDN, :user_avatar, [user])
       },
       timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
       description:
