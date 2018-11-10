@@ -64,16 +64,17 @@ defmodule Bot.Handler.Rpc do
   end
 
   def handle_rpc({:badrpc, reason}, args, target) do
-    raise RpcError, """
-      received a non ":EXIT" ":badrcp":
+    raise RpcError, [
+      """
+      received an unexpected ":badrcp"
       #{inspect(reason)}
 
       target:
       #{target}
 
-      args:
-      #{inspect(args)}
-    """
+      """,
+      args
+    ]
   end
 
   def handle_rpc(other, _args, _target), do: other
