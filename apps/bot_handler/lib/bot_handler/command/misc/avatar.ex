@@ -35,7 +35,7 @@ defmodule Bot.Handler.Command.Misc.Avatar do
       # 16 - 19 chars long
       {id, ""} when id >= 1.0e15 and id <= 1.0e18 ->
         with :error <- cache(:User, :fetch, [id]),
-             {:error, _} <- rest(:get_user, [id]) do
+             {:error, _} <- fetch_user(id) do
           {:respond, :LOC_USER_NOT_FOUND}
         end
 
@@ -79,5 +79,13 @@ defmodule Bot.Handler.Command.Misc.Avatar do
     }
 
     [files: [{avatar, file_name}], embed: embed]
+  end
+
+  defp fetch_user(id) do
+    with {:ok, user} <- rest(:get_user, [id]) do
+      cache(User, :insert, [user])
+
+      {:ok, user}
+    end
   end
 end
