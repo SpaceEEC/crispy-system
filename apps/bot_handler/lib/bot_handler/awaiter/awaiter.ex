@@ -6,7 +6,7 @@ defmodule Bot.Handler.Awaiter do
 
   @type events :: atom() | list(atom())
   @type fun :: (Crux.Base.Consumer.event() -> boolean())
-  @type fun_reduce :: (Crux.Base.Consumer.event(), term() -> {:cont, term()} | {:halt, term()})
+  @type fun_reduce_while :: (Crux.Base.Consumer.event(), term() -> {:cont, term()} | {:halt, term()})
 
   @spec await(
           events :: events(),
@@ -44,7 +44,7 @@ defmodule Bot.Handler.Awaiter do
 
   @spec await_reduce(
           events :: events(),
-          fun :: fun_reduce(),
+          fun :: fun_reduce_while(),
           initial_state :: term(),
           timeout :: timeout()
         ) :: term() | :timeout
