@@ -1,18 +1,20 @@
 defmodule Bot.Handler.Awaiter do
   use GenStage
 
+  alias Crux.Base.Consumer
+
   alias Bot.Handler.Rpc
   alias __MODULE__
 
   @type events :: atom() | list(atom())
-  @type fun :: (Crux.Base.Consumer.event() -> boolean())
-  @type fun_reduce_while :: (Crux.Base.Consumer.event(), term() -> {:cont, term()} | {:halt, term()})
+  @type fun :: (Consumer.event() -> boolean())
+  @type fun_reduce_while :: (Consumer.event(), term() -> {:cont, term()} | {:halt, term()})
 
   @spec await(
           events :: events(),
           fun :: fun(),
           timeout :: timeout()
-        ) :: Crux.Base.Consumer.event() | :timeout
+        ) :: Consumer.event() | :timeout
   def await(events, fun, timeout \\ 5000) do
     fun = fn packet, nil ->
       if fun.(packet) do
@@ -29,7 +31,7 @@ defmodule Bot.Handler.Awaiter do
           events :: events(),
           fun :: fun(),
           timeout :: timeout()
-        ) :: list(Crux.Base.Consumer.event()) | :timeout
+        ) :: list(Consumer.event()) | :timeout
   def await_while(events, fun, timeout \\ 5000) do
     fun = fn packet, acc ->
       if fun.(packet) do
