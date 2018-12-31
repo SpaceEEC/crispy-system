@@ -1,13 +1,36 @@
 defmodule Bot.Handler.Config do
   @moduledoc false
 
-  @callback transform_base(base :: term()) :: String.t()
-  @callback run(
-              fun :: atom(),
+  @callback put!(
               base :: term(),
               key :: String.t(),
-              value :: term()
-            ) :: :ok | term() | no_return() | {:ok, term()} | {:error, term()}
+              value :: String.t()
+            ) :: :ok | no_return()
 
-  @optional_callbacks transform_base: 1, run: 4
+  @callback put(
+              base :: term(),
+              key :: String.t(),
+              value :: String.t()
+            ) :: :ok | {:error, term()}
+
+  @callback get!(
+              base :: term(),
+              key :: String.t(),
+              default_value :: term()
+            ) :: term() | no_return()
+  @callback get(
+              base :: term(),
+              key :: String.t(),
+              default_value :: term()
+            ) :: {:ok, term()} | {:error, term()}
+
+  @callback delete!(
+              base :: term(),
+              key :: String.t()
+            ) :: non_neg_integer() | no_return()
+
+  @callback delete(
+              base :: term(),
+              key :: String.t()
+            ) :: {:ok, non_neg_integer()} | {:error, term()}
 end
