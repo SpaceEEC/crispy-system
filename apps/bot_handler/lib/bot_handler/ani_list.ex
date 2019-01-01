@@ -122,16 +122,18 @@ defmodule Bot.Handler.AniList do
       rest(:create_message!, [
         channel_id,
         [
-          embed: %{
-            title: {:LOC_ANI_LIST_PROMPT_TITLE, [type: type |> String.downcase()]},
-            description: format_elements(elements),
-            fields: [
-              %{
-                name: :LOC_ANI_LIST_PROMPT_FIELD_NAME,
-                value: {:LOC_ANI_LIST_PROMPT_FIELD_VALUE, [type: type |> String.downcase()]}
-              }
-            ]
-          } |> Locale.localize_embed(locale)
+          embed:
+            %{
+              title: {:LOC_ANI_LIST_PROMPT_TITLE, [type: type |> String.downcase()]},
+              description: format_elements(elements),
+              fields: [
+                %{
+                  name: :LOC_ANI_LIST_PROMPT_FIELD_NAME,
+                  value: {:LOC_ANI_LIST_PROMPT_FIELD_VALUE, [type: type |> String.downcase()]}
+                }
+              ]
+            }
+            |> Locale.localize_embed(locale)
         ]
       ])
 
