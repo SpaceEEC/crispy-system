@@ -1,1 +1,1 @@
-iex --name gateway@127.0.0.1 -S mix
+iex --name bot_gateway@127.0.0.1 -S mix

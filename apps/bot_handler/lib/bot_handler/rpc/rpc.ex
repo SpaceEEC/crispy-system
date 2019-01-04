@@ -5,13 +5,13 @@ defmodule Bot.Handler.Rpc do
 
   alias Bot.Handler.RpcError
 
-  @gateway :"gateway@127.0.0.1"
+  @gateway :"bot_gateway@127.0.0.1"
   def gateway(), do: @gateway
-  @rest :"rest@127.0.0.1"
+  @rest :"bot_rest@127.0.0.1"
   def rest(), do: @rest
-  @cache :"cache@127.0.0.1"
+  @cache :"bot_cache@127.0.0.1"
   def cache(), do: @cache
-  @lavalink :"lavalink@127.0.0.1"
+  @lavalink :"bot_lavalink@127.0.0.1"
   def lavalink(), do: @lavalink
 
   @spec gateway(mod :: atom(), fun :: atom(), args :: list()) :: term() | no_return()

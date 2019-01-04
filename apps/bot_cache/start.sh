@@ -1,1 +1,1 @@
-iex --name cache@127.0.0.1 -S mix
+iex --name bot_cache@127.0.0.1 -S mix

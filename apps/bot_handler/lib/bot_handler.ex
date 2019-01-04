@@ -5,7 +5,7 @@ defmodule Bot.Handler do
   alias Bot.Handler.{Awaiter, Consumer, Rpc}
 
   def start(_type, _args) do
-    :ok = :error_logger.add_report_handler(Sentry.Logger)
+    {:ok, _} = Logger.add_backend(Sentry.LoggerBackend)
 
     if Node.ping(Rpc.cache()) == :pong do
       children = [

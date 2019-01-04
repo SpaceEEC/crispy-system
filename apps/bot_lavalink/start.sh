@@ -1,1 +1,1 @@
-iex --name lavalink@127.0.0.1 -S mix
+iex --name bot_lavalink@127.0.0.1 -S mix

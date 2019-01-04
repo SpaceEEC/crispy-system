@@ -5,7 +5,7 @@ defmodule Bot.Lavalink do
   import Bot.Handler.Rpc
 
   def start(_type, _args) do
-    :ok = :error_logger.add_report_handler(Sentry.Logger)
+    {:ok, _} = Logger.add_backend(Sentry.LoggerBackend)
 
     case Node.ping(gateway()) do
       :pong ->

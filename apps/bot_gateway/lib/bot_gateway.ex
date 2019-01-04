@@ -4,10 +4,10 @@ defmodule Bot.Gateway do
   alias Crux.Gateway
   alias Crux.Gateway.{Command, Connection}
 
-  @rest :"rest@127.0.0.1"
+  @rest :"bot_rest@127.0.0.1"
 
   def start(_type, _args) do
-    :ok = :error_logger.add_report_handler(Sentry.Logger)
+    {:ok, _} = Logger.add_backend(Sentry.LoggerBackend)
 
     case Node.ping(@rest) do
       :pong ->

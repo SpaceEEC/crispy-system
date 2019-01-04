@@ -82,9 +82,19 @@ defmodule Bot.Handler.Command.Util.Uptime do
     "#{uptime}#{hours}:#{minutes}:#{seconds}"
   end
 
-  defp format_node_name(node) do
+  defp format_node_name(node) when is_atom(node) do
     node
     |> to_string()
+    |> format_node_name()
+  end
+
+  defp format_node_name("bot_" <> node) do
+    node
+    |> format_node_name()
+  end
+
+  defp format_node_name(node) when is_binary(node) do
+    node
     |> String.split("@")
     |> List.first()
     |> String.capitalize()

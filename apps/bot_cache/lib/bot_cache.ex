@@ -3,11 +3,11 @@ defmodule Bot.Cache.Application do
 
   use Application
 
-  @gateway :"gateway@127.0.0.1"
+  @gateway :"bot_gateway@127.0.0.1"
   @registry Bot.Cache.Registry
 
   def start(_type, _args) do
-    :ok = :error_logger.add_report_handler(Sentry.Logger)
+    {:ok, _} = Logger.add_backend(Sentry.LoggerBackend)
 
     case Node.ping(@gateway) do
       :pong ->

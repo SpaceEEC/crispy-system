@@ -9,7 +9,7 @@ defmodule Bot.Cache.Consumer do
   alias Bot.Cache.Producer
   alias Crux.Base.Consumer
 
-  @gateway :"gateway@127.0.0.1"
+  @gateway :"bot_gateway@127.0.0.1"
   @registry Bot.Cache.Registry
 
   @doc false
