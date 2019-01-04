@@ -60,16 +60,35 @@ defmodule Bot.Handler.Command do
     Map.get(Commands.commands(), name_or_alias) || Map.get(Commands.aliases(), name_or_alias)
   end
 
-  @spec handle(Crux.Structs.Message.t()) :: :error | nil
+  @spec handle(Crux.Structs.Message.t(), non_neg_integer()) :: :error | nil
   # No bots allowed here
-  def handle(%{author: %{bot: true}}), do: nil
+  def handle(%{author: %{bot: true}}, _shard_id), do: nil
 
-  def handle(message) do
+  def handle(message, shard_id) do
+    Sentry.Context.set_user_context(message.author |> Map.from_struct())
+
+    message
+    |> Map.take([:channel_id, :content, :guild_id])
+    |> Map.put(:shard_id, shard_id)
+    |> Sentry.Context.set_extra_context()
+
     with {:ok, content} <- handle_prefix(message),
          [command | args] <- String.split(content, ~r/ +/, parts: :infinity),
          command <- String.downcase(command),
          mod when not is_nil(mod) <- resolve(command) do
       locale = Locale.fetch!(message)
+
+      Sentry.Context.add_breadcrumb(%{
+        category: "Command",
+        level: "info",
+        message: command
+      })
+
+      Sentry.Context.add_breadcrumb(%{
+        category: "Locale",
+        level: "info",
+        message: locale
+      })
 
       info = %Bot.Handler.CommandInfo{
         args: args,
@@ -83,6 +102,8 @@ defmodule Bot.Handler.Command do
         run(mod, message, info)
       rescue
         e ->
+          Sentry.capture_exception(e, stacktrace: __STACKTRACE__, tags: %{command: command})
+
           response = """
           ```elixir
           #{Exception.format_banner(:error, e) |> String.slice(0..1950)}
@@ -90,8 +111,6 @@ defmodule Bot.Handler.Command do
           """
 
           default_respond(message, response, info)
-
-          reraise(e, __STACKTRACE__)
       end
     end
   end

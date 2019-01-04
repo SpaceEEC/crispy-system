@@ -27,8 +27,8 @@ defmodule Bot.Handler.Consumer do
     lavalink(Connection, :forward, [data])
   end
 
-  def handle_event(:MESSAGE_CREATE, message, _shard_id) do
-    Command.handle(message)
+  def handle_event(:MESSAGE_CREATE, message, shard_id) do
+    Command.handle(message, shard_id)
   end
 
   def handle_event(_type, _data, _shard_id), do: nil
