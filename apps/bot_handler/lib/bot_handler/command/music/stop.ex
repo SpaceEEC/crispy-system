@@ -11,6 +11,10 @@ defmodule Bot.Handler.Command.Music.Stop do
 
   def guild_only(), do: true
 
+  def inhibit(_, _) do
+    Node.ping(lavalink()) == :pong || {:respond, {:LOC_NODE_OFFLINE, [node: lavalink()]}}
+  end
+
   def fetch(%{guild_id: guild_id}, _args) do
     {:ok, cache(:Guild, :fetch!, [guild_id])}
   end

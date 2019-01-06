@@ -19,12 +19,16 @@ defmodule Bot.Handler.Consumer do
   end
 
   def handle_event(:VOICE_STATE_UPDATE, {old, new}, _shard_id) do
-    lavalink(Connection, :forward, [new])
-    VoiceLog.handle(old, new)
+    if Node.ping(lavalink()) == :pong do
+      lavalink(Connection, :forward, [new])
+      VoiceLog.handle(old, new)
+    end
   end
 
   def handle_event(:VOICE_SERVER_UPDATE, data, _shard_id) do
-    lavalink(Connection, :forward, [data])
+    if Node.ping(lavalink()) == :pong do
+      lavalink(Connection, :forward, [data])
+    end
   end
 
   def handle_event(:MESSAGE_CREATE, message, shard_id) do

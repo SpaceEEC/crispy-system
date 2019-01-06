@@ -11,6 +11,10 @@ defmodule Bot.Handler.Command.Music.Loop do
   def description(), do: :LOC_DESC_LOOP
   def guild_only(), do: true
 
+  def inhibit(_, _) do
+    Node.ping(lavalink()) == :pong || {:respond, {:LOC_NODE_OFFLINE, [node: lavalink()]}}
+  end
+
   def fetch(message, %{args: []} = info), do: fetch(message, %{info | args: [""]})
 
   def fetch(%{guild_id: guild_id}, %{args: args}) do

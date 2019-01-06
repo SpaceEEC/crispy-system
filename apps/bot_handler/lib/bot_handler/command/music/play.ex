@@ -21,6 +21,10 @@ defmodule Bot.Handler.Command.Music.Play do
   def usages(), do: ["<...Search>", "<Video URL>", "<Playlist URL>"]
   def guild_only(), do: true
 
+  def inhibit(_, _) do
+    Node.ping(lavalink()) == :pong || {:respond, {:LOC_NODE_OFFLINE, [node: lavalink()]}}
+  end
+
   def fetch(_message, %{args: []}) do
     {:respond, :LOC_MUSIC_NO_QUERY}
   end

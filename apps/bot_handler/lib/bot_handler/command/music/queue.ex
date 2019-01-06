@@ -13,6 +13,10 @@ defmodule Bot.Handler.Command.Music.Queue do
   def description(), do: :LOC_DESC_QUEUE
   def guild_only(), do: true
 
+  def inhibit(_, _) do
+    Node.ping(lavalink()) == :pong || {:respond, {:LOC_NODE_OFFLINE, [node: lavalink()]}}
+  end
+
   def fetch(_message, %{args: []}), do: {:ok, 1}
 
   def fetch(_message, %{args: [page | _]}) do

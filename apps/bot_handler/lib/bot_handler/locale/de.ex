@@ -41,6 +41,7 @@ defmodule Bot.Handler.Locale.DE do
     LOC_DESC_UPTIME: "Zeige die Laufzeit der Nodes des Bots an.",
 
     # General
+    LOC_NODE_OFFLINE: "Kann den Befehl nicht ausführen; `{{node}}` kann nicht erreicht werden.",
     LOC_GUILD_ONLY: "Dieser Befehl kann nicht in Direktnachrichten verwendent werden.",
     LOC_SENT_DM: "Habe dir eine Direktnachricht zukommen lassen.",
     LOC_FAILED_DM: """

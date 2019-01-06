@@ -13,6 +13,10 @@ defmodule Bot.Handler.Command.Music.Save do
 
   def guild_only(), do: true
 
+  def inhibit(_, _) do
+    Node.ping(lavalink()) == :pong || {:respond, {:LOC_NODE_OFFLINE, [node: lavalink()]}}
+  end
+
   def process(%{guild_id: guild_id, author: author}, _args) do
     Player
     |> lavalink(:command, [guild_id, :queue])

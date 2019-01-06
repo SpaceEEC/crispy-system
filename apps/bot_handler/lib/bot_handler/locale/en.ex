@@ -39,6 +39,7 @@ defmodule Bot.Handler.Locale.EN do
     LOC_DESC_UPTIME: "Get the uptime of the bot's nodes.",
 
     # General
+    LOC_NODE_OFFLINE: "Can not execute that command; `{{node}}` can not be reached.",
     LOC_GUILD_ONLY: "That command may not be used in dms.",
     LOC_SENT_DM: "Sent you a dm.",
     LOC_FAILED_DM: """

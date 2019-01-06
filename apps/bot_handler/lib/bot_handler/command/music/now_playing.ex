@@ -13,11 +13,14 @@ defmodule Bot.Handler.Command.Music.NowPlaying do
   def description(), do: :LOC_DESC_NP
   def guild_only(), do: true
 
+  def inhibit(_, _) do
+    Node.ping(lavalink()) == :pong || {:respond, {:LOC_NODE_OFFLINE, [node: lavalink()]}}
+  end
+
   def fetch(%{channel_id: channel_id}, _args) do
     {:ok, cache(:Channel, :fetch!, [channel_id])}
   end
 
-  @spec process(any(), %{guild_id: any()}) :: {:respond, bitstring() | [{any(), any()}, ...]}
   def process(_message, %{guild_id: guild_id}) do
     Player
     |> lavalink(:command, [guild_id, :queue])
