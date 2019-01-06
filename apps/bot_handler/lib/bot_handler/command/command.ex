@@ -42,6 +42,7 @@ defmodule Bot.Handler.Command do
                       respond: 2
 
   @prefix "ß"
+  @owner_id Application.fetch_env!(:bot_handler, :owner_id)
 
   @spec get_prefix() :: String.t()
   def get_prefix(), do: @prefix
@@ -119,10 +120,12 @@ defmodule Bot.Handler.Command do
   defp handle_prefix(%{guild_id: nil, content: content}), do: {:ok, content}
 
   defp handle_prefix(%{guild_id: guild_id, content: content}) do
-    with {:ok, prefix} <- Guild.get(guild_id, "prefix", @prefix),
-         {^prefix, content} <- String.split_at(content, String.length(prefix)) do
-      {:ok, content}
-    else
+    prefix = Guild.get!(guild_id, "prefix", @prefix)
+
+    case String.split_at(content, String.length(prefix)) do
+      {^prefix, content} ->
+        {:ok, content}
+
       _ ->
         regex = Regex.compile!("^<@!?#{Application.fetch_env!(:bot_handler, :id)}> *")
 
@@ -159,6 +162,7 @@ defmodule Bot.Handler.Command do
 
   def handle_guild_only(_mod, _message, _args, _funs), do: true
 
+  defp inhibit(_mod, %{author: %{id: @owner_id}}, _args, _funs), do: true
   defp inhibit(mod, message, args, %{inhibit: 2}), do: mod.inhibit(message, args)
   defp inhibit(_mod, _message, _args, _funs), do: true
 
