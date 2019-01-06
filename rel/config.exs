@@ -35,7 +35,7 @@ environment :dev do
 end
 
 environment :prod do
-  set include_erts: false
+  set include_erts: true
   set include_src: false
   set cookie: :"tOhAOqylqb;6sjo=4m}/IV<e/b5!h@cdq;k31iXu[KAsm*NdCWKLp{4cyEUMFu8%"
   set vm_args: "rel/vm.args"
@@ -49,35 +49,42 @@ end
 release :bot_cache do
   set version: current_version(:bot_cache)
   set applications: [
-    :runtime_tools
+    :runtime_tools,
+    :bot_cache,
+    poison: :load,
+    crux_base: :load
   ]
 end
 
 release :bot_gateway do
   set version: current_version(:bot_gateway)
   set applications: [
-    :runtime_tools
+    :runtime_tools,
+    :bot_gateway
   ]
 end
 
 release :bot_handler do
   set version: current_version(:bot_handler)
   set applications: [
-    :runtime_tools
+    :runtime_tools,
+    :bot_handler
   ]
 end
 
 release :bot_lavalink do
   set version: current_version(:bot_lavalink)
   set applications: [
-    :runtime_tools
+    :runtime_tools,
+    :bot_lavalink
   ]
 end
 
 release :bot_rest do
   set version: current_version(:bot_rest)
   set applications: [
-    :runtime_tools
+    :runtime_tools,
+    :bot_rest
   ]
 end
 
