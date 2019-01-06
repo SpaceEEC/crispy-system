@@ -41,11 +41,7 @@ defmodule Bot.Handler.Command do
                       fetch: 2,
                       respond: 2
 
-  @prefix "ß"
-  @owner_id Application.fetch_env!(:bot_handler, :owner_id)
-
-  @spec get_prefix() :: String.t()
-  def get_prefix(), do: @prefix
+  alias Sentry.Context
 
   alias Bot.Handler.Command.Commands
   alias Bot.Handler.Config.Guild
@@ -55,6 +51,12 @@ defmodule Bot.Handler.Command do
 
   # for the guard
   require Bot.Handler.Locale
+
+  @prefix "^"
+  @owner_id Application.fetch_env!(:bot_handler, :owner_id)
+
+  @spec get_prefix() :: String.t()
+  def get_prefix(), do: @prefix
 
   @spec resolve(name_or_alias :: String.t()) :: nil | module()
   def resolve(name_or_alias) do
@@ -66,12 +68,12 @@ defmodule Bot.Handler.Command do
   def handle(%{author: %{bot: true}}, _shard_id), do: nil
 
   def handle(message, shard_id) do
-    Sentry.Context.set_user_context(message.author |> Map.from_struct())
+    Context.set_user_context(message.author |> Map.from_struct())
 
     message
     |> Map.take([:channel_id, :content, :guild_id])
     |> Map.put(:shard_id, shard_id)
-    |> Sentry.Context.set_extra_context()
+    |> Context.set_extra_context()
 
     with {:ok, content} <- handle_prefix(message),
          [command | args] <- String.split(content, ~r/ +/, parts: :infinity),
@@ -79,13 +81,13 @@ defmodule Bot.Handler.Command do
          mod when not is_nil(mod) <- resolve(command) do
       locale = Locale.fetch!(message)
 
-      Sentry.Context.add_breadcrumb(%{
+      Context.add_breadcrumb(%{
         category: "Command",
         level: "info",
         message: command
       })
 
-      Sentry.Context.add_breadcrumb(%{
+      Context.add_breadcrumb(%{
         category: "Locale",
         level: "info",
         message: locale

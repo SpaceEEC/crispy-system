@@ -71,7 +71,7 @@ defmodule Bot.Handler.AniList do
 
   @url "https://graphql.anilist.co"
 
-  alias Bot.Handler.{Awaiter, Rest, Util, Locale}
+  alias Bot.Handler.{Awaiter, Locale, Rest, Util}
   import Bot.Handler.Rpc
 
   def fetch("", _type), do: {:respond, :LOC_ANI_LIST_NO_QUERY}
