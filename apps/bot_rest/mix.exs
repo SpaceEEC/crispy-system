@@ -27,7 +27,7 @@ defmodule Bot.Rest.MixProject do
     [
       {:crux_rest, git: "http://github.com/spaceeec/crux_rest", override: true},
       {:crux_structs, git: "http://github.com/spaceeec/crux_structs", override: true},
-      {:sentry, "~> 7.0.3"},
+      {:sentry, git: "https://github.com/spaceeec/sentry-elixir", branch: "fix/umbrella_path"},
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
       {:distillery, "~> 2.0.12", runtime: false}
     ]

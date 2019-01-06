@@ -25,7 +25,7 @@ defmodule Bot.Gateway.MixProject do
   defp deps do
     [
       {:crux_gateway, git: "http://github.com/spaceeec/crux_gateway", override: true},
-      {:sentry, "~> 7.0.3"},
+      {:sentry, git: "https://github.com/spaceeec/sentry-elixir", branch: "fix/umbrella_path"},
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
       {:distillery, "~> 2.0.12", runtime: false}
     ]

@@ -17,7 +17,8 @@ defmodule Bot.Cache.MixProject do
 
   def application do
     [
-      mod: {Bot.Cache.Application, []}
+      mod: {Bot.Cache.Application, []},
+      included_applications: [:crux_base, :crux_rest, :crux_gateway]
     ]
   end
 
@@ -26,11 +27,11 @@ defmodule Bot.Cache.MixProject do
       {:crux_cache, git: "http://github.com/spaceeec/crux_cache", override: true},
       {:crux_structs, git: "http://github.com/spaceeec/crux_structs", override: true},
       # A bit ugly, but it's a dep of base after all
-      {:crux_base, git: "https://github.com/spaceeec/crux_base", runtime: false},
+      {:crux_base, git: "https://github.com/spaceeec/crux_base"},
       {:crux_gateway,
        git: "http://github.com/spaceeec/crux_gateway", override: true, runtime: false},
       {:crux_rest, git: "http://github.com/spaceeec/crux_rest", override: true, runtime: false},
-      {:sentry, "~> 7.0.3"},
+      {:sentry, git: "https://github.com/spaceeec/sentry-elixir", branch: "fix/umbrella_path"},
       {:gen_stage, "~> 0.13.1"},
       {:distillery, "~> 2.0.12", runtime: false},
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false}

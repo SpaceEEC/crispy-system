@@ -28,7 +28,7 @@ defmodule Bot.Lavalink.MixProject do
   defp deps do
     [
       {:websockex, "~> 0.4.2"},
-      {:sentry, "~> 7.0.3"},
+      {:sentry, git: "https://github.com/spaceeec/sentry-elixir", branch: "fix/umbrella_path"},
       {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
       {:bot_handler, in_umbrella: true}
     ]
