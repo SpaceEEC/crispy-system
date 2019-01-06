@@ -9,8 +9,7 @@ defmodule Bot.Handler.Command.Music.Join do
   def guild_only(), do: true
 
   def fetch(%{guild_id: guild_id}, _args) do
-    guild = cache(:Guild, :fetch!, [guild_id])
-    {:ok, guild}
+    {:ok, cache(:Guild, :fetch!, [guild_id])}
   end
 
   def process(%{author: %{id: user_id}}, %{id: guild_id, voice_states: voice_states}) do

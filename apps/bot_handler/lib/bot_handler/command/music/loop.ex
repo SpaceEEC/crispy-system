@@ -11,7 +11,7 @@ defmodule Bot.Handler.Command.Music.Loop do
   def description(), do: :LOC_DESC_LOOP
   def guild_only(), do: true
 
-  def fetch(message, %{args: []} = info), do: fetch(message, Map.put(info, :args, [""]))
+  def fetch(message, %{args: []} = info), do: fetch(message, %{info | args: [""]})
 
   def fetch(%{guild_id: guild_id}, %{args: args}) do
     {:ok, {cache(:Guild, :fetch!, [guild_id]), args}}

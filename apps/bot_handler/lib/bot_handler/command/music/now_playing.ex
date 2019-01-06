@@ -14,9 +14,7 @@ defmodule Bot.Handler.Command.Music.NowPlaying do
   def guild_only(), do: true
 
   def fetch(%{channel_id: channel_id}, _args) do
-    channel = cache(:Channel, :fetch!, [channel_id])
-
-    {:ok, channel}
+    {:ok, cache(:Channel, :fetch!, [channel_id])}
   end
 
   @spec process(any(), %{guild_id: any()}) :: {:respond, bitstring() | [{any(), any()}, ...]}
@@ -39,8 +37,13 @@ defmodule Bot.Handler.Command.Music.NowPlaying do
       track.info.length
       |> Util.format_milliseconds()
 
-    # credo:disable-for-next-line Credo.Check.Refactor.PipeChainStart
-    tmp = (position / track.info.length * 10) |> Float.ceil() |> trunc()
+    tmp =
+      position
+      |> Kernel./(track.info.length)
+      |> Kernel.*(10)
+      |> Float.ceil()
+      |> trunc()
+
     played_bars = String.pad_leading("", tmp, "▬")
 
     track_position =
